@@ -14,7 +14,7 @@ define('PATH_SYSTEM', PATH_BASE . 'system/config/');
 define('PATH_INCLUDE', PATH_BASE . 'system/include/');
 define('PATH_CLASS', PATH_BASE . 'system/class/');
 
-// Load Pre-Include Functions
+// Load Pre-Include Functions (Functions that Classes May Use)
 include_once(PATH_INCLUDE.'db.inc.php');
 
 // Load Classes
@@ -22,5 +22,5 @@ set_include_path(PATH_CLASS);
 spl_autoload_extensions('.class.php');
 spl_autoload_register();
 
-
+// Load System Functions (Functions that may call Classes)
 ?>
