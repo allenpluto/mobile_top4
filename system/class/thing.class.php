@@ -116,8 +116,31 @@ print_r($parameters);
 		{
 			$parameter['primary_key'] = array('id');
 		}
+		
+		if (empty($parameters['bind_param']))
+		{
+			$parameters['bind_param'] = array();
+		}
 
 		if (!empty($parameters['columns']))
+		{
+			$insert_columns = array();
+			$insert_default_values = array();
+			foreach($this->parameters['insert_fields'] as $insert_fields_index=>$insert_fields_value)
+			{
+				$insert_columns[] = $fields_index;
+				$insert_default_values[':insert_'.$fields_index] = $fields_value;
+			}
+
+			$update_columns = array();
+			$update_default_values = array();
+			foreach($this->parameters['update_fields'] as $update_fields_index=>$update_fields_value)
+			{
+				$update_columns[] = $fields_index;
+				$update_default_values[':update_'.$fields_index] = $fields_value;
+			}
+		}
+		else
 		{
 			$insert_columns = array();
 			$insert_default_values = array();
@@ -126,30 +149,12 @@ print_r($parameters);
 			foreach($parameters['columns'] as $fields_index=>$fields_value)
 			{
 				$insert_columns[] = $fields_index;
-				$insert_default_values[] = $fields_value;
+				$insert_default_values[':insert_'.$fields_index] = $fields_value;
 				$update_columns[] = $fields_index;
-				$update_default_values[] = $fields_value;
+				$update_default_values[':update_'.$fields_index] = $fields_value;
 			}
 			$insert_columns = $parameters['columns'];
 			$parameters['update_columns'] = $parameters['columns'];
-		}
-		else
-		{
-			$insert_columns = array();
-			$insert_default_values = array();
-			foreach($this->parameters['insert_fields'] as $insert_fields_index=>$insert_fields_value)
-			{
-				$insert_columns[] = $fields_index;
-				$insert_default_values[] = $fields_value;
-			}
-
-			$update_columns = array();
-			$update_default_values = array();
-			foreach($this->parameters['update_fields'] as $update_fields_index=>$update_fields_value)
-			{
-				$update_columns[] = $fields_index;
-				$update_default_values[] = $fields_value;
-			}
 		}
 
 		if (!is_array($parameters['primary_key']))
@@ -166,7 +171,7 @@ print_r($parameters);
 
 		foreach ($this->row as $row_index=>$row_value)
 		{
-			$primary_key_provided = true;
+			/*$primary_key_provided = true;
 
 			foreach ($parameter['primary_key'] as $primary_key_index=>$primary_key_value)
 			{
@@ -175,20 +180,37 @@ print_r($parameters);
 					$primary_key_provided = false;
 					break;
 				}
+			}*/
+			
+			$row_insert_value = array();
+			foreach ($row_value as $column_index=>$column_value)
+			{
+				$row_insert_value[preg_replace('/^'.$parameters['prefix'].'/', ':insert_', $column_index)] = $column_value;				
 			}
-
-			$row_insert_value = array_merge($insert_default_values,$row_value);
+			$row_insert_value = array_merge($insert_default_values,$row_insert_value);			
+			
+			$row_update_value = array();
+			foreach ($row_value as $column_index=>$column_value)
+			{
+				$row_update_value[preg_replace('/^'.$parameters['prefix'].'/', ':update_', $column_index)] = $column_value;				
+			}
+			$row_update_value = array_merge($insert_default_values,$row_update_value);
 
 			if ($primary_key_provided)
 			{
-				$sql = 'INSERT INTO '.DATABASE_PREFIX.get_class($this).' ('.implode(', ',$insert_columns).') VALUES ('.$row_insert_value.') ON DUPLICATE KEY UPDATE ';
+				$sql = 'INSERT INTO '.DATABASE_PREFIX.get_class($this).' ('.implode(', ',$insert_columns).') VALUES (:'.implode(', :insert_',$insert_columns).') ON DUPLICATE KEY UPDATE ';
 
-				/*foreach($update_columns as $update_column_index=>$update_column_value)
+				foreach($update_columns as $update_column_index=>$update_column_value)
 				{
-					$sql .= $update_columns_value .' = :'$update_columns_value;
-				}*/
-
+					$sql .= $update_columns_value .' = :update_'.$update_columns_value;
+				}
+				
+				$parameters['bind_param'] = array_merge($parameters['bind_param'], $row_insert_value, $row_update_value);
+				$result = $this->query($sql,$parameters['bind_param']);
+				return $result;
 			}
+			
+			
 
 		}
 
