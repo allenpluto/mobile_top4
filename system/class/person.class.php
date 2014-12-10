@@ -71,7 +71,7 @@ class person extends thing
 		$this->parameters = array_merge($this->parameters, $parameters);
 	}
 
-	function get($parameters)
+	function get($parameters = array())
 	{
 		$get_parameters = array('bind_param'=>array());
 
@@ -112,7 +112,7 @@ class person extends thing
 		// Additional data format change code here
 	}
 
-	function set($parameters)
+	function set($parameters = array())
 	{
 		if (empty($parameters['row']) and empty($this->row))
 		{

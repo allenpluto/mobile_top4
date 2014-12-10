@@ -43,17 +43,17 @@ echo '<br>';
 	function get_columns()
 	{
 		$sql = 'DESCRIBE '.DATABASE_PREFIX.get_class($this);
-		$result = $this->query($sql);
-		return $result;
+		$column_descriptions = $this->query($sql);
+		$columns = array();
+		foreach ($column_descriptions as $column_description_index=>$column_description_value)
+		{
+			$columns[] = $column_description_value['Field'];
+		}
+		return $columns;
 	}
 
-	function get($parameters)
+	function get($parameters = array())
 	{
-		if (!$parameters)
-		{
-			$parameters = array();
-		}
-
 		// If columns not set, use default
 		if (!isset($parameters['columns']))
 		{
@@ -100,6 +100,36 @@ echo '<br>';
 		if (!empty($parameters['where']))
 		{
 			$sql .= ' WHERE '.$parameters['where'];
+		}
+		else
+		{
+			if (!empty($this->row))
+			{
+				$row_ids = array();
+				foreach ($this->row as $row_index=>$row_value)
+				{
+					if (!empty($row_value['id']))
+					{
+						$row_ids[] = $row_value['id'];
+					}
+				}
+				if (!empty($row_ids))
+				{
+					$parameters['where'] = '`id` IN (';
+					foreach ($row_ids as $row_id_index=>$row_id_value)
+					{
+						$parameters['where'] .= ':id_'.$row_id_index;
+						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
+					}
+					$parameters['where'] .= ')'; 
+					$sql .= ' WHERE '.$parameters['where'];
+				}
+			}
+			else
+			{
+				$this->error = 'Select without where condition error';
+				return false;
+			}
 		}
 		if (!empty($parameters['order']))
 		{
@@ -160,13 +190,19 @@ echo '<br>';
 			else
 			{
 				$parameters['columns'] = array();
+				foreach ($table_columns as $column_index=>$column_value)
+				{
+					$parameters['columns'][] = $column_value;
+				}
 			}
 		}
 
-		foreach ($table_columns as $column_index=>$column_value)
+		foreach ($parameters['columns'] as $column_index=>$column_value)
 		{
-
-			$parameters['columns']
+			if (!in_array($column_value, $table_columns))
+			{
+				unset($parameters['columns'][$column_index]);
+			}
 		}
 
 		foreach ($parameters['row'] as $row_index=>$row_value)
@@ -175,20 +211,20 @@ echo '<br>';
 			$sql_values = array();
 			$bind_values = array();
 
-			foreach ($table_columns as $column_index=>$column_value)
+			foreach ($parameters['columns'] as $column_index=>$column_value)
 			{
-				if(!empty($row_value[$parameters['prefix'].$column_value['Field']]))
+				if(!empty($row_value[$parameters['prefix'].$column_value]))
 				{
-					$sql_columns[] = $column_value['Field'];
-					$sql_values[] = ':'.$column_value['Field'];
-					$bind_values[':'.$column_value['Field']] = $row_value[$parameters['prefix'].$column_value['Field']];
+					$sql_columns[] = $column_value;
+					$sql_values[] = ':'.$column_value;
+					$bind_values[':'.$column_value] = $row_value[$parameters['prefix'].$column_value];
 				}
 				else
 				{
 					// Special field `update_time`
-					if ($column_value['Field'] == 'update_time')
+					if ($column_value == 'update_time')
 					{
-						$sql_columns[] = $column_value['Field'];
+						$sql_columns[] = $column_value;
 						$sql_values[] = 'CURRENT_TIMESTAMP';
 					}
 				}
