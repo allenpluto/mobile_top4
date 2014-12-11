@@ -17,8 +17,8 @@ define('PATH_CLASS', PATH_BASE . 'system/class/');
 // Load Pre-Include Functions (Functions that Classes May Use)
 include_once(PATH_INCLUDE.'db.inc.php');
 
-// Load Classes
-set_include_path(PATH_CLASS);
+// Load Classes, table Classes represent one and only one table operations, join table SELECT are considered views that should be done in System Functions
+set_include_path(PATH_CLASS.'table/;'.PATH_CLASS.'view/');
 spl_autoload_extensions('.class.php');
 spl_autoload_register();
 

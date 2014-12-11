@@ -22,7 +22,6 @@ class person extends thing
 			'family_name' => 'family_name',
 			'additional_name' => 'additional_name',
 			'given_name' => 'given_name',
-			'full_name' => 'CONCAT(given_name,\' \',additional_name,\' \',family_name)',
 			'gender' => 'gender'
 		)
 	);
@@ -40,7 +39,7 @@ class person extends thing
 				unset($parameters['get']);
 			}
 
-			$this->setParameters($parameters);
+			$this->set_parameters($parameters);
 			
 			if ($get_parameters)
 			{
@@ -62,7 +61,7 @@ class person extends thing
 		return $this;
 	}
 
-	function setParameters($parameters)
+	function set_parameters($parameters)
 	{
 		if(!is_array($parameters))
 		{
@@ -116,7 +115,7 @@ class person extends thing
 	{
 		if (empty($parameters['row']) and empty($this->row))
 		{
-			$this->error = 'Null Value Error';
+			$this->message = 'Error: Empty value input';
 			return false;
 		}
 

@@ -3,7 +3,7 @@
 
 	//$person_obj = new person(array('prefix'=>'','select_fields'=>array('First Name' => 'given_name','Last Name'=>'family_name'),'get'=>array('id'=>1)));
 	//$person_obj = new person(array('get'=>array('id'=>1)));
-	$person_obj = new person();
+	/*$person_obj = new person();
 	for($i=1;$i<4;$i++)
 	{
 		$person_obj->row[] = array(
@@ -14,7 +14,7 @@
 			'person_description' => 'some test',
 			'person_image' => -1,
 			'person_address' => -1,
-			'person_birth_date' => '1980-12-0'.$i,
+			'person_birth_date' => '80-12-0'.$i,
 			'person_email' => 'allen@twmg.com.au',
 			'person_family_name' => 'Wu',
 			'person_given_name' => 'Daixi',
@@ -22,7 +22,7 @@
 			'person_gender' => 'Male'
 		);
 	}
-	$person_obj->set(array(
+	$set_result = $person_obj->set(array(
 		'update_columns' => array(
 			'id' => -1,
 			'friendly_url' => '',
@@ -36,5 +36,11 @@
 
 	echo '<pre>';
 	print_r($person_obj);
-	print_r($person_obj->get_columns());
+	print_r($set_result);*/
+
+	$account_obj = new account(array('id'=>1));
+
+	echo '<pre>';
+	print_r($account_obj);
+	print_r($set_result);
 ?>

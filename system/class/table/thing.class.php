@@ -10,7 +10,7 @@ class thing
 
 	// containers value results from database
 	var $row = array();
-	var $error = null;
+	var $message = null;
 
 	function thing()
 	{
@@ -27,6 +27,8 @@ class thing
 		$query = $this->_conn->prepare($sql);
 print_r($query);
 echo '<br>';
+print_r($this->_conn->lastInsertId());
+echo '<br>';
 print_r($parameters);
 echo '<br>';
 foreach ($parameters as $index=>$value)
@@ -35,9 +37,19 @@ foreach ($parameters as $index=>$value)
 }
 print_r($sql);
 echo '<br>';
-		$query->execute($parameters);
+		if ($query->execute($parameters))
+		{
+			return $query;
+		}
+		else
+		{
+			$this->message = 'SQL query failed to execute';
+			return false;
+		}
+/*print_r($execute_result);
+echo '<br>';
 		$result = $query->fetchAll(PDO::FETCH_ASSOC);
-		return $result;
+		return $result;*/
 	}
 
 	function get_columns()
@@ -70,6 +82,11 @@ echo '<br>';
 		if (!isset($parameters['prefix']))
 		{
 			$parameters['prefix'] = $this->parameters['prefix'];
+		}
+
+		if (empty($parameters['primary_key']))
+		{
+			$parameters['primary_key'] = 'id';
 		}
 
 		// If columns set to Null or '', select everything
@@ -108,16 +125,20 @@ echo '<br>';
 				$row_ids = array();
 				foreach ($this->row as $row_index=>$row_value)
 				{
-					if (!empty($row_value['id']))
+					if (!empty($row_value[$parameters['prefix'].$parameters['primary_key']]))
 					{
-						$row_ids[] = $row_value['id'];
+						$row_ids[] = $row_value[$parameters['prefix'].$parameters['primary_key']];
 					}
 				}
 				if (!empty($row_ids))
 				{
-					$parameters['where'] = '`id` IN (';
+					$parameters['where'] = '`'.$parameters['primary_key'].'` IN (';
 					foreach ($row_ids as $row_id_index=>$row_id_value)
 					{
+						if ($row_id_index > 0)
+						{
+							$parameters['where'] .= ',';
+						}
 						$parameters['where'] .= ':id_'.$row_id_index;
 						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
 					}
@@ -127,7 +148,7 @@ echo '<br>';
 			}
 			else
 			{
-				$this->error = 'Select without where condition error';
+				$this->message = 'Error: Select without where condition.';
 				return false;
 			}
 		}
@@ -147,36 +168,40 @@ echo '<br>';
 		{
 			$sql .= ' OFFSET '.$parameters['offset'];
 		}
-		$result = $this->query($sql,$parameters['bind_param']);
-		$this->row = $result;
-		return $result;
+		$query = $this->query($sql,$parameters['bind_param']);
+		if ($query !== false)
+		{
+			$result = $query->fetchAll(PDO::FETCH_ASSOC);
+			$this->row = $result;
+			return $result;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
-	function set($parameters)
+	function set($parameters = array())
 	{
-		if (!$parameters)
-		{
-			$parameters = array();
-		}
-
 		if (!isset($parameters['prefix']))
 		{
 			$parameters['prefix'] = $this->parameters['prefix'];
 		}
-
-		if (!isset($parameters['primary_key']))
-		{
-			$parameter['primary_key'] = array('id');
-		}
 		
+		if (empty($parameters['row']))
+		{
+			$parameters['row'] = $this->row;
+		}
+		$this->row = array();
+
 		if (empty($parameters['bind_param']))
 		{
 			$parameters['bind_param'] = array();
 		}
 
-		if (empty($parameters['row']))
+		if (empty($parameters['primary_key']))
 		{
-			$parameters['row'] = $this->row;
+			$parameters['primary_key'] = 'id';
 		}
 
 		$table_columns = $this->get_columns();
@@ -242,11 +267,16 @@ echo '<br>';
 			}
 			
 			$parameters['bind_param'] = array_merge($parameters['bind_param'], $bind_values);
-			$result[] = $this->query($sql,$parameters['bind_param']);
+			$query = $this->query($sql,$parameters['bind_param']);
+			if ($query !== false)
+			{
+				$this->row[] = array($parameters['prefix'].$parameters['primary_key']=>$this->_conn->lastInsertId());
+			}
 		}
 
+		// Always Select from database after Insert/Update to keep data consistant
+		$result = $this->get();
 		return $result;
-
 	}
 }
 
