@@ -181,6 +181,11 @@ echo '<br>';
 		}
 	}
 
+	function set_parameters($parameters = array())
+	{
+		$this->parameters = array_merge($this->parameters, $parameters);
+	}
+
 	function set($parameters = array())
 	{
 		if (!isset($parameters['prefix']))

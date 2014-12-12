@@ -34,6 +34,11 @@ class account
 		{
 			$this->person->get($parameters);
 			$this->row = $this->person->row;
+			if ($this->person->row['image'] > 0)
+			{
+				$image_object = new image_object(array('id'=>$this->person->row['image']));
+				$this->row['image'] = $image_object->row;
+			}
 		}
 	}
 }

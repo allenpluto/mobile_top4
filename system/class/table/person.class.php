@@ -61,15 +61,6 @@ class person extends thing
 		return $this;
 	}
 
-	function set_parameters($parameters)
-	{
-		if(!is_array($parameters))
-		{
-			$parameters = array();
-		}
-		$this->parameters = array_merge($this->parameters, $parameters);
-	}
-
 	function get($parameters = array())
 	{
 		$get_parameters = array('bind_param'=>array());

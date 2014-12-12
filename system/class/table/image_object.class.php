@@ -24,4 +24,40 @@ class image_object
 			'type' => 'type'
 		)
 	);
+
+	// class image_object is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'.
+	function image_object($parameters = array())
+	{
+		if (is_array($parameters))
+		{
+			$get_parameters = Null;
+			if (!empty($parameters['get']))
+			{
+				$get_parameters = $parameters['get'];
+				unset($parameters['get']);
+			}
+
+			$this->set_parameters($parameters);
+			
+			if ($get_parameters)
+			{
+				$this->get($get_parameters);
+			}
+		}
+		else	// Simplified usage, not secured
+		{
+			if (is_numeric($parameters)) // try to initialize with id
+			{
+				$this->get(array('id'=>$parameters));
+			}
+			else // try to initialize with friendly url
+			{
+				$this->get(array('friendly_url'=>$parameters));
+			}
+		}
+
+		return $this;
+	}
+
+
 }
