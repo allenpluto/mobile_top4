@@ -34,10 +34,13 @@ class account
 		{
 			$this->person->get($parameters);
 			$this->row = $this->person->row;
-			if ($this->person->row['image'] > 0)
+			foreach ($this->person->row as $row_index => $row_value)
 			{
-				$image_object = new image_object(array('id'=>$this->person->row['image']));
-				$this->row['image'] = $image_object->row;
+				if ($row_value['account_image'] > 0)
+				{
+					$image_object = new image_object(array('id'=>$row_value['account_image']));
+					$this->row['account_image'] = $image_object->row;
+				}
 			}
 		}
 	}

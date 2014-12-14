@@ -1,7 +1,7 @@
 <?php
 // Include Class Object
 // Name: db
-// Description: system functions
+// Description: database functions
 
 // Database Related Functions
 
