@@ -3,8 +3,8 @@
 
 	//$person_obj = new person(array('prefix'=>'','select_fields'=>array('First Name' => 'given_name','Last Name'=>'family_name'),'get'=>array('id'=>1)));
 	//$person_obj = new person(array('get'=>array('id'=>1)));
-	/*$person_obj = new person();
-	for($i=1;$i<4;$i++)
+	$person_obj = new person();
+	for($i=1;$i<6;$i++)
 	{
 		$person_obj->row[] = array(
 			'person_id' => $i,
@@ -36,11 +36,10 @@
 
 	echo '<pre>';
 	print_r($person_obj);
-	print_r($set_result);*/
+	print_r($set_result);
 
-	$account_obj = new account(array('id'=>1));
+	/*$account_obj = new account(array('id'=>1));
 
 	echo '<pre>';
-	print_r($account_obj);
-	print_r($set_result);
+	print_r($account_obj);*/
 ?>

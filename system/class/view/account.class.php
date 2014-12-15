@@ -16,10 +16,10 @@ class account
 			'select_fields' => array(
 				'id' => 'id',
 				'friendly_url' => 'friendly_url',
-				'image' => 'image',
+				'image_id' => 'image_id',
 				'enter_time' => 'enter_time',
 				'update_time' => 'update_time',
-				'address' => 'address',
+				'address_id' => 'address_id',
 				'birth_date' => 'birth_date',
 				'email' => 'email',
 				'family_name' => 'family_name',
@@ -36,9 +36,9 @@ class account
 			$this->row = $this->person->row;
 			foreach ($this->person->row as $row_index => $row_value)
 			{
-				if ($row_value['account_image'] > 0)
+				if ($row_value['account_image_id'] > 0)
 				{
-					$image_object = new image_object(array('id'=>$row_value['account_image']));
+					$image_object = new image_object(array('id'=>$row_value['account_image_id']));
 					$this->row['account_image'] = $image_object->row;
 				}
 			}

@@ -13,10 +13,10 @@ class person extends thing
 			'name' => 'name',
 			'alternate_name' => 'alternate_name',
 			'description' => 'description',
-			'image' => 'image',
+			'image_id' => 'image_id',
 			'enter_time' => 'enter_time',
 			'update_time' => 'update_time',
-			'address' => 'address',
+			'address_id' => 'address_id',
 			'birth_date' => 'birth_date',
 			'email' => 'email',
 			'family_name' => 'family_name',
@@ -104,12 +104,6 @@ class person extends thing
 
 	function set($parameters = array())
 	{
-		if (empty($parameters['row']) and empty($this->row))
-		{
-			$this->message = 'Error: Empty value input';
-			return false;
-		}
-
 		// Call thing::set function
 		parent::set($parameters);
 	}

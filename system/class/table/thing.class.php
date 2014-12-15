@@ -25,43 +25,28 @@ class thing
 		}
 
 		$query = $this->_conn->prepare($sql);
-print_r($query);
-echo '<br>';
-print_r($this->_conn->lastInsertId());
-echo '<br>';
-print_r($parameters);
-echo '<br>';
-foreach ($parameters as $index=>$value)
-{
-	$sql = str_replace($index, '\''.$value.'\'', $sql);
-}
-print_r($sql);
-echo '<br>';
-		if ($query->execute($parameters))
-		{
-			return $query;
-		}
-		else
-		{
-			$this->message = 'SQL query failed to execute';
-			return false;
-		}
-/*print_r($execute_result);
-echo '<br>';
-		$result = $query->fetchAll(PDO::FETCH_ASSOC);
-		return $result;*/
+		$query->execute($parameters);
+		return $query;
 	}
 
 	function get_columns()
 	{
 		$sql = 'DESCRIBE '.DATABASE_PREFIX.get_class($this);
-		$column_descriptions = $this->query($sql);
-		$columns = array();
-		foreach ($column_descriptions as $column_description_index=>$column_description_value)
+		$query = $this->query($sql);
+		if ($query->errorCode() == '00000')
 		{
-			$columns[] = $column_description_value['Field'];
+			$columns = array();
+			foreach ($query as $column_description_index=>$column_description_value)
+			{
+				$columns[] = $column_description_value['Field'];
+			}
+			return $columns;
 		}
-		return $columns;
+		else
+		{
+			$this->message[] = 'SQL Error: '.$query->errorInfo()[2];
+			return false;
+		}
 	}
 
 	function get($parameters = array())
@@ -148,7 +133,7 @@ echo '<br>';
 			}
 			else
 			{
-				$this->message = 'Error: Select without where condition.';
+				$this->message[] = 'Error: Select without where condition.';
 				return false;
 			}
 		}
@@ -169,7 +154,7 @@ echo '<br>';
 			$sql .= ' OFFSET '.$parameters['offset'];
 		}
 		$query = $this->query($sql,$parameters['bind_param']);
-		if ($query !== false)
+		if ($query->errorCode() == '00000')
 		{
 			$result = $query->fetchAll(PDO::FETCH_ASSOC);
 			$this->row = $result;
@@ -177,6 +162,7 @@ echo '<br>';
 		}
 		else
 		{
+			$this->message[] = 'SQL Error: '.$query->errorInfo()[2];
 			return false;
 		}
 	}
@@ -195,7 +181,15 @@ echo '<br>';
 		
 		if (empty($parameters['row']))
 		{
-			$parameters['row'] = $this->row;
+			if (empty($this->row))
+			{
+				$this->message[] = 'Error: Empty value input';
+				return false;
+			}
+			else
+			{
+				$parameters['row'] = $this->row;
+			}
 		}
 		$this->row = array();
 
@@ -273,9 +267,14 @@ echo '<br>';
 			
 			$parameters['bind_param'] = array_merge($parameters['bind_param'], $bind_values);
 			$query = $this->query($sql,$parameters['bind_param']);
-			if ($query !== false)
+			if ($query->errorCode() == '00000')
 			{
 				$this->row[] = array($parameters['prefix'].$parameters['primary_key']=>$this->_conn->lastInsertId());
+			}
+			else
+			{
+				$this->message[] = 'SQL Error: '.$query->errorInfo()[2];
+				return false;
 			}
 		}
 

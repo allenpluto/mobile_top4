@@ -3,6 +3,7 @@
 // Name: image_object
 // Description: Image Source File, store image in big size, for gallery details, source file to crop... All variation of images (different size thumbs) goes to image_variation table.
 
+// image_id in image_object reference to source image. One source image may have zero to multiple thumbnail (cropped versions) for different scenario. Only source image may save exifData, any thumbnail can be regenerated using source image exifData and 
 class image_object
 {
 	var $parameters = array(
@@ -13,7 +14,7 @@ class image_object
 			'name' => 'name',
 			'alternate_name' => 'alternate_name',
 			'description' => 'description',
-			'image' => 'image',
+			'image_id' => 'image_id',
 			'enter_time' => 'enter_time',
 			'update_time' => 'update_time',
 			'caption' => 'caption',
@@ -57,6 +58,15 @@ class image_object
 		}
 
 		return $this;
+	}
+
+	function set($parameters = array())
+	{
+		// Class Set Function
+
+
+		// Call thing::set function
+		parent::set($parameters);
 	}
 
 
