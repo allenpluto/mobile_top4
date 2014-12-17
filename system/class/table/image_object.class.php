@@ -4,7 +4,7 @@
 // Description: Image Source File, store image in big size, for gallery details, source file to crop... All variation of images (different size thumbs) goes to image_variation table.
 
 // image_id in image_object reference to source image. One source image may have zero to multiple thumbnail (cropped versions) for different scenario. Only source image may save exifData, any thumbnail can be regenerated using source image exifData and 
-class image_object
+class image_object extends thing
 {
 	var $parameters = array(
 		'prefix' => 'image_',
@@ -25,6 +25,11 @@ class image_object
 			'type' => 'type'
 		)
 	);
+	var $option = array(
+		'db_image_data' => 'none', 
+		'update_image' => 'true'
+	);
+
 
 	// class image_object is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'.
 	function image_object($parameters = array())
@@ -63,10 +68,45 @@ class image_object
 	function set($parameters = array())
 	{
 		// Class Set Function
+		if (empty($parameters['row']))
+		{
+			if (empty($this->row))
+			{
+				$this->message[] = 'Error: Empty value input';
+				return false;
+			}
+			else
+			{
+				$parameters['row'] = $this->row;
+			}
+		}
+		$this->row = array();
 
+		foreach ($parameters['row'] as $row_index => $row_value)
+		{
+			if ($row_value['image_id'] > 0)
+			{
+				// For images having source image, do not store source data
+				$row_value['source_data'] = '';
+			}
+		}
 
 		// Call thing::set function
 		parent::set($parameters);
+
+		if ($this->option['update_image'])
+		{
+			foreach ($parameters['row'] as $row_index => $row_value)
+			{
+				if ($row_value['image_id'] > 0)
+				{				
+					if (!empty($row_value['source_data']))
+					{
+					}
+				}
+			}
+		}
+	
 	}
 
 

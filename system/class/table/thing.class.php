@@ -26,6 +26,11 @@ class thing
 
 		$query = $this->_conn->prepare($sql);
 		$query->execute($parameters);
+/*echo '<pre>';
+print_r($query);
+echo '<br>';
+print_r($parameters);
+echo '<br>';*/
 		return $query;
 	}
 
@@ -72,6 +77,11 @@ class thing
 		if (empty($parameters['primary_key']))
 		{
 			$parameters['primary_key'] = 'id';
+		}
+
+		if (empty($parameters['bind_param']))
+		{
+			$parameters['bind_param'] = array();
 		}
 
 		// If columns set to Null or '', select everything
@@ -228,7 +238,6 @@ class thing
 				unset($parameters['columns'][$column_index]);
 			}
 		}
-
 		foreach ($parameters['row'] as $row_index=>$row_value)
 		{
 			$sql_columns = array();
@@ -237,7 +246,7 @@ class thing
 
 			foreach ($parameters['columns'] as $column_index=>$column_value)
 			{
-				if(!empty($row_value[$parameters['prefix'].$column_value]))
+				if(isset($row_value[$parameters['prefix'].$column_value]))
 				{
 					$sql_columns[] = $column_value;
 					$sql_values[] = ':'.$column_value;

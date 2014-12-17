@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteBase /allen_frame_trial/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^image/(.*)\.jpg$ content/image/get_image.php?request=$1 [L]
