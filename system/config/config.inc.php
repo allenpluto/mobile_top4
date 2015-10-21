@@ -1,12 +1,12 @@
 <?php
 // Database
 define('DATABASE_HOST', '127.0.0.1');
-define('DATABASE_NAME', 'stgtop4_social_directory');
+define('DATABASE_NAME', 'allen_frame_trial');
 define('DATABASE_USER', 'root');
 define('DATABASE_PASSWORD', '');
 define('DATABASE_CHARSET', 'utf8');
-define('DATABASE_PREFIX', 'top4_');
-define('DATABASE_LIMIT', 10);
+define('DATABASE_TABLE_PREFIX', 'tbl_');
+define('DATABASE_ROW_LIMIT', 10);
 
 // Core Paths
 define('PATH_BASE', '/wamp/www/allen_frame_trial/');

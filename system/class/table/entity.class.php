@@ -1,18 +1,19 @@
 <?php
 // Class Object
-// Name: thing
+// Name: entity
 // Description: Base class for all database table classes
 
-class thing
+class entity
 {
 	// database connection
 	protected $_conn = null;
 
 	// containers value results from database
-	var $row = array();
+	var $row = [];
 	var $message = null;
+	var $_initialized = false;
 
-	function thing()
+	function entity()
 	{
 	}
 
@@ -36,7 +37,7 @@ echo '<br>';*/
 
 	function get_columns()
 	{
-		$sql = 'DESCRIBE '.DATABASE_PREFIX.get_class($this);
+		$sql = 'DESCRIBE '.DATABASE_TABLE_PREFIX.get_class($this);
 		$query = $this->query($sql);
 		if ($query->errorCode() == '00000')
 		{
@@ -52,6 +53,32 @@ echo '<br>';*/
 			$this->message[] = 'SQL Error: '.$query->errorInfo()[2];
 			return false;
 		}
+	}
+
+	function get_primary_key()
+	{
+		$sql = 'SHOW INDEX FROM `'.DATABASE_TABLE_PREFIX.get_class($this).'` WHERE Key_name = "PRIMARY"';
+		$query = $this->query($sql);
+		$columns = array();
+		foreach ($query as $column_description_index=>$column_description_value)
+		{
+			$columns[] = $column_description_value['Column_name'];
+		}
+		return $columns;
+		/*if ($query->errorCode() == '00000')
+		{
+			$columns = array();
+			foreach ($query as $column_description_index=>$column_description_value)
+			{
+				$columns[] = $column_description_value['Field'];
+			}
+			return $columns;
+		}
+		else
+		{
+			$this->message[] = 'SQL Error: '.$query->errorInfo()[2];
+			return false;
+		}*/
 	}
 
 	function get($parameters = array())
@@ -75,8 +102,8 @@ echo '<br>';*/
 		}
 
 		if (empty($parameters['primary_key']))
-		{
-			$parameters['primary_key'] = 'id';
+		{			
+			$parameters['primary_key'] = $this->get_primary_key();
 		}
 
 		if (empty($parameters['bind_param']))
@@ -84,66 +111,49 @@ echo '<br>';*/
 			$parameters['bind_param'] = array();
 		}
 
-		// If columns set to Null or '', select everything
-		if (!$parameters['columns'])
-		{
-			$sql_select = '*';
-		}
-		else
-		{
-			if(is_array($parameters['columns']))
-			{
-				$column_prefix = '';
-				if (!empty($parameters['prefix']))
-				{
-					$column_prefix = $parameters['prefix'];
-				}
-				$sql_select = array();
-
-				foreach($parameters['columns'] as $column_index=>$column_value)
-				{
-					$sql_select[] = $column_value.' AS `'.$column_prefix.$column_index.'`';
-				}
-				$sql_select = implode(', ', $sql_select);
-			}
-		}
-		
-		$sql = 'SELECT '.$sql_select.' FROM '.DATABASE_PREFIX.get_class($this);
+		$sql = 'SELECT * FROM '.DATABASE_TABLE_PREFIX.get_class($this);
 		if (!empty($parameters['where']))
 		{
+			if (is_array($parameters['where']))
+			{
+				$parameters['where'] = implode(' AND ', $parameters['where']);
+			}
 			$sql .= ' WHERE '.$parameters['where'];
 		}
 		else
 		{
-			if (!empty($this->row))
+			if (!empty($this->row) AND count($parameters['primary_key']) == 1)
 			{
+				$primary_key_column = $parameters['primary_key'][0];
 				$row_ids = array();
 				foreach ($this->row as $row_index=>$row_value)
 				{
-					if (!empty($row_value[$parameters['prefix'].$parameters['primary_key']]))
+
+					if (!empty($row_value[$primary_key_column]))
 					{
-						$row_ids[] = $row_value[$parameters['prefix'].$parameters['primary_key']];
+						$row_ids[] = $row_value[$primary_key_column];
 					}
 				}
 				if (!empty($row_ids))
 				{
-					$parameters['where'] = '`'.$parameters['primary_key'].'` IN (';
+					$parameters['where'] = '`'.$primary_key_column.'` IN (0';
+					$parameters['order'] = ' ORDER BY FIELD('.$primary_key_column.')';
+
 					foreach ($row_ids as $row_id_index=>$row_id_value)
 					{
-						if ($row_id_index > 0)
-						{
-							$parameters['where'] .= ',';
-						}
-						$parameters['where'] .= ':id_'.$row_id_index;
+						$parameters['where'] .= ',:id_'.$row_id_index;
+						$parameters['order'] .= ',:id_'.$row_id_index;
 						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
 					}
 					$parameters['where'] .= ')'; 
+					$parameters['order'] .= ')'; 
 					$sql .= ' WHERE '.$parameters['where'];
+
 				}
 			}
 			else
 			{
-				$this->message[] = 'Error: Select without where condition.';
+				$this->message[] = 'Error: Cannot retrieve records without specific conditions and primary key.';
 				return false;
 			}
 		}
@@ -157,7 +167,7 @@ echo '<br>';*/
 		}
 		else
 		{
-			$sql .= ' LIMIT '.DATABASE_LIMIT;
+			$sql .= ' LIMIT '.DATABASE_ROW_LIMIT;
 		}
 		if (!empty($parameters['offset']))
 		{
@@ -189,19 +199,16 @@ echo '<br>';*/
 			$parameters['prefix'] = $this->parameters['prefix'];
 		}
 		
-		if (empty($parameters['row']))
+		if (!empty($parameters['row']))
 		{
-			if (empty($this->row))
-			{
-				$this->message[] = 'Error: Empty value input';
-				return false;
-			}
-			else
-			{
-				$parameters['row'] = $this->row;
-			}
+			$this->row = $parameters['row'];
 		}
-		$this->row = array();
+
+		if (empty($this->row))
+		{
+			$this->message[] = 'Error: Null input';
+			return false;
+		}
 
 		if (empty($parameters['bind_param']))
 		{
@@ -215,36 +222,42 @@ echo '<br>';*/
 
 		$table_columns = $this->get_columns();
 		// If columns not set, use default
-		if (!isset($parameters['columns']))
+		if (!isset($parameters['update_fields']))
 		{
 			if (!empty($this->parameters['update_fields']))
 			{
-				$parameters['columns'] = $this->parameters['update_fields'];
+				$parameters['update_fields'] = $this->parameters['update_fields'];
+				// Force PK in update fields
+				if (!in_array($parameters['primary_key'], $this->parameters['update_fields']))
+				{
+					array_unshift($this->parameters['update_fields'],$parameters['primary_key']);
+				}
 			}
 			else
 			{
-				$parameters['columns'] = array();
+				$parameters['update_fields'] = [];
 				foreach ($table_columns as $column_index=>$column_value)
 				{
-					$parameters['columns'][] = $column_value;
+					$parameters['update_fields'][] = $column_value;
 				}
 			}
 		}
 
-		foreach ($parameters['columns'] as $column_index=>$column_value)
+		foreach ($parameters['update_fields'] as $column_index=>$column_value)
 		{
 			if (!in_array($column_value, $table_columns))
 			{
-				unset($parameters['columns'][$column_index]);
+				unset($parameters['update_fields'][$column_index]);
 			}
 		}
-		foreach ($parameters['row'] as $row_index=>$row_value)
+
+		foreach ($this->row as $row_index=>$row_value)
 		{
 			$sql_columns = array();
 			$sql_values = array();
 			$bind_values = array();
 
-			foreach ($parameters['columns'] as $column_index=>$column_value)
+			foreach ($parameters['update_fields'] as $column_index=>$column_value)
 			{
 				if(isset($row_value[$parameters['prefix'].$column_value]))
 				{
@@ -263,19 +276,19 @@ echo '<br>';*/
 				}
 			}
 
-			$sql = 'INSERT INTO '.DATABASE_PREFIX.get_class($this).' (`'.implode('`, `',$sql_columns).'`) VALUES ('.implode(', ',$sql_values).') ON DUPLICATE KEY UPDATE ';
 
+			$sql = 'INSERT INTO '.DATABASE_TABLE_PREFIX.get_class($this).' (`'.implode('`, `',$sql_columns).'`) VALUES ('.implode(', ',$sql_values).') ON DUPLICATE KEY UPDATE ';
 			foreach($sql_columns as $column_index=>$column_value)
 			{
 				if ($column_index > 0)
 				{
 					$sql .= ', ';
 				}
-				$sql .= '`'.$column_value .'` = '.$sql_values[$column_index];
+				$sql .= '`'.$column_value .'` = VALUES(`'.$column_value .'`)';
 			}
 			
-			$parameters['bind_param'] = array_merge($parameters['bind_param'], $bind_values);
-			$query = $this->query($sql,$parameters['bind_param']);
+			$row_bind_values = array_merge($parameters['bind_param'], $bind_values);
+			$query = $this->query($sql,$row_bind_values);
 			if ($query->errorCode() == '00000')
 			{
 				$this->row[] = array($parameters['prefix'].$parameters['primary_key']=>$this->_conn->lastInsertId());
@@ -288,7 +301,10 @@ echo '<br>';*/
 		}
 
 		// Always Select from database after Insert/Update to keep data consistant
-		$result = $this->get();
+		$get_parameters = $parameters;
+		unset($get_parameters['bind_param']);
+
+		$result = $this->get($get_parameters);
 		return $result;
 	}
 }

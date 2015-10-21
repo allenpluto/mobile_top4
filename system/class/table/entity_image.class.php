@@ -1,10 +1,10 @@
 <?php
 // Class Object
-// Name: image_object
+// Name: entity_image
 // Description: Image Source File, store image in big size, for gallery details, source file to crop... All variation of images (different size thumbs) goes to image_variation table.
 
 // image_id in image_object reference to source image. One source image may have zero to multiple thumbnail (cropped versions) for different scenario. Only source image may save exifData, any thumbnail can be regenerated using source image exifData and 
-class image_object extends thing
+class entity_image extends entity
 {
 	var $parameters = array(
 		'prefix' => 'image_',
@@ -18,21 +18,30 @@ class image_object extends thing
 			'enter_time' => 'enter_time',
 			'update_time' => 'update_time',
 			'caption' => 'caption',
-			'exifData' => 'exifData',
-			'email' => 'email',
+			'width' => 'width',
+			'height' => 'height',
+			'type' => 'type'
+		),
+		'update_fields' => array(
+			'friendly_url' => 'friendly_url',
+			'name' => 'name',
+			'alternate_name' => 'alternate_name',
+			'description' => 'description',
+			'update_time' => 'update_time',
+			'caption' => 'caption',
 			'width' => 'width',
 			'height' => 'height',
 			'type' => 'type'
 		)
 	);
 	var $option = array(
-		'db_image_data' => 'none', 
+		'db_image_data' => 'false', 
 		'update_image' => 'true'
 	);
 
 
 	// class image_object is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'.
-	function image_object($parameters = array())
+	function entity_image($parameters = array())
 	{
 		if (is_array($parameters))
 		{
@@ -94,7 +103,7 @@ class image_object extends thing
 		// Call thing::set function
 		parent::set($parameters);
 
-		if ($this->option['update_image'])
+		if ($this->option['db_image_data'])
 		{
 			foreach ($parameters['row'] as $row_index => $row_value)
 			{

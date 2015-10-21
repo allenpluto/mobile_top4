@@ -1,12 +1,12 @@
 <?php
 // Class Object
-// Name: person
+// Name: entity_person
 // Description: person, account table, which stores all user reltated information
 
-class person extends thing
+class entity_person extends entity
 {
 	var $parameters = array(
-		'prefix' => 'person_',
+		'prefix' => '',
 		'select_fields' => array(
 			'id' => 'id',
 			'friendly_url' => 'friendly_url',
@@ -28,7 +28,7 @@ class person extends thing
 
 	// class person is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'. e.g. $person_obj = new person(array('prefix'=>'','select_fields'=>array('First Name' => 'given_name','Last Name'=>'family_name'),'get'=>array('id'=>1)))
 	// use other functions to select a group of people
-	function person($parameters = array())
+	function entity_person($parameters = array())
 	{
 		if (is_array($parameters))
 		{
@@ -72,11 +72,11 @@ class person extends thing
 				switch ($parameter_index)
 				{
 					case 'friendly_url':
-						$get_parameters['where'] = '`friendly_url` = :friendly_url';
+						$get_parameters['where'][] = '`friendly_url` = :friendly_url';
 						$get_parameters['bind_param'][':friendly_url'] = $parameter_value;
 						break;
 					case 'id':
-						$get_parameters['where'] = '`id` = :id';
+						$get_parameters['where'][] = '`id` = :id';
 						$get_parameters['bind_param'][':id'] = $parameter_value;
 						break;
 					case 'order_by':
