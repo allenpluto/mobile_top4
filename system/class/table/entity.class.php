@@ -137,7 +137,7 @@ echo '<br>';*/
 				if (!empty($row_ids))
 				{
 					$parameters['where'] = '`'.$primary_key_column.'` IN (0';
-					$parameters['order'] = ' ORDER BY FIELD('.$primary_key_column.')';
+					$parameters['order'] = 'FIELD(`'.$primary_key_column.'`';
 
 					foreach ($row_ids as $row_id_index=>$row_id_value)
 					{
