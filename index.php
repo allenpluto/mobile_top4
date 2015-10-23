@@ -4,15 +4,15 @@
 
 	//$person_obj = new entity_person(array('prefix'=>'','select_fields'=>array('id','First Name' => 'given_name','Last Name'=>'family_name'),'get'=>array('id'=>1)));
 	//$person_obj = new entity_person(array('get'=>array('id'=>1)));
-	$person_obj = new entity_person(['update_fields' => ['id', 'description', 'given_name']]);
-	/*for($i=4;$i<8;$i++)
+	$person_obj = new entity_person(['update_fields' => ['description']]);
+	for($i=2;$i<8;$i++)
 	{
 		$person_obj->row[] = array(
 			'id' => $i,
 			'friendly_url' => 'allen-wu-'.$i,
 			'name' => 'Allen Wu '.$i,
 			'alternate_name' => 'Allen Alt',
-			'description' => 'partial update 2',
+			'description' => 'partial update 3',
 			'image_id' => -1,
 			'address_id' => -1,
 			'birth_date' => '81-01-0'.$i,
@@ -23,29 +23,19 @@
 			'gender' => 'Male'
 		);
 	}
-	$set_result = $person_obj->set(array(
-		'update_columns' => array(
-			'id' => -1,
-			'friendly_url' => '',
-			'name' => '',
-			'description' => '',
-			'family_name' => '',
-			'given_name' => '',
-			'gender' => 'Unspecified'
-		)
-	));*/
-	for($i=1;$i<8;$i++)
+	$result = $person_obj->set();
+	/*for($i=1;$i<8;$i++)
 	{
 		$person_obj->row[] = array(
 			'id' => $i,
 		);
 	}
-	$get_result = $person_obj->get();
+	$result = $person_obj->get();*/
 
 
 
 	print_r($person_obj);
-	print_r($get_result);
+	print_r($result);
 
 	/*$account_obj = new account(array('id'=>1));
 

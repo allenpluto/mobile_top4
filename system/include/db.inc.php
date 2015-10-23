@@ -25,3 +25,5 @@ class db
 		return self::$_conn;
 	}
 }
+
+?>
