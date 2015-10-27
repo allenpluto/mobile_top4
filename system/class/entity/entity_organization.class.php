@@ -1,13 +1,11 @@
 <?php
 // Class Object
-// Name: entity_person
-// Description: person, account table, which stores all user reltated information
+// Name: entity_organization
+// Description: organization, business, company table, which stores all company (or organziaton) reltated information
 
-class entity_person extends entity
+class entity_organization extends entity
 {
-	var $parameters = [];
-
-	// class person is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'. e.g. $person_obj = new person(1)
+	// class organziaton is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'. e.g. $organization_obj = new organization('example-friendly-url-345')
 	// use other functions to select a group of people
 	function __construct($init_value = Null, $parameters = array())
 	{	

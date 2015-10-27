@@ -4,26 +4,17 @@
 
 	//$person_obj = new entity_person(array('prefix'=>'','select_fields'=>array('id','First Name' => 'given_name','Last Name'=>'family_name'),'get'=>array('id'=>1)));
 	//$person_obj = new entity_person(array('get'=>array('id'=>1)));
-	$person_obj = new entity_person(['update_fields' => ['description']]);
-	for($i=2;$i<8;$i++)
+	$person_obj = new entity_person();
+	print_r($person_obj);
+	for($i=3;$i<9;$i++)
 	{
 		$person_obj->row[] = array(
-			'id' => $i,
-			'friendly_url' => 'allen-wu-'.$i,
-			'name' => 'Allen Wu '.$i,
-			'alternate_name' => 'Allen Alt',
-			'description' => 'partial update 3',
-			'image_id' => -1,
-			'address_id' => -1,
-			'birth_date' => '81-01-0'.$i,
-			'email' => 'allen@thewebsitemarketinggroup.com.au',
-			'family_name' => 'Wu 2',
-			'given_name' => 'Daixi 2',
-			'full_name' => 'Daixi Full Wu 2',
-			'gender' => 'Male'
+			'id' => $i
 		);
+		$person_obj->_initialized = true;
 	}
-	$result = $person_obj->set();
+	print_r($person_obj);
+	$result = $person_obj->get();
 	/*for($i=1;$i<8;$i++)
 	{
 		$person_obj->row[] = array(
