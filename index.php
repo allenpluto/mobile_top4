@@ -26,7 +26,17 @@
 
 
 	print_r($person_obj);
-	print_r($result);
+	
+	$test_ids = array();
+	for($i=3;$i<9;$i++)
+	{
+		$test_ids[] = $i*3+1;
+	}
+	$view_organization_obj = new view_organization($test_ids);
+	print_r($view_organization_obj);
+	$view_organization_obj->get(array('where'=>array('fax_number <> ""')));		
+	print_r($view_organization_obj);
+	print_r($view_organization_obj->render());
 
 	/*$account_obj = new account(array('id'=>1));
 

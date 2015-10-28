@@ -9,7 +9,7 @@
 class db
 {
 	private static $_conn = null;
-	var $message = [];
+	var $message = array();
 
 	function db_get_connection()
 	{
@@ -20,7 +20,7 @@ class db
 			$dbPass = DATABASE_PASSWORD;
 			$db = new PDO($dbLocation, $dbUser, $dbPass);
 
-			$message = [];
+			$message = array();
 			self::$_conn = $db;
 		}
 
@@ -40,12 +40,13 @@ class db
 			{
 				$columns[] = $column_description_value['Field'];
 			}
-			$message = [];
+			$message = array();
 			return $columns;
 		}
 		else
 		{
-			$this->message[] = 'SQL Error: '.self::$_conn->errorInfo()[2];
+			$query_errorInfo = self::$_conn->errorInfo();
+			$this->message[] = 'SQL Error: '.$query_errorInfo[2];
 			return false;
 		}		
 	}
@@ -67,7 +68,8 @@ class db
 		}
 		else
 		{
-			$this->message[] = 'SQL Error: '.self::$_conn->errorInfo()[2];
+			$query_errorInfo = self::$_conn->errorInfo();
+			$this->message[] = 'SQL Error: '.$query_errorInfo[2];
 			return false;
 		}		
 	}

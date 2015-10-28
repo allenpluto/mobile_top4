@@ -1,7 +1,7 @@
 <?php
 // Class Object
 // Name: entity
-// Description: Base class for all database table classes
+// Description: Base class for all database table classes, read/write limited rows per query (PHP memory limit and system performance)
 
 class entity
 {
@@ -9,17 +9,16 @@ class entity
 	protected $_conn = null;
 
 	// containers value results from database
-	var $row = [];
+	var $row = array();
 	
 	// Object variables
-	var $parameters = [
-	];
+	var $parameters = array();
 	var $message = null;
 	var $_initialized = false;
-	var $default_value = [
+	var $default_value = array(
 		'update_time'=>'CURRENT_TIMESTAMP',
 		'enter_time'=>'CURRENT_TIMESTAMP'
-	];
+	);
 
 	function __construct()
 	{
@@ -73,6 +72,11 @@ echo '<br>';*/
 
 	function get($parameters = array())
 	{
+		if (count($this->row) > 0)
+		{
+			$this->_initialized = true;		// In case initialize process is done out of class functions
+		}
+		
 		// If columns not set, use default
 		if (!isset($parameters['columns']))
 		{
@@ -82,7 +86,7 @@ echo '<br>';*/
 			}
 			else
 			{
-				$parameters['columns'] = ['*'];
+				$parameters['columns'] = array('*');
 			}
 		}
 
@@ -102,10 +106,6 @@ echo '<br>';*/
 		}
 		else
 		{
-			if (count($this->row) > 0)
-			{
-				$this->_initialized = true;		// In case initialize process is done out of class functions
-			}
 			if ($this->_initialized)
 			{
 				$row_ids = array();
@@ -119,18 +119,15 @@ echo '<br>';*/
 				}
 				if (!empty($row_ids))
 				{
-					$parameters['where'] = '`'.$this->parameters['primary_key'].'` IN (-1';
-					$parameters['order'] = 'FIELD(`'.$this->parameters['primary_key'].'`';
+					$where = '`'.$this->parameters['primary_key'].'` IN (-1';
 
 					foreach ($row_ids as $row_id_index=>$row_id_value)
 					{
-						$parameters['where'] .= ',:id_'.$row_id_index;
-						$parameters['order'] .= ',:id_'.$row_id_index;
+						$where .= ',:id_'.$row_id_index;
 						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
 					}
-					$parameters['where'] .= ')'; 
-					$parameters['order'] .= ')'; 
-					$sql .= ' WHERE '.$parameters['where'];
+					$where .= ')'; 
+					$sql .= ' WHERE '.$where;
 				}
 			}
 			else
@@ -142,6 +139,33 @@ echo '<br>';*/
 		if (!empty($parameters['order']))
 		{
 			$sql .= ' ORDER BY '.$parameters['order'];
+		}
+		else
+		{
+			if ($this->_initialized)
+			{
+				$row_ids = array();
+				foreach ($this->row as $row_index=>$row_value)
+				{
+
+					if (!empty($row_value[$this->parameters['primary_key']]))
+					{
+						$row_ids[] = $row_value[$this->parameters['primary_key']];
+					}
+				}
+				if (!empty($row_ids))
+				{
+					$order = 'FIELD(`'.$this->parameters['primary_key'].'`';
+
+					foreach ($row_ids as $row_id_index=>$row_id_value)
+					{
+						$order .= ',:id_'.$row_id_index;
+						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
+					}
+					$order .= ')'; 
+					$sql .= ' ORDER BY '.$order;
+				}
+			}
 		}
 		if (!empty($parameters['limit']))
 		{
@@ -165,7 +189,8 @@ echo '<br>';*/
 		}
 		else
 		{
-			$this->message[] = 'SQL Error: '.$query->errorInfo()[2];
+			$query_errorInfo = $query->errorInfo();
+			$this->message[] = 'SQL Error: '.$query_errorInfo[2];
 			return false;
 		}
 	}
@@ -208,7 +233,7 @@ echo '<br>';*/
 			}
 			else
 			{
-				$parameters['insert_fields'] = [];
+				$parameters['insert_fields'] = array();
 				foreach ($this->parameters['table_fields'] as $column_index=>$column_value)
 				{
 					$parameters['insert_fields'][] = $column_value;
@@ -223,7 +248,7 @@ echo '<br>';*/
 			}
 			else
 			{
-				$parameters['update_fields'] = [];
+				$parameters['update_fields'] = array();
 				foreach ($this->parameters['table_fields'] as $column_index=>$column_value)
 				{
 					if ($column_value != $parameters['primary_key'] AND $column_value != 'enter_date')
@@ -321,7 +346,8 @@ echo '<br>';*/
 			}
 			else
 			{
-				$this->message[] = 'SQL Error: '.$query->errorInfo()[2];
+				$query_errorInfo = $query->errorInfo();
+				$this->message[] = 'SQL Error: '.$query_errorInfo[2];
 				return false;
 			}
 		}
