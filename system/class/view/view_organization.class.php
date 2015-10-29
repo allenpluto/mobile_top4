@@ -1,7 +1,7 @@
 <?php
 // Class Object
 // Name: view_organization
-// Description: Base class for all database view classes, read only, represents large number of rows (store id only to reduce php memory use)
+// Description: entity_organization's main view table, display everything about organziation
 
 class view_organization extends view
 {

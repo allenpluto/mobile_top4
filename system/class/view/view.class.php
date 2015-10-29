@@ -15,7 +15,7 @@ class view
 	var $parameters = array();
 	var $message = null;
 	var $_initialized = false;
-
+	
 	function __construct()
 	{
 		$db = new db;
@@ -57,15 +57,26 @@ class view
 			{
 				if (count($result) == 1)
 				{
-					$this->parameters['primary_key'] = $result[0];
+					$this->parameters['primary_key'] = '`'.$result[0].'`';
 				}
 				else
 				{
 					// Views do not necessarily have defined primary key column, assume it is 'id'
-					$this->parameters['primary_key'] = 'id';				
+					$this->parameters['primary_key'] = '`id`';				
 				}
 			}
-		}		
+		}
+		
+		if (!isset($this->parameters['page_number']))
+		{
+			$this->parameters['page_number'] = 0;
+		}	
+
+		if (!isset($this->parameters['page_size']))
+		{
+			$this->parameters['page_size'] = $GLOBALS['global_preference']->get_property('Default View Page Size');
+		}	
+
 	}
 
 	function query($sql, $parameters=array())
@@ -73,58 +84,65 @@ class view
 
 		$query = $this->_conn->prepare($sql);
 		$query->execute($parameters);
+//print_r($query);
+//exit();
 
 		return $query;
 	}
 
 	function get($parameters = array())
 	{
+		if (count($this->id_group) > 0)
+		{
+			$this->_initialized = true;		// In case initialize process is done out of class functions
+		}
+
 		if (empty($parameters['bind_param']))
 		{
 			$parameters['bind_param'] = array();
 		}
 
 		$sql = 'SELECT '.$this->parameters['primary_key'].' FROM '.$this->parameters['table'];
+		if ($this->_initialized)
+		{
+			if (!empty($this->id_group))
+			{
+				$where_id = $this->parameters['primary_key'].' IN (-1';
+
+				foreach ($this->id_group as $row_id_index=>$row_id_value)
+				{
+					$where_id .= ',:id_'.$row_id_index;
+					$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
+				}
+				$where_id .= ')'; 
+			}
+		}
 		if (!empty($parameters['where']))
 		{
 			if (is_array($parameters['where']))
 			{
-				$parameters['where'] = implode(' AND ', $parameters['where']);
-			}
-			$sql .= ' WHERE '.$parameters['where'];
-		}
-		else
-		{
-			if ($this->_initialized)
-			{
-				$row_ids = array();
-				foreach ($this->row as $row_index=>$row_value)
-				{
-
-					if (!empty($row_value[$this->parameters['primary_key']]))
-					{
-						$row_ids[] = $row_value[$this->parameters['primary_key']];
-					}
-				}
-				if (!empty($row_ids))
-				{
-					$where = '`'.$this->parameters['primary_key'].'` IN (-1';
-
-					foreach ($row_ids as $row_id_index=>$row_id_value)
-					{
-						$where .= ',:id_'.$row_id_index;
-						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
-					}
-					$where .= ')'; 
-					$sql .= ' WHERE '.$where;
-				}
+				$where = array_merge($parameters['where'],array($where_id));
 			}
 			else
 			{
-				$this->message[] = 'Error: Cannot retrieve records without specific where conditions and rows with primary keys.';
-				return false;
+				$where = array_merge(array($parameters['where']),array($where_id));
 			}
 		}
+		else
+		{
+			$where = array($where_id);
+		}
+		
+		if (!empty($where))
+		{
+			$sql .= ' WHERE '.implode(' AND ', $where);
+		}
+		else
+		{
+			$this->message[] = 'Error: Cannot retrieve records without specific where conditions and empty id_group.';
+			return false;
+		}
+		
 		if (!empty($parameters['order']))
 		{
 			if (is_array($parameters['order']))
@@ -137,20 +155,11 @@ class view
 		{
 			if ($this->_initialized)
 			{
-				$row_ids = array();
-				foreach ($this->row as $row_index=>$row_value)
+				if (!empty($this->id_group))
 				{
+					$order = 'FIELD('.$this->parameters['primary_key'];
 
-					if (!empty($row_value[$this->parameters['primary_key']]))
-					{
-						$row_ids[] = $row_value[$this->parameters['primary_key']];
-					}
-				}
-				if (!empty($row_ids))
-				{
-					$order = 'FIELD(`'.$this->parameters['primary_key'].'`';
-
-					foreach ($row_ids as $row_id_index=>$row_id_value)
+					foreach ($this->id_group as $row_id_index=>$row_id_value)
 					{
 						$order .= ',:id_'.$row_id_index;
 						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
@@ -171,9 +180,14 @@ class view
 		$query = $this->query($sql,$parameters['bind_param']);
 		if ($query->errorCode() == '00000')
 		{
-			$result = $query->fetchAll(PDO::FETCH_ASSOC);
-			$this->row = $result;
+			$result = $query->fetchAll();
+			$this->id_group = array();
+			foreach ($result as $row_index=>$row)
+			{
+				$this->id_group[] = $row[0];
+			}
 			$this->_initialized = true;
+			$this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
 			return $result;
 		}
 		else
@@ -189,31 +203,44 @@ class view
 		$this->parameters = array_merge($this->parameters, $parameters);
 	}
 
-	function render()
+	function render($parameters = array())
 	{
 		if ($this->_initialized)
 		{
+			$page_number = $this->parameters['page_number'];
+			if (isset($parameters['page_number']))
+			{
+				$page_number = intval($parameters['page_number']);
+				if ($page_number > $this->parameters['page_count']-1) $page_number =  $this->parameters['page_count']-1;
+				if ($page_number < 0) $page_number = 0;				
+			}
+			$page_size = $this->parameters['page_size'];
+			if (isset($parameters['page_size']))
+			{
+				$page_size = intval($parameters['page_size']);
+				if ($page_size < 1) $page_size = 1;
+			}
 			if (!empty($this->id_group))
 			{
 				$sql = 'SELECT '.implode(',',$this->parameters['table_fields']).' FROM '.$this->parameters['table'];
-				$parameters['where'] = '`'.$this->parameters['primary_key'].'` IN (-1';
-				$parameters['order'] = 'FIELD(`'.$this->parameters['primary_key'].'`';
+				$where = $this->parameters['primary_key'].' IN (-1';
+				$order = 'FIELD('.$this->parameters['primary_key'];
+				$bind_param = array();
 
 				foreach ($this->id_group as $row_id_index=>$row_id_value)
 				{
-					$parameters['where'] .= ',:id_'.$row_id_index;
-					$parameters['order'] .= ',:id_'.$row_id_index;
-					$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
+					$where .= ',:id_'.$row_id_index;
+					$order .= ',:id_'.$row_id_index;
+					$bind_param[':id_'.$row_id_index] = $row_id_value;
 				}
-				$parameters['where'] .= ')'; 
-				$parameters['order'] .= ')'; 
-				$sql .= ' WHERE '.$parameters['where'];
-				$query = $this->query($sql,$parameters['bind_param']);
+				$where .= ')'; 
+				$order .= ')'; 
+				$sql .= ' WHERE '.$where.' ORDER BY '.$order.' LIMIT '.$page_size.' OFFSET '.$page_number*$page_size;
+				$query = $this->query($sql,$bind_param);
+
 				if ($query->errorCode() == '00000')
 				{
 					$result = $query->fetchAll(PDO::FETCH_ASSOC);
-					$this->row = $result;
-					$this->_initialized = true;
 					return $result;
 				}
 				else
@@ -226,7 +253,8 @@ class view
 		}
 		else
 		{
-			
+			$this->message[] = 'Object Error: Cannot render object before it is initialized with get() function';
+			return false;			
 		}
 	}
 }

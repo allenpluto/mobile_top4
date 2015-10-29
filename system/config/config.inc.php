@@ -17,6 +17,12 @@ define('PATH_CLASS', PATH_SYSTEM . 'class/');
 define('PATH_ASSET', PATH_BASE . 'asset/');
 define('PATH_IMAGE', PATH_ASSET . 'image/');
 
+// Preference (Global constant variables, can be overwritten)
+include_once(PATH_INCLUDE.'preference.inc.php');
+$global_preference = preference::get_instance();
+$global_preference->set_property('Default View Page Size',100);
+$global_preference->set_property('Business Summary View Page Size',12);
+
 // Load Pre-Include Functions (Functions that Classes May Use)
 include_once(PATH_INCLUDE.'db.inc.php');
 include_once(PATH_INCLUDE.'format.inc.php');

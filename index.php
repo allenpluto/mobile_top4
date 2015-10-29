@@ -32,11 +32,13 @@
 	{
 		$test_ids[] = $i*3+1;
 	}
-	$view_organization_obj = new view_organization($test_ids);
-	print_r($view_organization_obj);
-	$view_organization_obj->get(array('where'=>array('fax_number <> ""')));		
-	print_r($view_organization_obj);
-	print_r($view_organization_obj->render());
+	$view_business_summary_obj = new view_business_summary($test_ids);
+	shuffle($view_business_summary_obj->id_group);
+	print_r($view_business_summary_obj);
+	print_r($view_business_summary_obj->render(array('page_number'=>2)));
+	$view_business_summary_obj->get(array('where'=>array('owner_id = :owner_id'),'bind_param'=>array(':owner_id'=>7)));		
+	print_r($view_business_summary_obj);
+	print_r($view_business_summary_obj->render(array('page_number'=>1)));
 
 	/*$account_obj = new account(array('id'=>1));
 
