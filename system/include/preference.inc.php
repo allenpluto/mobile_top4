@@ -19,13 +19,12 @@ class preference
 		return self::$instance;
 	}
 
-	public function set_property($key, $value)
-	{
-		$this->property[$key] = $value;
-	}
+    public function __set($key, $value)
+    {
+        $this->property[$key] = $value;
+    }
 
-	public function get_property($key)
-	{
-		return $this->property[$key];
-	}
+    public function __get($key) {
+        return $this->property[$key];
+    }
 }

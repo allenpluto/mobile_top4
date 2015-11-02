@@ -22,7 +22,8 @@ class entity
 
 	function __construct()
 	{
-		$db = new db;
+        if ($GLOBALS['db']) $db = $GLOBALS['db'];
+        else $db = new db;
 		$this->_conn = $db->db_get_connection();
 
 		$this->parameters['table'] = DATABASE_TABLE_PREFIX.get_class($this);
@@ -173,7 +174,7 @@ echo '<br>';*/
 		}
 		else
 		{
-			$sql .= ' LIMIT '.DATABASE_ROW_LIMIT;
+			$sql .= ' LIMIT '.$GLOBALS['global_preference']->default_entity_row_max;
 		}
 		if (!empty($parameters['offset']))
 		{

@@ -17,14 +17,19 @@ define('PATH_CLASS', PATH_SYSTEM . 'class/');
 define('PATH_ASSET', PATH_BASE . 'asset/');
 define('PATH_IMAGE', PATH_ASSET . 'image/');
 
+// Load Pre-Include Functions (Functions that Classes May Use)
 // Preference (Global constant variables, can be overwritten)
 include_once(PATH_INCLUDE.'preference.inc.php');
 $global_preference = preference::get_instance();
-$global_preference->set_property('Default View Page Size',100);
-$global_preference->set_property('Business Summary View Page Size',12);
+$global_preference->default_entity_row_max = 100;
+$global_preference->default_view_page_size = 100;
+$global_preference->business_summary_view_page_size = 12;
 
-// Load Pre-Include Functions (Functions that Classes May Use)
+// Database Connection, by default, all connect using a single global variable to avoid multiple db connections
 include_once(PATH_INCLUDE.'db.inc.php');
+$db = new db;
+
+// Format adjust, such as friendly url, phone number, abn...
 include_once(PATH_INCLUDE.'format.inc.php');
 
 // Load Classes
@@ -36,4 +41,5 @@ spl_autoload_extensions('.class.php');
 spl_autoload_register();
 
 // Load System Functions (Functions that may call Classes)
+include_once(PATH_INCLUDE.'content.inc.php');
 ?>

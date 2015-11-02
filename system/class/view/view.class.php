@@ -9,7 +9,7 @@ class view
 	protected $_conn = null;
 
 	// ids of select rows
-	var $id_group = array();
+	var $content = array();
 	
 	// Object variables
 	var $parameters = array();
@@ -18,10 +18,11 @@ class view
 	
 	function __construct()
 	{
-		$db = new db;
+        if ($GLOBALS['db']) $db = $GLOBALS['db'];
+		else $db = new db;
 		$this->_conn = $db->db_get_connection();
 		
-		// By default, view object name as database view table name, but if certain view object does not have coorespond view table in db, table name to be overwritten, columns and primary key also need to be defined specificly
+		// By default, view object name as database view table name, but if certain view object does not have corresponded view table in db, table name to be overwritten, columns and primary key also need to be defined specifically
 		
 		// parameters['table'] in view does not necessarily mean one table, can be multiple tables with JOIN conditions, e.g. $this->parameters['table'] = 'tbl_entity_organization JOIN tbl_entity_organization parent_organization ON tbl_entity_organization.parent_organization_id = parent_organization.id'
 		if (!isset($this->parameters['table']))
@@ -67,16 +68,6 @@ class view
 			}
 		}
 		
-		if (!isset($this->parameters['page_number']))
-		{
-			$this->parameters['page_number'] = 0;
-		}	
-
-		if (!isset($this->parameters['page_size']))
-		{
-			$this->parameters['page_size'] = $GLOBALS['global_preference']->get_property('Default View Page Size');
-		}	
-
 	}
 
 	function query($sql, $parameters=array())

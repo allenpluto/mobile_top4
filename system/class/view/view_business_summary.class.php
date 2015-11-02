@@ -19,7 +19,7 @@ JOIN `tbl_entity_person` ON `tbl_rel_organization_to_person`.`person_id` = `tbl_
 	
 	function __construct($init_value = Null, $parameters = array())
 	{
-		$this->parameters['page_size'] = $GLOBALS['global_preference']->get_property('Business Summary View Page Size');	
+		$this->parameters['page_size'] = $GLOBALS['global_preference']->business_summary_view_page_size;
 		
 		parent::__construct();
 		
