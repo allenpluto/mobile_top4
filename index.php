@@ -1,5 +1,5 @@
 <?php
-	include('system/config/config.inc.php');
+	include('system/config/config.php');
 	echo '<pre>';
 
 	//$person_obj = new entity_person(array('prefix'=>'','select_fields'=>array('id','First Name' => 'given_name','Last Name'=>'family_name'),'get'=>array('id'=>1)));

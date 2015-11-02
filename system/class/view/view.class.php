@@ -9,14 +9,17 @@ class view
 	protected $_conn = null;
 
 	// ids of select rows
-	var $content = array();
+    var $id_group = array();
 	
 	// Object variables
 	var $parameters = array();
 	var $message = null;
 	var $_initialized = false;
-	
-	function __construct()
+
+    /**
+     *
+     */
+    function __construct()
 	{
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
 		else $db = new db;
@@ -67,8 +70,17 @@ class view
 				}
 			}
 		}
-		
-	}
+
+        if (!isset($this->parameters['page_number']))
+        {
+            $this->parameters['page_number'] = 0;
+        }
+
+        if (!isset($this->parameters['page_size']))
+        {
+            $this->parameters['page_size'] = $GLOBALS['global_preference']->default_view_page_size;
+        }
+    }
 
 	function query($sql, $parameters=array())
 	{

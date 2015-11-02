@@ -6,8 +6,14 @@
 // Render template, create html page view...
 
 class content {
+    protected $view = null;
+    protected $template = null;
+
+    var $content = array();
+
     function __construct()
     {
+
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
         else $db = new db;
         $this->_conn = $db->db_get_connection();

@@ -6,7 +6,6 @@ define('DATABASE_USER', 'root');
 define('DATABASE_PASSWORD', '');
 define('DATABASE_CHARSET', 'utf8');
 define('DATABASE_TABLE_PREFIX', 'tbl_');
-define('DATABASE_ROW_LIMIT', 100);			//Number of rows feteched per query
 
 // Core Paths
 define('PATH_BASE', '/wamp/www/allen_frame_trial/');
