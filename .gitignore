@@ -215,4 +215,5 @@ pip-log.txt
 .mr.developer.cfg
 
 #Allen Frame Trial
+.idea
 #system\config\config.inc.php
