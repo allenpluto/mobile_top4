@@ -11,8 +11,8 @@ define('DATABASE_TABLE_PREFIX', 'tbl_');
 define('PATH_BASE', '/wamp/www/allen_frame_trial/');
 define('PATH_SYSTEM', PATH_BASE . 'system/');
 define('PATH_INCLUDE', PATH_SYSTEM . 'include/');
+define('PATH_TEMPLATE', PATH_SYSTEM . 'template/');
 define('PATH_CLASS', PATH_SYSTEM . 'class/');
-
 define('PATH_ASSET', PATH_BASE . 'asset/');
 define('PATH_IMAGE', PATH_ASSET . 'image/');
 

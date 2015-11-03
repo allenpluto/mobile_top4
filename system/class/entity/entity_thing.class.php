@@ -1,15 +1,16 @@
 <?php
 // Class Object
-// Name: entity
+// Name: entity_thing
 // Description: Base class for all database table classes, read/write limited rows per query (PHP memory limit and system performance)
 
-class entity
+class entity_thing
 {
 	// database connection
 	protected $_conn = null;
+    protected $parent = null;
 
 	// containers value results from database
-	var $row = array();
+	public $row = array();
 	
 	// Object variables
 	var $parameters = array();
@@ -22,6 +23,13 @@ class entity
 
 	function __construct()
 	{
+        if (get_parent_class($this) !== False)
+        {
+            $parent_class = get_parent_class($this);
+            $this->parent = new $parent_class;
+            $this->parent->set_parameters($this->parameters);
+        }
+
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
         else $db = new db;
 		$this->_conn = $db->db_get_connection();
@@ -58,16 +66,17 @@ class entity
 		}
 	}
 
+    function set_parameters($parameters = array())
+    {
+        $this->parameters = array_merge($this->parameters, $parameters);
+    }
+
 	function query($sql, $parameters=array())
 	{
 
 		$query = $this->_conn->prepare($sql);
 		$query->execute($parameters);
-/*echo '<pre>';
-print_r($query);
-echo '<br>';
-print_r($parameters);
-echo '<br>';*/
+
 		return $query;
 	}
 
@@ -194,11 +203,6 @@ echo '<br>';*/
 			$this->message[] = 'SQL Error: '.$query_errorInfo[2];
 			return false;
 		}
-	}
-
-	function set_parameters($parameters = array())
-	{
-		$this->parameters = array_merge($this->parameters, $parameters);
 	}
 
 	function set($parameters = array())

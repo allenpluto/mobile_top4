@@ -223,7 +223,14 @@ class view
 				$page_size = intval($parameters['page_size']);
 				if ($page_size < 1) $page_size = 1;
 			}
-			if (!empty($this->id_group))
+            $template = $this->parameters['template'];
+            if (isset($parameters['template']))
+            {
+                $template = PATH_TEMPLATE.$parameters['template'];
+            }
+            if (!file_exists($template)) $template = '';
+
+            if (!empty($this->id_group))
 			{
 				$sql = 'SELECT '.implode(',',$this->parameters['table_fields']).' FROM '.$this->parameters['table'];
 				$where = $this->parameters['primary_key'].' IN (-1';
@@ -244,7 +251,19 @@ class view
 				if ($query->errorCode() == '00000')
 				{
 					$result = $query->fetchAll(PDO::FETCH_ASSOC);
-					return $result;
+                    if (empty($template))
+                    {
+                        return $result;
+                    }
+                    else
+                    {
+                        $rendered_result = array();
+                        foreach ($result as $index=>$row)
+                        {
+                        }
+
+                    }
+
 				}
 				else
 				{

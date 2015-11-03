@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="author" content="">
 	<meta name="keywords" content="">
-	<meta name="description" content="">
-	<title>Top4 Home</title>
+	<meta name="description" content="<?=$content['meta_description']?>">
+	<title><?=$content['title']?></title>
 	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     
     <meta name="viewport" content="width=device-width, initial-scale=1">

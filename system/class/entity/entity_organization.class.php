@@ -3,7 +3,7 @@
 // Name: entity_organization
 // Description: organization, business, company table, which stores all company (or organziaton) reltated information
 
-class entity_organization extends entity
+class entity_organization extends entity_thing
 {
 	// class organziaton is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'. e.g. $organization_obj = new organization('example-friendly-url-345')
 	// use other functions to select a group of people

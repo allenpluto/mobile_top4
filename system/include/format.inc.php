@@ -17,6 +17,13 @@ class format
 
 		return $result;
 	}
+
+    function apply_template($content, $template)
+    {
+        ob_start();
+        include($template);
+        return ob_get_clean();
+    }
 }
 
 ?>

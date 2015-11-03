@@ -13,7 +13,7 @@ JOIN `tbl_entity_person` ON `tbl_rel_organization_to_person`.`person_id` = `tbl_
 		'primary_key' => '`tbl_entity_organization`.`id`');*/
 	var $parameters = array(
 		'table' => '`tbl_view_organization`',
-		'table_fields' => array('id','friendly_url','name','description','logo_id','owner_name','"/asset/image/test-image.jpg" as logo_src'),
+		'table_fields' => array('id','friendly_url','name','description','logo_id','"/asset/image/test-image.jpg" as logo_src'),
 		'primary_key' => 'id'		
 	);	
 	

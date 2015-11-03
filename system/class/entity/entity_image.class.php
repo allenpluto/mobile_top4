@@ -4,7 +4,7 @@
 // Description: Image Source File, store image in big size, for gallery details, source file to crop... All variation of images (different size thumbs) goes to image_variation table.
 
 // image_id in image_object reference to source image. One source image may have zero to multiple thumbnail (cropped versions) for different scenario. Only source image may save exifData, any thumbnail can be regenerated using source image exifData and 
-class entity_image extends entity
+class entity_image extends entity_thing
 {
 	var $parameters = array(
 		'prefix' => 'image_',
