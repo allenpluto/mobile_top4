@@ -6,48 +6,61 @@
 // Render template, create html page view...
 
 class content {
-    protected $view = null;
     protected $template = null;
-
     var $content = array();
 
-    function __construct()
+    function __construct($content)
     {
+        // TODO: Construct page from db, reference by id or friendly url
+        //if ($GLOBALS['db']) $db = $GLOBALS['db'];
+        //else $db = new db;
+        //$this->_conn = $db->db_get_connection();
 
-        if ($GLOBALS['db']) $db = $GLOBALS['db'];
-        else $db = new db;
-        $this->_conn = $db->db_get_connection();
+        $this->content = $content;
+        $this->template = PATH_TEMPLATE.'page_master'.FILE_EXTENSION_TEMPLATE;
+    }
 
-        $this->parameters['table'] = DATABASE_TABLE_PREFIX.get_class($this);
-        $result = $db->db_get_columns($this->parameters['table']);
-        if ($result === false)
+    function render()
+    {
+        $content = $this->content;
+        if (file_exists($this->template))
         {
-            $this->message = $db->message;
-            return false;
-        }
-        else
-        {
-            $this->parameters['table_fields'] = $result;
-        }
-        $result = $db->db_get_primary_key($this->parameters['table']);
-        if ($result === false)
-        {
-            $this->message = $this->_conn->message;
-            return false;
-        }
-        else
-        {
-            if (count($result) == 1)
+            $template = file_get_contents($this->template);
+            $rendered_content = $template;
+            preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
+            foreach($matches[2] as $key=>$value)
             {
-                $this->parameters['primary_key'] = $result[0];
+                if (!isset($content[$value[0]]))
+                {
+                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                    continue;
+                }
+                switch ($matches[1][$key][0])
+                {
+                    case '*':
+                        $rendered_content = str_replace($matches[0][$key][0], $content[$value[0]], $rendered_content);
+                        break;
+                    case '$':
+                        $chunk_render = '';
+                        if (is_object( $content[$value[0]]))
+                        {
+                            if (method_exists($content[$value[0]], 'render'))
+                            {
+                                $chunk_render = $content[$value[0]]->render();
+                            }
+                        }
+                        $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
+                        break;
+                    default:
+                        // Un-recognized template variable types, do not process
+                        $GLOBALS['global_message']->warning[] = 'Un-recognized template variable types. ('.__FILE__.':'.__LINE__.')';
+                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                }
             }
-            else
-            {
-                // Construction Fail, if the table does not have one and only one PK, it is not a typical entity table
-                $this->message[] = 'Object Initialize Error: This table has none or multiple primary key. It is not a standard entity table.';
-                return false;
-            }
+            return $rendered_content;
         }
+        else return print_r($content,1);
+        //return ob_get_clean();
     }
 
 }

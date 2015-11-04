@@ -7,7 +7,7 @@ class view_organization extends view
 {
 	function __construct($init_value = Null, $parameters = array())
 	{	
-		parent::__construct();
+		parent::__construct($init_value, $parameters);
 		if (!empty($parameters))
 		{
 			$this->set_parameters($parameters);

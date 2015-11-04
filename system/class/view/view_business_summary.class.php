@@ -21,31 +21,7 @@ JOIN `tbl_entity_person` ON `tbl_rel_organization_to_person`.`person_id` = `tbl_
 	{
 		$this->parameters['page_size'] = $GLOBALS['global_preference']->business_summary_view_page_size;
 		
-		parent::__construct();
-		
-		if (!empty($parameters))
-		{
-			$this->set_parameters($parameters);
-		}
-		if (!is_null($init_value))
-		{
-			if (is_array($init_value))
-			{
-				$this->id_group = $init_value;
-				$this->get();
-			}
-			else	// Simplified usage, not secured
-			{
-				if (is_numeric($parameters)) // try to initialize with id
-				{
-					$this->get(array('id'=>$parameters));
-				}
-				else // try to initialize with friendly url
-				{
-					$this->get(array('friendly_url'=>$parameters));
-				}
-			}
-		}
+		parent::__construct($init_value, $parameters);
 
 		return $this;
 	}

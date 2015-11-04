@@ -19,8 +19,10 @@ class view
     /**
      *
      */
-    function __construct()
+    function __construct($init_value = null, $parameters = array())
 	{
+        if (!empty($parameters)) $this->set_parameters($parameters);
+
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
 		else $db = new db;
 		$this->_conn = $db->db_get_connection();
@@ -71,6 +73,14 @@ class view
 			}
 		}
 
+        if (!isset($this->parameters['template']))
+        {
+            if (file_exists(PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE))
+            {
+                $this->parameters['template'] = PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE;
+            }
+        }
+
         if (!isset($this->parameters['page_number']))
         {
             $this->parameters['page_number'] = 0;
@@ -79,6 +89,32 @@ class view
         if (!isset($this->parameters['page_size']))
         {
             $this->parameters['page_size'] = $GLOBALS['global_preference']->default_view_page_size;
+        }
+
+        $this->parameters['page_count'] = 0;
+
+
+        if (!is_null($init_value))
+        {
+            if (is_array($init_value))
+            {
+                $this->id_group = $init_value;
+                $this->get();
+            }
+            else	// Simplified usage, not secured
+            {
+                if (is_numeric($init_value)) // try to initialize with id
+                {
+                    $this->id_group = array('id'=>$init_value);
+                    $this->get();
+                }
+                else // try to initialize with friendly url
+                {
+                    $parameters['bind_param'][':friendly_url'] = $init_value;
+                    $this->get(array('where'=>array('`friendly_url` = :friendly_url')));
+                }
+            }
+            $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
         }
     }
 
@@ -93,11 +129,27 @@ class view
 		return $query;
 	}
 
+    function set_parameters($parameters = array())
+    {
+        $this->parameters = array_merge($this->parameters, $parameters);
+    }
+
+    function set_page_size($page_size)
+    {
+        $page_size = intval($page_size);
+        if ($page_size > 0)
+        {
+            $this->parameters['page_number'] = 0;
+            $this->parameters['page_size'] = $page_size;
+            $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
+        }
+    }
+
 	function get($parameters = array())
 	{
 		if (count($this->id_group) > 0)
 		{
-			$this->_initialized = true;		// In case initialize process is done out of class functions
+			$this->_initialized = true;
 		}
 
 		if (empty($parameters['bind_param']))
@@ -201,11 +253,6 @@ class view
 		}
 	}
 
-	function set_parameters($parameters = array())
-	{
-		$this->parameters = array_merge($this->parameters, $parameters);
-	}
-
 	function render($parameters = array())
 	{
 		if ($this->_initialized)
@@ -226,9 +273,10 @@ class view
             $template = $this->parameters['template'];
             if (isset($parameters['template']))
             {
-                $template = PATH_TEMPLATE.$parameters['template'];
+                $template = PATH_TEMPLATE.$parameters['template'].FILE_EXTENSION_TEMPLATE;
             }
             if (!file_exists($template)) $template = '';
+            else $template = file_get_contents($template);
 
             if (!empty($this->id_group))
 			{
@@ -253,17 +301,49 @@ class view
 					$result = $query->fetchAll(PDO::FETCH_ASSOC);
                     if (empty($template))
                     {
-                        return $result;
+                        return print_r($result,1);
                     }
                     else
                     {
                         $rendered_result = array();
                         foreach ($result as $index=>$row)
                         {
+                            $content = $row;
+                            $rendered_content = $template;
+                            preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
+                            foreach($matches[2] as $key=>$value)
+                            {
+                                if (!isset($content[$value[0]]))
+                                {
+                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                    continue;
+                                }
+                                switch ($matches[1][$key][0])
+                                {
+                                    case '*':
+                                        $rendered_content = str_replace($matches[0][$key][0], $content[$value[0]], $rendered_content);
+                                        break;
+                                    case '$':
+                                        $chunk_render = '';
+                                        if (is_object( $content[$value[0]]))
+                                        {
+                                            if (method_exists($content[$value[0]], 'render'))
+                                            {
+                                                $chunk_render = $content[$value[0]]->render();
+                                            }
+                                        }
+                                        $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
+                                        break;
+                                    default:
+                                        // Un-recognized template variable types, do not process
+                                        $GLOBALS['global_message']->warning = 'Un-recognized template variable types. ('.__FILE__.':'.__LINE__.')';
+                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                }
+                            }
+                            $rendered_result[] = $rendered_content;
                         }
-
+                        return implode('',$rendered_result);
                     }
-
 				}
 				else
 				{
