@@ -158,6 +158,18 @@ class view
 		}
 
 		$sql = 'SELECT '.$this->parameters['primary_key'].' FROM '.$this->parameters['table'];
+        $where = array();
+        if (!empty($parameters['where']))
+        {
+            if (is_array($parameters['where']))
+            {
+                $where = $parameters['where'];
+            }
+            else
+            {
+                $where[] = $parameters['where'];
+            }
+        }
 		if ($this->_initialized)
 		{
 			if (!empty($this->id_group))
@@ -169,25 +181,11 @@ class view
 					$where_id .= ',:id_'.$row_id_index;
 					$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
 				}
-				$where_id .= ')'; 
+				$where_id .= ')';
+                $where = array_merge($where,array($where_id));
 			}
 		}
-		if (!empty($parameters['where']))
-		{
-			if (is_array($parameters['where']))
-			{
-				$where = array_merge($parameters['where'],array($where_id));
-			}
-			else
-			{
-				$where = array_merge(array($parameters['where']),array($where_id));
-			}
-		}
-		else
-		{
-			$where = array($where_id);
-		}
-		
+
 		if (!empty($where))
 		{
 			$sql .= ' WHERE '.implode(' AND ', $where);

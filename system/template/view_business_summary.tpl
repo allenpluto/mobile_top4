@@ -1,7 +1,7 @@
 <?php
     // Template for view_business_summary
 ?>
-<div id="listing_block_container_[[*id]]" class="block_container listing_block_container[[*extra_classes]]" itemscope="" itemtype="[[*schema_type]]">
+<div id="listing_block_container_[[*id]]" class="block_container listing_block_container[[*extra_classes]]" itemscope="" itemtype="[[*schema_itemtype]]">
     <div class="block_thumb_container">
         <div class="block_thumb_image_container">
             <img src="[[*image_src]]" itemprop="image" alt="[[*name]]">
@@ -20,7 +20,7 @@
         </div>
         <div class="block_thumb_logo_container">
             <a href="[[*friendly_url]]">
-                <img src="[[*owner_image_src]]">
+                <img src="[[*logo_image_src]]">
             </a>
         </div>
     </div>

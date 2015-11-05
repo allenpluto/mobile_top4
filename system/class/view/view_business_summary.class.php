@@ -12,10 +12,9 @@ JOIN `tbl_entity_person` ON `tbl_rel_organization_to_person`.`person_id` = `tbl_
 		'table_fields' => array('`tbl_entity_organization`.id','`tbl_entity_organization`.friendly_url','`tbl_entity_organization`.name','`tbl_entity_organization`.description','`tbl_entity_organization`.logo_id','`tbl_entity_person`.name AS owner_name'),
 		'primary_key' => '`tbl_entity_organization`.`id`');*/
 	var $parameters = array(
-		'table' => '`tbl_view_organization`',
-		'table_fields' => array('id','friendly_url','name','description','logo_id','"/asset/image/test-image.jpg" as logo_src'),
-		'primary_key' => 'id'		
-	);	
+		'table' => '`tbl_view_business_summary`',
+		'primary_key' => 'id'
+	);
 	
 	function __construct($init_value = Null, $parameters = array())
 	{

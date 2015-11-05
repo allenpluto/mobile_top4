@@ -107,7 +107,7 @@
             <div id="home_featured_listing_container" class="content_section container">
             	<div class="content_section_title">Featured</div>
                 <div class="content_section_body">
-                	<div class="listing_block">
+                	<div class="listing_block_wrapper">
                         [[$featured]]
                     </div>
                 </div>
