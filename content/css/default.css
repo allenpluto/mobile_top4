@@ -685,7 +685,6 @@ img {display:block;max-width:100%;}
 /* Base Z-INDEX 100 */
 #body_wrapper
 {
-    padding:1em 0;
 }
 
 /*# Body/Section #*/
@@ -747,11 +746,11 @@ img {display:block;max-width:100%;}
 .block_thumb_logo_container
 {
     display: block;
-    width: 24%;
-    height: 32%;
+    width: 2em;
+    height: 2em;
     position: absolute;
     bottom: 0;
-    left: 3%;
+    left: 0.4em;
 
     overflow: hidden;
 
@@ -770,7 +769,7 @@ img {display:block;max-width:100%;}
 {
     display: block;
     width: 60%;
-    min-height: 10em;
+    min-height: 9em;
     float: right;
     position: relative;
     padding:1em 1em 3.5em 1em;
@@ -808,7 +807,7 @@ img {display:block;max-width:100%;}
     display: block;
     width: 100%;
     position: absolute;
-    padding: 0.4em 0 0.2em 1em;
+    padding: 0.4em 0 0.4em 1em;
     bottom: 0;
     right: 0;
 
@@ -828,7 +827,9 @@ img {display:block;max-width:100%;}
     bottom: 0;
     right: 0;
 
-    border-left: 1px solid #cccccc;
+    border: 1px solid transparent;
+    border-left-color: #cccccc;
+    border-right-width: 0;
 
     color: #ffb303;
     content: '\f054';
@@ -837,53 +838,11 @@ img {display:block;max-width:100%;}
     line-height: 2;
     text-align: center;
 
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+
     z-index: 103;
-}
-
-.block_content_rating_star_wrapper
-{
-    display:inline-block;
-    position:relative;
-}
-
-.block_content_rating_star_container
-{
-    display:block;
-    white-space:nowrap;
-    overflow:hidden;
-}
-
-.block_content_rating_star_front_container
-{
-    position:absolute;
-    top:0;
-    left:0;
-
-    z-index:140;
-}
-
-.block_content_rating_star
-{
-    display:inline-block;
-    position:relative;
-}
-
-.block_content_rating_star:before
-{
-    font-family:'FontAwesome';
-    font-size:1.6em;
-    line-height: 1.2;
-    content:"\f005";
-}
-
-.block_content_rating_star_bg_container .block_content_rating_star:before
-{
-    color:#dddddd;
-}
-
-.block_content_rating_star_front_container .block_content_rating_star:before
-{
-    color:#ffb303;
 }
 
 .block_cover_over_link_container
@@ -905,7 +864,61 @@ img {display:block;max-width:100%;}
     height: 100%;
 }
 
+/*# Body/Home #*/
+#home_featured_listing_container
+{
+    padding: 1em 0;
+}
+
 /*# Body/Listing #*/
+/*# Body/Listing/Rating #*/
+
+.rating_star_wrapper
+{
+    display:inline-block;
+    position:relative;
+}
+
+.rating_star_container
+{
+    display:block;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+.rating_star_front_container
+{
+    position:absolute;
+    top:0;
+    left:0;
+
+    z-index:140;
+}
+
+.rating_star
+{
+    display:inline-block;
+    position:relative;
+}
+
+.rating_star:before
+{
+    font-family:'FontAwesome';
+    font-size:1.6em;
+    line-height: 1.25;
+    content:"\f005";
+}
+
+.rating_star_bg_container .rating_star:before
+{
+    color:#dddddd;
+}
+
+.rating_star_front_container .rating_star:before
+{
+    color:#ffb303;
+}
+
 /*# Body/Listing/Summary #*/
 .listing_block_container
 {
@@ -955,6 +968,12 @@ img {display:block;max-width:100%;}
 		height:14rem;
 	}
 
+    .block_thumb_logo_container
+    {
+        width: 3em;
+        height: 3em;
+        left: 0.6em;
+    }
     .block_content_description
     {
         display:none;
@@ -989,18 +1008,24 @@ img {display:block;max-width:100%;}
 		font-size:1.4em;
 	}
 
+    .block_thumb_logo_container
+    {
+        width: 4.5em;
+        height: 4.5em;
+        left: 0.9em;
+    }
     .block_content_container
     {
         min-height: 13.5em;
     }
 }
 
+@media only screen and (min-width:480px)
+{
+}
+
 @media only screen and (max-width:767px)
 {
-    .block_thumb_overlay_container
-    {
-        display:none;
-    }
 }
 
 /*# Responsive/M #*/
@@ -1032,6 +1057,25 @@ img {display:block;max-width:100%;}
 		font-size:2em;
 	}
 }
+
+@media only screen and (min-width:768px)
+{
+    .block_thumb_logo_container
+    {
+        width: 7.5em;
+        height: 7.5em;
+        left: 1.5em;
+
+        border-radius: 3px;
+    }
+    .block_content_container
+    {
+        font-size: 1.5em;
+        min-height: 15em;
+    }
+}
+
+
 
 /*# Responsive/L #*/
 @media only screen and (min-width:992px) and (max-width:1199px)

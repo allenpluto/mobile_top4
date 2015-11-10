@@ -38,9 +38,11 @@ class content {
                 switch ($matches[1][$key][0])
                 {
                     case '*':
+                        // simple value variable
                         $rendered_content = str_replace($matches[0][$key][0], $content[$value[0]], $rendered_content);
                         break;
                     case '$':
+                        // view object, executing sub level rendering
                         $chunk_render = '';
                         if (is_object( $content[$value[0]]))
                         {
@@ -50,6 +52,10 @@ class content {
                             }
                         }
                         $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
+                        break;
+                    case '~':
+                        // comment area, do not render even if it matches any key
+                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
                         break;
                     default:
                         // Un-recognized template variable types, do not process

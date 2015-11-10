@@ -53,24 +53,7 @@ class view
 		// parameters['primary_key'] in view need to be single column field, if it is not defined, default to id
 		if (!isset($this->parameters['primary_key']))
 		{
-			$result = $db->db_get_primary_key($this->parameters['table']);
-			if ($result === false)
-			{
-				$this->message = $this->_conn->message;
-				return false;			
-			}
-			else
-			{
-				if (count($result) == 1)
-				{
-					$this->parameters['primary_key'] = '`'.$result[0].'`';
-				}
-				else
-				{
-					// Views do not necessarily have defined primary key column, assume it is 'id'
-					$this->parameters['primary_key'] = '`id`';				
-				}
-			}
+            $this->parameters['primary_key'] = '`id`';
 		}
 
         if (!isset($this->parameters['template']))
@@ -319,9 +302,11 @@ class view
                                 switch ($matches[1][$key][0])
                                 {
                                     case '*':
+                                        // simple value variable
                                         $rendered_content = str_replace($matches[0][$key][0], $content[$value[0]], $rendered_content);
                                         break;
                                     case '$':
+                                        // view object, executing sub level rendering
                                         $chunk_render = '';
                                         if (is_object( $content[$value[0]]))
                                         {
@@ -331,6 +316,10 @@ class view
                                             }
                                         }
                                         $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
+                                        break;
+                                    case '~':
+                                        // comment area, do not render even if it matches any key
+                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
                                         break;
                                     default:
                                         // Un-recognized template variable types, do not process

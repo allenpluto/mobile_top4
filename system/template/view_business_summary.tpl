@@ -1,6 +1,4 @@
-<?php
-    // Template for view_business_summary
-?>
+[[~view_business_summary]]
 <div id="listing_block_container_[[*id]]" class="block_container listing_block_container[[*extra_classes]]" itemscope="" itemtype="[[*schema_itemtype]]">
     <div class="block_thumb_container">
         <div class="block_thumb_image_container" style="background-image: url([[*image_src]]);"></div>
@@ -22,20 +20,20 @@
             </p>
         </div>
         <div class="block_content_rating_container">
-            <div class="block_content_rating_star_wrapper" listing_id="[[*id]]">
-                <div class="block_content_rating_star_container block_content_rating_star_bg_container"><!--
-				 --><span class="block_content_rating_star"></span><!--
-				 --><span class="block_content_rating_star"></span><!--
-				 --><span class="block_content_rating_star"></span><!--
-				 --><span class="block_content_rating_star"></span><!--
-				 --><span class="block_content_rating_star"></span><!--
+            <div class="rating_star_wrapper" listing_id="[[*id]]">
+                <div class="rating_star_container rating_star_bg_container"><!--
+				 --><span class="rating_star"></span><!--
+				 --><span class="rating_star"></span><!--
+				 --><span class="rating_star"></span><!--
+				 --><span class="rating_star"></span><!--
+				 --><span class="rating_star"></span><!--
 			 --></div>
-                <div class="block_content_rating_star_container block_content_rating_star_front_container" style="width: [[*avg_review_percentage]]%;"><!--
-				 --><span class="block_content_rating_star"></span><!--
-				 --><span class="block_content_rating_star"></span><!--
-				 --><span class="block_content_rating_star"></span><!--
-				 --><span class="block_content_rating_star"></span><!--
-				 --><span class="block_content_rating_star"></span><!--
+                <div class="rating_star_container rating_star_front_container" style="width: [[*avg_review_percentage]]%;"><!--
+				 --><span class="rating_star"></span><!--
+				 --><span class="rating_star"></span><!--
+				 --><span class="rating_star"></span><!--
+				 --><span class="rating_star"></span><!--
+				 --><span class="rating_star"></span><!--
 			 --></div>
             </div>
             <div class="block_content_rating_description" itemprop="aggregateRating" itemscope="" itemtype="http://schema.org/AggregateRating">
