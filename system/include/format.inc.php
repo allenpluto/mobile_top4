@@ -21,7 +21,7 @@ class format
     function instance_text($value)
     {
         $value = strtolower($value);
-        $value = preg_replace('/[^_a-z0-9]/', '', $value);
+        $value = preg_replace('/[^-_a-z0-9]/', '', $value);
 
         return $value;
     }

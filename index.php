@@ -1,16 +1,18 @@
 <?php
 	include('system/config/config.php');
+//print_r($_GET);
     if (isset($_GET['instance']))
     {
         $format_function = new format;
         $instance = $format_function->instance_text($_GET['instance']);
+//print_r($instance);
         if (isset($_GET['namespace']))
         {
             $namespace = $format_function->instance_text($_GET['namespace']);
         }
+//print_r($namespace);
         $page_content = new content($instance, $namespace);
-//        print_r([$instance, $namespace]);
-//        print_r($page_content);
+//print_r($page_content);
         $page_content->render();
     }
     else
@@ -19,24 +21,6 @@
         print_r($_GET);
     }
 exit();
-$test_page_value = [
-    'title'=>'Twmg Title',
-    'meta_description'=>'abc 123, twmg has some tests on top4'
-];
-    $test_ids = array();
-    for($i=3;$i<33;$i++)
-    {
-        $test_ids[] = $i*3+1;
-    }
-    $view_business_summary_obj = new view_business_summary($test_ids);
-    shuffle($view_business_summary_obj->id_group);
-    $view_business_summary_obj->get(array('where'=>array('id > :id'),'bind_param'=>array(':id'=>77)));
-    $view_business_summary_obj->set_page_size(4);
-    //$view_business_summary_obj->parameters['template'] = '';
-    $test_page_value['featured'] = $view_business_summary_obj;
-    //$test_page_value['featured'] = '<pre>'.print_r($view_business_summary_obj->render(array('page_number'=>0)),1);
-    $page_content = new content($test_page_value);
-    echo $page_content->render();
 	echo '<pre>';
 
 	//$person_obj = new entity_person(array('prefix'=>'','select_fields'=>array('id','First Name' => 'given_name','Last Name'=>'family_name'),'get'=>array('id'=>1)));

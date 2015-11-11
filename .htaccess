@@ -1,6 +1,5 @@
 ErrorDocument 404 /404
 
-
 RewriteEngine On
 RewriteBase /allen_frame_trial/
 

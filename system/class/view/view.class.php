@@ -95,7 +95,7 @@ class view
                 {
                     $parameters['bind_param'][':friendly_url'] = $init_value;
                     $parameters['where'] = array('`friendly_url` = :friendly_url');
-                    $this->get( $parameters);
+                    $this->get($parameters);
                 }
             }
             $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
@@ -317,6 +317,10 @@ class view
                     foreach ($result_rows as $index=>$row)
                     {
                         $content = $row;
+                        if (isset($parameters['extra_content']))
+                        {
+                            $content = array_merge($content,$parameters['extra_content']);
+                        }
                         $rendered_content = $template;
                         preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
                         foreach($matches[2] as $key=>$value)
