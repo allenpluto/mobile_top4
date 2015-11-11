@@ -94,7 +94,8 @@ class view
                 else // try to initialize with friendly url
                 {
                     $parameters['bind_param'][':friendly_url'] = $init_value;
-                    $this->get(array('where'=>array('`friendly_url` = :friendly_url')));
+                    $parameters['where'] = array('`friendly_url` = :friendly_url');
+                    $this->get( $parameters);
                 }
             }
             $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
@@ -107,6 +108,7 @@ class view
 		$query = $this->_conn->prepare($sql);
 		$query->execute($parameters);
 //print_r($query);
+//print_r($parameters);
 //exit();
 
 		return $query;
@@ -234,23 +236,66 @@ class view
 		}
 	}
 
+    function fetch_value($parameters = array())
+    {
+        if ($this->_initialized)
+        {
+            $page_number = $this->parameters['page_number'];
+            if (isset($parameters['page_number']))
+            {
+                $page_number = intval($parameters['page_number']);
+                if ($page_number > $this->parameters['page_count']-1) $page_number =  $this->parameters['page_count']-1;
+                if ($page_number < 0) $page_number = 0;
+            }
+            $page_size = $this->parameters['page_size'];
+            if (isset($parameters['page_size']))
+            {
+                $page_size = intval($parameters['page_size']);
+                if ($page_size < 1) $page_size = 1;
+            }
+
+            if (!empty($this->id_group))
+            {
+                $sql = 'SELECT '.implode(',',$this->parameters['table_fields']).' FROM '.$this->parameters['table'];
+                $where = $this->parameters['primary_key'].' IN (-1';
+                $order = 'FIELD('.$this->parameters['primary_key'];
+                $bind_param = array();
+
+                foreach ($this->id_group as $row_id_index=>$row_id_value)
+                {
+                    $where .= ',:id_'.$row_id_index;
+                    $order .= ',:id_'.$row_id_index;
+                    $bind_param[':id_'.$row_id_index] = $row_id_value;
+                }
+                $where .= ')';
+                $order .= ')';
+                $sql .= ' WHERE '.$where.' ORDER BY '.$order.' LIMIT '.$page_size.' OFFSET '.$page_number*$page_size;
+                $query = $this->query($sql,$bind_param);
+
+                if ($query->errorCode() == '00000')
+                {
+                    $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                    return $result;
+                }
+                else
+                {
+                    $query_errorInfo = $query->errorInfo();
+                    $this->message[] = 'SQL Error: '.$query_errorInfo[2];
+                    return array();
+                }
+            }
+        }
+        else
+        {
+            $this->message[] = 'Object Error: Cannot render object before it is initialized with get() function';
+            return false;
+        }
+    }
+
 	function render($parameters = array())
 	{
-		if ($this->_initialized)
+		if ($this->_initialized AND !empty($this->id_group))
 		{
-			$page_number = $this->parameters['page_number'];
-			if (isset($parameters['page_number']))
-			{
-				$page_number = intval($parameters['page_number']);
-				if ($page_number > $this->parameters['page_count']-1) $page_number =  $this->parameters['page_count']-1;
-				if ($page_number < 0) $page_number = 0;				
-			}
-			$page_size = $this->parameters['page_size'];
-			if (isset($parameters['page_size']))
-			{
-				$page_size = intval($parameters['page_size']);
-				if ($page_size < 1) $page_size = 1;
-			}
             $template = $this->parameters['template'];
             if (isset($parameters['template']))
             {
@@ -259,86 +304,61 @@ class view
             if (!file_exists($template)) $template = '';
             else $template = file_get_contents($template);
 
-            if (!empty($this->id_group))
-			{
-				$sql = 'SELECT '.implode(',',$this->parameters['table_fields']).' FROM '.$this->parameters['table'];
-				$where = $this->parameters['primary_key'].' IN (-1';
-				$order = 'FIELD('.$this->parameters['primary_key'];
-				$bind_param = array();
-
-				foreach ($this->id_group as $row_id_index=>$row_id_value)
-				{
-					$where .= ',:id_'.$row_id_index;
-					$order .= ',:id_'.$row_id_index;
-					$bind_param[':id_'.$row_id_index] = $row_id_value;
-				}
-				$where .= ')'; 
-				$order .= ')'; 
-				$sql .= ' WHERE '.$where.' ORDER BY '.$order.' LIMIT '.$page_size.' OFFSET '.$page_number*$page_size;
-				$query = $this->query($sql,$bind_param);
-
-				if ($query->errorCode() == '00000')
-				{
-					$result = $query->fetchAll(PDO::FETCH_ASSOC);
-                    if (empty($template))
+            $result_rows = $this->fetch_value($parameters);
+            if (count($result_rows) > 0)
+            {
+                if (empty($template))
+                {
+                    return print_r($result_rows,1);
+                }
+                else
+                {
+                    $rendered_result = array();
+                    foreach ($result_rows as $index=>$row)
                     {
-                        return print_r($result,1);
-                    }
-                    else
-                    {
-                        $rendered_result = array();
-                        foreach ($result as $index=>$row)
+                        $content = $row;
+                        $rendered_content = $template;
+                        preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
+                        foreach($matches[2] as $key=>$value)
                         {
-                            $content = $row;
-                            $rendered_content = $template;
-                            preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
-                            foreach($matches[2] as $key=>$value)
+                            if (!isset($content[$value[0]]))
                             {
-                                if (!isset($content[$value[0]]))
-                                {
-                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-                                    continue;
-                                }
-                                switch ($matches[1][$key][0])
-                                {
-                                    case '*':
-                                        // simple value variable
-                                        $rendered_content = str_replace($matches[0][$key][0], $content[$value[0]], $rendered_content);
-                                        break;
-                                    case '$':
-                                        // view object, executing sub level rendering
-                                        $chunk_render = '';
-                                        if (is_object( $content[$value[0]]))
-                                        {
-                                            if (method_exists($content[$value[0]], 'render'))
-                                            {
-                                                $chunk_render = $content[$value[0]]->render();
-                                            }
-                                        }
-                                        $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
-                                        break;
-                                    case '~':
-                                        // comment area, do not render even if it matches any key
-                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-                                        break;
-                                    default:
-                                        // Un-recognized template variable types, do not process
-                                        $GLOBALS['global_message']->warning = 'Un-recognized template variable types. ('.__FILE__.':'.__LINE__.')';
-                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-                                }
+                                $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                continue;
                             }
-                            $rendered_result[] = $rendered_content;
+                            switch ($matches[1][$key][0])
+                            {
+                                case '*':
+                                    // simple value variable
+                                    $rendered_content = str_replace($matches[0][$key][0], $content[$value[0]], $rendered_content);
+                                    break;
+                                case '$':
+                                    // view object, executing sub level rendering
+                                    $chunk_render = '';
+                                    if (is_object( $content[$value[0]]))
+                                    {
+                                        if (method_exists($content[$value[0]], 'render'))
+                                        {
+                                            $chunk_render = $content[$value[0]]->render();
+                                        }
+                                    }
+                                    $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
+                                    break;
+                                case '~':
+                                    // comment area, do not render even if it matches any key
+                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                    break;
+                                default:
+                                    // Un-recognized template variable types, do not process
+                                    $GLOBALS['global_message']->warning = 'Un-recognized template variable types. ('.__FILE__.':'.__LINE__.')';
+                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                            }
                         }
-                        return implode('',$rendered_result);
+                        $rendered_result[] = $rendered_content;
                     }
-				}
-				else
-				{
-					$query_errorInfo = $query->errorInfo();
-					$this->message[] = 'SQL Error: '.$query_errorInfo[2];
-					return false;
-				}
-			}
+                    return implode('',$rendered_result);
+                }
+            }
 		}
 		else
 		{

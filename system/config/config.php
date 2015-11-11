@@ -23,6 +23,9 @@ define('FILE_EXTENSION_CLASS', '.class.php');
 define('FILE_EXTENSION_INCLUDE', '.inc.php');
 define('FILE_EXTENSION_TEMPLATE', '.tpl');
 
+// Prefix
+define('PREFIX_TEMPLATE_PAGE', 'page_');
+
 // Load Pre-Include Functions (Functions that Classes May Use)
 // Preference (Global constant variables, can be overwritten)
 include_once(PATH_INCLUDE.'preference'.FILE_EXTENSION_INCLUDE);

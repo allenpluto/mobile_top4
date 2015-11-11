@@ -1,5 +1,24 @@
 <?php
 	include('system/config/config.php');
+    if (isset($_GET['instance']))
+    {
+        $format_function = new format;
+        $instance = $format_function->instance_text($_GET['instance']);
+        if (isset($_GET['namespace']))
+        {
+            $namespace = $format_function->instance_text($_GET['namespace']);
+        }
+        $page_content = new content($instance, $namespace);
+//        print_r([$instance, $namespace]);
+//        print_r($page_content);
+        $page_content->render();
+    }
+    else
+    {
+        echo 'Page Does Not Exist';
+        print_r($_GET);
+    }
+exit();
 $test_page_value = [
     'title'=>'Twmg Title',
     'meta_description'=>'abc 123, twmg has some tests on top4'

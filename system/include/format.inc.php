@@ -17,6 +17,14 @@ class format
 
 		return $result;
 	}
+
+    function instance_text($value)
+    {
+        $value = strtolower($value);
+        $value = preg_replace('/[^_a-z0-9]/', '', $value);
+
+        return $value;
+    }
 }
 
 ?>

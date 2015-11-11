@@ -109,6 +109,7 @@
                 <div class="content_section_body">
                 	<div class="listing_block_wrapper">
                         [[$featured]]
+                        <div class="clear"></div>
                     </div>
                 </div>
             </div>

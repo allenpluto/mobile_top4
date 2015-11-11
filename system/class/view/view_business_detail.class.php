@@ -13,12 +13,14 @@ JOIN `tbl_entity_person` ON `tbl_rel_organization_to_person`.`person_id` = `tbl_
 		'primary_key' => '`tbl_entity_organization`.`id`');*/
 	var $parameters = array(
 		'table' => '`tbl_view_business_summary`',
-		'primary_key' => 'id'
+		'primary_key' => 'id',
+        'page_size' => 1
 	);
 	
 	function __construct($init_value = Null, $parameters = array())
 	{
-		$this->parameters['page_size'] = $GLOBALS['global_preference']->business_summary_view_page_size;
+        // Only retrieve one row of value for detail view
+		$this->parameters['page_size'] = 1;
 		
 		parent::__construct($init_value, $parameters);
 
