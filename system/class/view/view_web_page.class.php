@@ -1,12 +1,19 @@
 <?php
 // Class Object
-// Name: view_organization
-// Description: entity_organization's main view table, display everything about organziation
+// Name: view_web_page
+// Description: entity_web_page's main view table
 
 class view_web_page extends view
 {
-	function __construct($init_value = Null, $parameters = array())
-	{	
+    var $parameters = array(
+        'table' => '`tbl_view_business_summary`',
+        'primary_key' => 'id'
+    );
+
+    function __construct($init_value = Null, $parameters = array())
+	{
+        $init_value = 12054;
+
 		parent::__construct($init_value, $parameters);
 
 		return $this;

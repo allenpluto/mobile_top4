@@ -22,13 +22,16 @@ class content {
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
                 $render_parameters = array(
                     'template'=>$template,
-                    'title'=>$view_business_detail_value[0]['name'],
-                    'meta_description'=>$view_business_detail_value[0]['description'],
-                    'business_detail_content'=>$view_business_detail_obj
+                    'extra_content'=>array(
+                        'title'=>$view_business_detail_value[0]['name'],
+                        'meta_description'=>$view_business_detail_value[0]['description'],
+                        'business_detail_content'=>$view_business_detail_obj
+                    )
                 );
                 $this->content = $view_business_detail_obj->render($render_parameters);
                 break;
             default:
+                $template = PREFIX_TEMPLATE_PAGE.'default';
                 switch ($instance)
                 {
                     case 'home':
@@ -47,9 +50,11 @@ class content {
 
                         $render_parameters = array(
                             'template'=>$template,
-                            'title'=>'Home Page',
-                            'meta_description'=>'Home Description',
-                            'featured'=>$view_business_summary_obj
+                            'extra_content'=>array(
+                                'title'=>'Home Page',
+                                'meta_description'=>'Home Description',
+                                'featured'=>$view_business_summary_obj
+                            )
                         );
                         $this->content = $view_web_page_obj->render($render_parameters);
                         break;

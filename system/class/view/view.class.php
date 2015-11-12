@@ -42,7 +42,7 @@ class view
 			if ($result === false)
 			{
 				$this->message = $db->message;
-				return false;			
+				return false;
 			}
 			else
 			{
@@ -61,6 +61,10 @@ class view
             if (file_exists(PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE))
             {
                 $this->parameters['template'] = PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE;
+            }
+            else
+            {
+                $this->parameters['template'] = '';
             }
         }
 

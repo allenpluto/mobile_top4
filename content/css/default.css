@@ -685,6 +685,7 @@ img {display:block;max-width:100%;}
 /* Base Z-INDEX 100 */
 #body_wrapper
 {
+    min-height: 400px;
 }
 
 /*# Body/Section #*/
