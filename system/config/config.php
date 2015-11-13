@@ -49,7 +49,7 @@ include_once(PATH_INCLUDE.'format'.FILE_EXTENSION_INCLUDE);
 // Each Entity Class represents one and only one table, handle table operations
 // View Classes are read only classes, display to front end
 // Index Classes are indexed tables for search only
-set_include_path(PATH_CLASS.'entity/;'.PATH_CLASS.'view/;'.PATH_CLASS.'index/');
+set_include_path(PATH_CLASS.'entity/'.PATH_SEPARATOR.PATH_CLASS.'view/'.PATH_SEPARATOR.PATH_CLASS.'index/');
 spl_autoload_extensions(FILE_EXTENSION_CLASS);
 spl_autoload_register();
 

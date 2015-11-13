@@ -189,7 +189,7 @@ class view
 		{
 			if (is_array($parameters['order']))
 			{
-				$parameters['order'] = implode(', ', $parameters['where']);
+				$parameters['order'] = implode(', ', $parameters['order']);
 			}
 			$sql .= ' ORDER BY '.$parameters['order'];
 		}
