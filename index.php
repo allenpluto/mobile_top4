@@ -14,6 +14,7 @@
         $page_content = new content($instance, $namespace);
 //print_r($page_content);
         $page_content->render();
+        print_r($_GET);
     }
     else
     {

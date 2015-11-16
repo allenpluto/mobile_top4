@@ -924,6 +924,68 @@ img {display:block;max-width:100%;}
 {
 }
 
+/*# Body/Listing/Detail #*/
+#listing_detail_view_wrapper
+{
+    background:#ededed top center repeat-x;
+    background-size: contain, 1px 1px;
+}
+
+#listing_detail_view_top_wrapper
+{
+    display: block;
+    padding: 1.5em 0 1em 0;
+
+    background: -webkit-linear-gradient(top, rgba(238,238,238,0.2), rgba(238,238,238,0.4) 25%, rgba(238,238,238,1) 50%, rgba(238,238,238,1) 100%);
+}
+
+.listing_detail_view_top_logo_container
+{
+    padding: 1.5%;
+
+    background: #ffffff;
+
+    border:1px inset #cccccc;
+    border-radius: 3px;
+}
+
+.listing_detail_view_top_logo_container > img
+{
+    border:2px outset #cccccc;
+    border-radius: 3px;
+}
+
+.listing_detail_view_top_text_container
+{
+    display: block;
+    padding: 0 0 0 1em;
+
+    color: #000000;
+}
+
+.listing_detail_view_title_container
+{
+    display: block;
+    padding: 1.5em 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.listing_detail_view_count_visit
+{
+    display: inline-block;
+}
+
+.listing_detail_view_count_visit:before
+{
+    padding-right: 0.5em;
+
+    font-family: FontAwesome;
+
+    content: '\f06e';
+}
 
 /*# Responsive #*/
 /*# Responsive/XXS #*/

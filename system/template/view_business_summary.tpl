@@ -1,4 +1,4 @@
-[[~view_business_summary]]
+[[-view_business_summary]]
 <div id="listing_block_container_[[*id]]" class="block_container listing_block_container[[*extra_classes]]" itemscope="" itemtype="[[*schema_itemtype]]">
     <div class="block_thumb_container">
         <div class="block_thumb_image_container" style="background-image: url([[*image_src]]);"></div>
@@ -44,6 +44,6 @@
     </div>
     <div class="clear"></div>
     <div class="block_cover_over_link_container">
-        <a href="[[*friendly_url]]" itemprop="url" title="[[*name]]" class="block_thumb_cover_over_link"></a>
+        <a href="[[&namespace]][[*friendly_url]]" itemprop="url" title="[[*name]]" class="block_thumb_cover_over_link"></a>
     </div>
 </div>

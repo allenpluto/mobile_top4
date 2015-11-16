@@ -62,9 +62,7 @@ class content {
                         $view_web_page_obj = new view_web_page($instance);
                         $template = PREFIX_TEMPLATE_PAGE.'static';
                         $this->content = $view_web_page_obj->render(array('template'=>$template));
-
                 }
-
         }
     }
 

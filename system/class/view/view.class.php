@@ -329,19 +329,24 @@ class view
                         preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
                         foreach($matches[2] as $key=>$value)
                         {
-                            if (!isset($content[$value[0]]))
-                            {
-                                $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-                                continue;
-                            }
                             switch ($matches[1][$key][0])
                             {
                                 case '*':
                                     // simple value variable
-                                    $rendered_content = str_replace($matches[0][$key][0], $content[$value[0]], $rendered_content);
+                                    if (!isset($content[$value[0]]))
+                                    {
+                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                        continue;
+                                    }
+                                    $rendered_content = str_replace($matches[0][$key][0], str_replace(chr(146),'\'',$content[$value[0]]), $rendered_content);
                                     break;
                                 case '$':
                                     // view object, executing sub level rendering
+                                    if (!isset($content[$value[0]]))
+                                    {
+                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                        continue;
+                                    }
                                     $chunk_render = '';
                                     if (is_object( $content[$value[0]]))
                                     {
@@ -352,7 +357,16 @@ class view
                                     }
                                     $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
                                     break;
-                                case '~':
+                                case '&':
+                                    // object parameter variable
+                                    if (!isset($this->parameters[$value[0]]))
+                                    {
+                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                        continue;
+                                    }
+                                    $rendered_content = str_replace($matches[0][$key][0], $this->parameters[$value[0]], $rendered_content);
+                                    break;
+                                case '-':
                                     // comment area, do not render even if it matches any key
                                     $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
                                     break;
@@ -360,6 +374,7 @@ class view
                                     // Un-recognized template variable types, do not process
                                     $GLOBALS['global_message']->warning = 'Un-recognized template variable types. ('.__FILE__.':'.__LINE__.')';
                                     $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+
                             }
                         }
                         $rendered_result[] = $rendered_content;

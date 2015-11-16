@@ -6,7 +6,7 @@
 class view_business_detail extends view_organization
 {
 	var $parameters = array(
-		'table' => '`tbl_view_business_summary`',
+		'table' => '`tbl_view_organization`',
 		'primary_key' => 'id',
         'page_size' => 1
 	);
