@@ -30,7 +30,7 @@ class view_business_detail extends view_organization
         {
             if (isset($row['long_description']))
             {
-                $result[$row_index]['long_description'] = '<p>'.str_replace('<br />','</p><p>',nl2br(strip_tags($row['long_description']))).'</p>';
+                $this->row[$row_index]['long_description'] = '<p>'.str_replace('<br />','</p><p>',nl2br(strip_tags($row['long_description']))).'</p>';
             }
         }
         return $result;

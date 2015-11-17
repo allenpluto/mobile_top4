@@ -12,10 +12,10 @@ class view
     var $id_group = array();
 
     // row of values, only fetch on fetch_value(), clear on get()
-    private $row = null;
+    protected $row = null;
 
     // rendered html, only generate on render(), clear on get()
-    private $rendered_html = '';
+    protected $rendered_html = '';
 	
 	// Object variables
 	var $parameters = array();
@@ -147,8 +147,10 @@ class view
 
 	function get($parameters = array())
 	{
+        // When id_group changes, reset the stored row value and rendered html
         $this->row = null;
         $this->rendered_html = null;
+
 		if (count($this->id_group) > 0)
 		{
 			$this->_initialized = true;
@@ -236,9 +238,9 @@ class view
         if ($result !== false)
         {
             $this->id_group = array();
-            foreach ($result as $row_index=>$row)
+            foreach ($result as $row_index=>$row_value)
             {
-                $this->id_group[] = $row[0];
+                $this->id_group[] = $row_value[$this->parameters['primary_key']];
             }
             $this->_initialized = true;
             $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
@@ -252,6 +254,11 @@ class view
 
     function fetch_value($parameters = array())
     {
+        if (isset($this->row))
+        {
+            return $this->row;
+        }
+
         if (!$this->_initialized)
         {
             $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot fetch value before it is initialized with get() function';
@@ -308,14 +315,23 @@ class view
 
 	function render($parameters = array())
 	{
-		if (!$this->_initialized)
-		{
-            //$this->message[] = 'Object Error: Cannot render object before it is initialized with get() function';
-            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot render object before it is initialized with get() function';
-            return false;
+        if (isset($this->rendered_html) AND !isset($parameters['template']))
+        {
+            return $this->rendered_html;
         }
 
-        if (empty($this->id_group))
+        if (!isset($this->row))
+        {
+            $result = $this->fetch_value($parameters);
+
+            if ($result === false)
+            {
+                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot render object due to fetch value failed';
+                return false;
+            }
+        }
+
+        if (empty($this->row))
         {
             $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' rendering empty array';
             return '';
@@ -329,10 +345,6 @@ class view
         if (!file_exists($template)) $template = '';
         else $template = file_get_contents($template);
 
-        if (!isset($this->row))
-        {
-            $this->fetch_value($parameters);
-        }
 
         if (count($this->row) > 0)
         {
@@ -404,7 +416,14 @@ class view
                     }
                     $rendered_result[] = $rendered_content;
                 }
-                return implode('',$rendered_result);
+                $rendered_html = implode('', $rendered_result);
+                // Only store rendering with default template
+                if (!isset($parameters['template']))
+                {
+                    $this->rendered_html = $rendered_html;
+                }
+
+                return $rendered_html;
             }
         }
 
