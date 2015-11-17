@@ -3,12 +3,12 @@
     <div id="listing_detail_view_top_wrapper" class="wrapper">
         <div id="listing_detail_view_top_container" class="container column_container">
             <div class="listing_detail_view_top_logo_container column column_4">
-                <img itemprop="image" src="[[*logo_image_src]]">
+                <div class="listing_detail_view_top_logo"><img itemprop="image" src="[[*logo_image_src]]"></div>
             </div>
             <div class="listing_detail_view_top_text_container column column_8">
                 <div class="listing_detail_view_title_container"><h1>[[*name]]</h1></div>
                 <div class="listing_detail_view_rating_container">
-                    <div class="listing_detail_view_count_visit"><span>[[*count_visit]]</span></div>
+                    <div class="listing_detail_view_count_visit"><span>[[*count_visit]]</span><span class="listing_detail_view_count_visit_label"> Visits</span></div>
                     <div class="rating_star_wrapper">
                         <div class="rating_star_container rating_star_bg_container"><!--
                                 --><span class="rating_star"></span><!--
@@ -43,6 +43,7 @@
     </div>
     <div id="listing_detail_view_summary_wrapper" class="wrapper">
         <div id="listing_detail_view_summary_container" class="container">
+            <h2>[[*category_name]] in [[*suburb]], [[*state]] [[*post]]</h2>
             <p class="listing_detail_view_summary" itemprop="description">
                 [[*description]]
             </p>

@@ -10,6 +10,12 @@ class view
 
 	// ids of select rows
     var $id_group = array();
+
+    // row of values, only fetch on fetch_value(), clear on get()
+    private $row = null;
+
+    // rendered html, only generate on render(), clear on get()
+    private $rendered_html = '';
 	
 	// Object variables
 	var $parameters = array();
@@ -41,7 +47,6 @@ class view
 			$result = $db->db_get_columns($this->parameters['table']);
 			if ($result === false)
 			{
-				$this->message = $db->message;
 				return false;
 			}
 			else
@@ -111,11 +116,17 @@ class view
 
 		$query = $this->_conn->prepare($sql);
 		$query->execute($parameters);
-//print_r($query);
-//print_r($parameters);
-//exit();
 
-		return $query;
+        if ($query->errorCode() == '00000')
+        {
+            return $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        }
+        else
+        {
+            $query_errorInfo = $query->errorInfo();
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+            return false;
+        }
 	}
 
     function set_parameters($parameters = array())
@@ -136,6 +147,8 @@ class view
 
 	function get($parameters = array())
 	{
+        $this->row = null;
+        $this->rendered_html = null;
 		if (count($this->id_group) > 0)
 		{
 			$this->_initialized = true;
@@ -181,8 +194,8 @@ class view
 		}
 		else
 		{
-			$this->message[] = 'Error: Cannot retrieve records without specific where conditions and empty id_group.';
-			return false;
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot retrieve records without specific where conditions and empty id_group.';
+            return false;
 		}
 		
 		if (!empty($parameters['order']))
@@ -219,175 +232,182 @@ class view
 		{
 			$sql .= ' OFFSET '.$parameters['offset'];
 		}
-		$query = $this->query($sql,$parameters['bind_param']);
-		if ($query->errorCode() == '00000')
-		{
-			$result = $query->fetchAll();
-			$this->id_group = array();
-			foreach ($result as $row_index=>$row)
-			{
-				$this->id_group[] = $row[0];
-			}
-			$this->_initialized = true;
-			$this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
-			return $result;
-		}
-		else
-		{
-			$query_errorInfo = $query->errorInfo();
-			$this->message[] = 'SQL Error: '.$query_errorInfo[2];
-			return false;
-		}
+		$result = $this->query($sql,$parameters['bind_param']);
+        if ($result !== false)
+        {
+            $this->id_group = array();
+            foreach ($result as $row_index=>$row)
+            {
+                $this->id_group[] = $row[0];
+            }
+            $this->_initialized = true;
+            $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
+            return $result;
+        }
+        else
+        {
+            return false;
+        }
 	}
 
     function fetch_value($parameters = array())
     {
-        if ($this->_initialized)
+        if (!$this->_initialized)
         {
-            $page_number = $this->parameters['page_number'];
-            if (isset($parameters['page_number']))
-            {
-                $page_number = intval($parameters['page_number']);
-                if ($page_number > $this->parameters['page_count']-1) $page_number =  $this->parameters['page_count']-1;
-                if ($page_number < 0) $page_number = 0;
-            }
-            $page_size = $this->parameters['page_size'];
-            if (isset($parameters['page_size']))
-            {
-                $page_size = intval($parameters['page_size']);
-                if ($page_size < 1) $page_size = 1;
-            }
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot fetch value before it is initialized with get() function';
+            return false;
+        }
 
-            if (!empty($this->id_group))
-            {
-                $sql = 'SELECT '.implode(',',$this->parameters['table_fields']).' FROM '.$this->parameters['table'];
-                $where = $this->parameters['primary_key'].' IN (-1';
-                $order = 'FIELD('.$this->parameters['primary_key'];
-                $bind_param = array();
+        if (empty($this->id_group))
+        {
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' fetch value from empty array';
+            return array();
+        }
 
-                foreach ($this->id_group as $row_id_index=>$row_id_value)
-                {
-                    $where .= ',:id_'.$row_id_index;
-                    $order .= ',:id_'.$row_id_index;
-                    $bind_param[':id_'.$row_id_index] = $row_id_value;
-                }
-                $where .= ')';
-                $order .= ')';
-                $sql .= ' WHERE '.$where.' ORDER BY '.$order.' LIMIT '.$page_size.' OFFSET '.$page_number*$page_size;
-                $query = $this->query($sql,$bind_param);
+        $page_number = $this->parameters['page_number'];
+        if (isset($parameters['page_number']))
+        {
+            $page_number = intval($parameters['page_number']);
+            if ($page_number > $this->parameters['page_count']-1) $page_number =  $this->parameters['page_count']-1;
+            if ($page_number < 0) $page_number = 0;
+        }
 
-                if ($query->errorCode() == '00000')
-                {
-                    $result = $query->fetchAll(PDO::FETCH_ASSOC);
-                    return $result;
-                }
-                else
-                {
-                    $query_errorInfo = $query->errorInfo();
-                    $this->message[] = 'SQL Error: '.$query_errorInfo[2];
-                    return array();
-                }
-            }
+        $page_size = $this->parameters['page_size'];
+        if (isset($parameters['page_size']))
+        {
+            $page_size = intval($parameters['page_size']);
+            if ($page_size < 1) $page_size = 1;
+        }
+
+        $sql = 'SELECT '.implode(',',$this->parameters['table_fields']).' FROM '.$this->parameters['table'];
+        $where = $this->parameters['primary_key'].' IN (-1';
+        $order = 'FIELD('.$this->parameters['primary_key'];
+        $bind_param = array();
+
+        foreach ($this->id_group as $row_id_index=>$row_id_value)
+        {
+            $where .= ',:id_'.$row_id_index;
+            $order .= ',:id_'.$row_id_index;
+            $bind_param[':id_'.$row_id_index] = $row_id_value;
+        }
+        $where .= ')';
+        $order .= ')';
+        $sql .= ' WHERE '.$where.' ORDER BY '.$order.' LIMIT '.$page_size.' OFFSET '.$page_number*$page_size;
+        $result = $this->query($sql,$bind_param);
+
+        if ($result !== false)
+        {
+            $this->row = $result;
         }
         else
         {
-            $this->message[] = 'Object Error: Cannot render object before it is initialized with get() function';
-            return false;
+            $this->row = array();
         }
+        return $this->row;
     }
 
 	function render($parameters = array())
 	{
-		if ($this->_initialized AND !empty($this->id_group))
+		if (!$this->_initialized)
 		{
-            $template = $this->parameters['template'];
-            if (isset($parameters['template']))
-            {
-                $template = PATH_TEMPLATE.$parameters['template'].FILE_EXTENSION_TEMPLATE;
-            }
-            if (!file_exists($template)) $template = '';
-            else $template = file_get_contents($template);
+            //$this->message[] = 'Object Error: Cannot render object before it is initialized with get() function';
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot render object before it is initialized with get() function';
+            return false;
+        }
 
-            $result_rows = $this->fetch_value($parameters);
-            if (count($result_rows) > 0)
+        if (empty($this->id_group))
+        {
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' rendering empty array';
+            return '';
+        }
+
+        $template = $this->parameters['template'];
+        if (isset($parameters['template']))
+        {
+            $template = PATH_TEMPLATE.$parameters['template'].FILE_EXTENSION_TEMPLATE;
+        }
+        if (!file_exists($template)) $template = '';
+        else $template = file_get_contents($template);
+
+        if (!isset($this->row))
+        {
+            $this->fetch_value($parameters);
+        }
+
+        if (count($this->row) > 0)
+        {
+            if (empty($template))
             {
-                if (empty($template))
+                return print_r($this->row,1);
+            }
+            else
+            {
+                $rendered_result = array();
+                foreach ($this->row as $row_index=>$row_value)
                 {
-                    return print_r($result_rows,1);
-                }
-                else
-                {
-                    $rendered_result = array();
-                    foreach ($result_rows as $index=>$row)
+                    $content = $row_value;
+                    if (isset($parameters['extra_content']))
                     {
-                        $content = $row;
-                        if (isset($parameters['extra_content']))
-                        {
-                            $content = array_merge($content,$parameters['extra_content']);
-                        }
-                        $rendered_content = $template;
-                        preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
-                        foreach($matches[2] as $key=>$value)
-                        {
-                            switch ($matches[1][$key][0])
-                            {
-                                case '*':
-                                    // simple value variable
-                                    if (!isset($content[$value[0]]))
-                                    {
-                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-                                        continue;
-                                    }
-                                    $rendered_content = str_replace($matches[0][$key][0], str_replace(chr(146),'\'',$content[$value[0]]), $rendered_content);
-                                    break;
-                                case '$':
-                                    // view object, executing sub level rendering
-                                    if (!isset($content[$value[0]]))
-                                    {
-                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-                                        continue;
-                                    }
-                                    $chunk_render = '';
-                                    if (is_object( $content[$value[0]]))
-                                    {
-                                        if (method_exists($content[$value[0]], 'render'))
-                                        {
-                                            $chunk_render = $content[$value[0]]->render();
-                                        }
-                                    }
-                                    $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
-                                    break;
-                                case '&':
-                                    // object parameter variable
-                                    if (!isset($this->parameters[$value[0]]))
-                                    {
-                                        $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-                                        continue;
-                                    }
-                                    $rendered_content = str_replace($matches[0][$key][0], $this->parameters[$value[0]], $rendered_content);
-                                    break;
-                                case '-':
-                                    // comment area, do not render even if it matches any key
-                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-                                    break;
-                                default:
-                                    // Un-recognized template variable types, do not process
-                                    $GLOBALS['global_message']->warning = 'Un-recognized template variable types. ('.__FILE__.':'.__LINE__.')';
-                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
-
-                            }
-                        }
-                        $rendered_result[] = $rendered_content;
+                        $content = array_merge($content,$parameters['extra_content']);
                     }
-                    return implode('',$rendered_result);
+                    $rendered_content = $template;
+                    preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
+                    foreach($matches[2] as $key=>$value)
+                    {
+                        switch ($matches[1][$key][0])
+                        {
+                            case '*':
+                                // simple value variable
+                                if (!isset($content[$value[0]]))
+                                {
+                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                    continue;
+                                }
+                                $rendered_content = str_replace($matches[0][$key][0], str_replace(chr(146),'\'',$content[$value[0]]), $rendered_content);
+                                break;
+                            case '$':
+                                // view object, executing sub level rendering
+                                if (!isset($content[$value[0]]))
+                                {
+                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                    continue;
+                                }
+                                $chunk_render = '';
+                                if (is_object( $content[$value[0]]))
+                                {
+                                    if (method_exists($content[$value[0]], 'render'))
+                                    {
+                                        $chunk_render = $content[$value[0]]->render();
+                                    }
+                                }
+                                $rendered_content = str_replace($matches[0][$key][0], $chunk_render, $rendered_content);
+                                break;
+                            case '&':
+                                // object parameter variable
+                                if (!isset($this->parameters[$value[0]]))
+                                {
+                                    $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                    continue;
+                                }
+                                $rendered_content = str_replace($matches[0][$key][0], $this->parameters[$value[0]], $rendered_content);
+                                break;
+                            case '-':
+                                // comment area, do not render even if it matches any key
+                                $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+                                break;
+                            default:
+                                // Un-recognized template variable types, do not process
+                                $GLOBALS['global_message']->warning = 'Un-recognized template variable types. ('.__FILE__.':'.__LINE__.')';
+                                $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
+
+                        }
+                    }
+                    $rendered_result[] = $rendered_content;
                 }
+                return implode('',$rendered_result);
             }
-		}
-		else
-		{
-			$this->message[] = 'Object Error: Cannot render object before it is initialized with get() function';
-			return false;			
-		}
+        }
+
 	}
 }
 

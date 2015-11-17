@@ -22,7 +22,19 @@ class view_business_detail extends view_organization
 	{
 		parent::get($parameter);
 	}
-	
+
+    function fetch_value($parameter = array())
+    {
+        $result = parent::fetch_value($parameter);
+        foreach ($result as $row_index=>$row)
+        {
+            if (isset($row['long_description']))
+            {
+                $result[$row_index]['long_description'] = '<p>'.str_replace('<br />','</p><p>',nl2br(strip_tags($row['long_description']))).'</p>';
+            }
+        }
+        return $result;
+    }
 }
 	
 ?>

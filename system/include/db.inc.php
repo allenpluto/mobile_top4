@@ -18,7 +18,7 @@ class db
 			$dbLocation = 'mysql:dbname='.DATABASE_NAME.';host='.DATABASE_HOST;
 			$dbUser = DATABASE_USER;
 			$dbPass = DATABASE_PASSWORD;
-			$db = new PDO($dbLocation, $dbUser, $dbPass);
+			$db = new PDO($dbLocation, $dbUser, $dbPass, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'utf8\''));
 
 			$message = array();
 			self::$_conn = $db;
