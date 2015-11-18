@@ -10,7 +10,7 @@ class view_business_summary extends view_organization
 		'table' => '`tbl_view_featured`',
 		'primary_key' => 'id'
 	);
-	
+
 	function __construct($init_value = Null, $parameters = array())
 	{
 		$this->parameters['page_size'] = $GLOBALS['global_preference']->business_summary_view_page_size;
@@ -20,11 +20,10 @@ class view_business_summary extends view_organization
 		return $this;
 	}
 	
-	function get($parameter = array())
+	function get($parameters = array())
 	{
-		parent::get($parameter);
+		parent::get($parameters);
 	}
-	
 }
 	
 ?>

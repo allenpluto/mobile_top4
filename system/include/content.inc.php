@@ -38,14 +38,7 @@ class content {
                         $view_web_page_obj = new view_web_page();
                         $template = PREFIX_TEMPLATE_PAGE.'master';
 
-                        $test_ids = array();
-                        for($i=3;$i<33;$i++)
-                        {
-                            $test_ids[] = $i*3+1;
-                        }
-                        $view_business_summary_obj = new view_business_summary($test_ids);
-                        shuffle($view_business_summary_obj->id_group);
-                        $view_business_summary_obj->get(array('where'=>array('id > :id'),'bind_param'=>array(':id'=>77)));
+                        $view_business_summary_obj = new view_business_summary(array(12026, 10596,11760,65031,65083,65100,65217,65667),array('page_size'=>4,'order'=>'RAND()'));
                         $view_business_summary_obj->set_page_size(4);
 
                         $render_parameters = array(

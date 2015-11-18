@@ -11,12 +11,6 @@ class view_organization extends view
 
 		return $this;
 	}
-	
-	function get($parameter = array())
-	{
-		parent::get($parameter);
-	}
-	
 }
 	
 ?>

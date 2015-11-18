@@ -936,7 +936,7 @@ img {display:block;max-width:100%;}
 /*# Body/Listing/Detail #*/
 #listing_detail_view_wrapper
 {
-    background:#ededed top center repeat-x;
+    background:#eeeeee top center repeat-x;
     background-size: contain, 1px 1px;
 }
 
@@ -944,6 +944,7 @@ img {display:block;max-width:100%;}
 {
     padding: 1em 0;
 
+    background: #eeeeee;
     border-bottom: 1px solid #cccccc;
 }
 
@@ -959,8 +960,7 @@ img {display:block;max-width:100%;}
     padding-bottom: 0.5em;
 }
 
-
-#listing_detail_view_top_wrapper
+#listing_detail_view_wrapper > #listing_detail_view_top_wrapper
 {
     display: block;
     padding-top: 1.5em;

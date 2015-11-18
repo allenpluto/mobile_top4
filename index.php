@@ -1,5 +1,6 @@
 <?php
 	include('system/config/config.php');
+
 //print_r($_GET);
     if (isset($_GET['instance']))
     {
@@ -14,7 +15,7 @@
         $page_content = new content($instance, $namespace);
 //print_r($page_content);
         $page_content->render();
-        print_r($_GET);
+//print_r($_GET);
     }
     else
     {

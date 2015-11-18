@@ -18,12 +18,6 @@ class view_web_page extends view
 
 		return $this;
 	}
-	
-	function get($parameter = array())
-	{
-		parent::get($parameter);
-	}
-	
 }
 	
 ?>

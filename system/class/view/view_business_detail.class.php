@@ -10,17 +10,12 @@ class view_business_detail extends view_organization
 		'primary_key' => 'id',
         'page_size' => 1
 	);
-	
+
 	function __construct($init_value = Null, $parameters = array())
 	{
 		parent::__construct($init_value, $parameters);
 
 		return $this;
-	}
-	
-	function get($parameter = array())
-	{
-		parent::get($parameter);
 	}
 
     function fetch_value($parameter = array())

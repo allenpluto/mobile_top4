@@ -1,7 +1,11 @@
 <?php
 // Class Object
 // Name: view
-// Description: Base class for all database view classes, read only, represents large number of rows (store id only to reduce php memory use)
+// Description: Base class for all database view classes, read only, represents large number of rows
+// Stored Value:
+//              id_group -  row ids, set on get
+//              row - row values of desired page, set on fetch_value, unset on get
+//              rendered_html - implement html template of row, set on render, unset on get and fetch_value
 
 class view
 {
@@ -19,7 +23,6 @@ class view
 	
 	// Object variables
 	var $parameters = array();
-	var $message = null;
 	var $_initialized = false;
 
     /**
@@ -102,8 +105,10 @@ class view
                 }
                 else // try to initialize with friendly url
                 {
-                    $parameters['bind_param'][':friendly_url'] = $init_value;
-                    $parameters['where'] = array('`friendly_url` = :friendly_url');
+                    $parameters = array(
+                        'bind_param' => array(':friendly_url'=>$init_value),
+                        'where' => array('`friendly_url` = :friendly_url')
+                    );
                     $this->get($parameters);
                 }
             }
@@ -119,7 +124,8 @@ class view
 
         if ($query->errorCode() == '00000')
         {
-            return $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
         }
         else
         {
@@ -131,6 +137,11 @@ class view
 
     function set_parameters($parameters = array())
     {
+        // In view table, primary_key are fixed during construction
+        if (isset($parameters['primary_key']))
+        {
+            unset($parameters['primary_key']);
+        }
         $this->parameters = array_merge($this->parameters, $parameters);
     }
 
@@ -150,6 +161,8 @@ class view
         // When id_group changes, reset the stored row value and rendered html
         $this->row = null;
         $this->rendered_html = null;
+
+        $parameters = array_merge($this->parameters,$parameters);
 
 		if (count($this->id_group) > 0)
 		{
@@ -196,7 +209,7 @@ class view
 		}
 		else
 		{
-            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot retrieve records without specific where conditions and empty id_group.';
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot retrieve records with none specific where conditions and empty id_group.';
             return false;
 		}
 		
@@ -207,24 +220,6 @@ class view
 				$parameters['order'] = implode(', ', $parameters['order']);
 			}
 			$sql .= ' ORDER BY '.$parameters['order'];
-		}
-		else
-		{
-			if ($this->_initialized)
-			{
-				if (!empty($this->id_group))
-				{
-					$order = 'FIELD('.$this->parameters['primary_key'];
-
-					foreach ($this->id_group as $row_id_index=>$row_id_value)
-					{
-						$order .= ',:id_'.$row_id_index;
-						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
-					}
-					$order .= ')'; 
-					$sql .= ' ORDER BY '.$order;
-				}
-			}
 		}
 		if (!empty($parameters['limit']))
 		{
@@ -237,14 +232,16 @@ class view
 		$result = $this->query($sql,$parameters['bind_param']);
         if ($result !== false)
         {
-            $this->id_group = array();
+            $new_id_group = array();
             foreach ($result as $row_index=>$row_value)
             {
-                $this->id_group[] = $row_value[$this->parameters['primary_key']];
+                $new_id_group[] = $row_value[$this->parameters['primary_key']];
             }
+            if ($this->_initialized AND empty($parameters['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
+            else $this->id_group = $new_id_group;
             $this->_initialized = true;
             $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
-            return $result;
+            return $this->id_group;
         }
         else
         {
@@ -258,6 +255,8 @@ class view
         {
             return $this->row;
         }
+        // unset rendered html when corresponding row value changes
+        $this->rendered_html = null;
 
         if (!$this->_initialized)
         {
@@ -270,23 +269,16 @@ class view
             $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' fetch value from empty array';
             return array();
         }
+        $parameters = array_merge($this->parameters,$parameters);
 
-        $page_number = $this->parameters['page_number'];
-        if (isset($parameters['page_number']))
-        {
-            $page_number = intval($parameters['page_number']);
-            if ($page_number > $this->parameters['page_count']-1) $page_number =  $this->parameters['page_count']-1;
-            if ($page_number < 0) $page_number = 0;
-        }
+        $page_number = intval($parameters['page_number']);
+        if ($page_number > $parameters['page_count']-1) $page_number =  $parameters['page_count']-1;
+        if ($page_number < 0) $page_number = 0;
 
-        $page_size = $this->parameters['page_size'];
-        if (isset($parameters['page_size']))
-        {
-            $page_size = intval($parameters['page_size']);
-            if ($page_size < 1) $page_size = 1;
-        }
+        $page_size = intval($parameters['page_size']);
+        if ($page_size < 1) $page_size = 1;
 
-        $sql = 'SELECT '.implode(',',$this->parameters['table_fields']).' FROM '.$this->parameters['table'];
+        $sql = 'SELECT '.implode(',',$parameters['table_fields']).' FROM '.$this->parameters['table'];
         $where = $this->parameters['primary_key'].' IN (-1';
         $order = 'FIELD('.$this->parameters['primary_key'];
         $bind_param = array();
@@ -337,11 +329,14 @@ class view
             return '';
         }
 
-        $template = $this->parameters['template'];
         if (isset($parameters['template']))
         {
-            $template = PATH_TEMPLATE.$parameters['template'].FILE_EXTENSION_TEMPLATE;
+            $parameters['template'] = PATH_TEMPLATE.$parameters['template'].FILE_EXTENSION_TEMPLATE;
         }
+
+        $parameters = array_merge($this->parameters,$parameters);
+
+        $template = $parameters['template'];
         if (!file_exists($template)) $template = '';
         else $template = file_get_contents($template);
 

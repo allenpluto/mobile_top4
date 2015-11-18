@@ -9,7 +9,6 @@
 class db
 {
 	private static $_conn = null;
-	var $message = array();
 
 	function db_get_connection()
 	{
@@ -20,7 +19,6 @@ class db
 			$dbPass = DATABASE_PASSWORD;
 			$db = new PDO($dbLocation, $dbUser, $dbPass, array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'utf8\''));
 
-			$message = array();
 			self::$_conn = $db;
 		}
 
@@ -40,13 +38,12 @@ class db
 			{
 				$columns[] = $column_description_value['Field'];
 			}
-			$message = array();
 			return $columns;
 		}
 		else
 		{
 			$query_errorInfo = self::$_conn->errorInfo();
-			$this->message[] = 'SQL Error: '.$query_errorInfo[2];
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
 			return false;
 		}		
 	}
@@ -69,11 +66,9 @@ class db
 		else
 		{
 			$query_errorInfo = self::$_conn->errorInfo();
-			$this->message[] = 'SQL Error: '.$query_errorInfo[2];
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
 			return false;
 		}		
 	}
-
 }
-
 ?>
