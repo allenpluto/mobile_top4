@@ -16,7 +16,7 @@ class index
     var $parameters = array();
     var $_initialized = false;
 
-    function __construct($init_value = null, $parameters = array())
+    function __construct($value = null, $parameters = array())
     {
         if (!empty($parameters)) $this->set_parameters($parameters);
 
@@ -44,20 +44,21 @@ class index
 
         // parameters['primary_key'] in index need to be single column field, if it is not defined, default to id
         if (!isset($this->parameters['primary_key'])) {
-            $this->parameters['primary_key'] = $this->parameters['table'].'`id`';
+            $this->parameters['primary_key'] = 'id';
         }
 
-        if (!is_null($init_value)) {
-            if (is_array($init_value)) {
-                $this->id_group = $init_value;
-                $this->get();
-            } else    // Simplified usage, not secured
+        if (!is_null($value)) {
+            $format = format::get_obj();
+            $id_group = $format->id_group($value);
+            if ($id_group === false)
             {
-                if (is_numeric($init_value)) // try to initialize with id
-                {
-                    $this->id_group = array('id' => $init_value);
-                    $this->get();
-                }
+                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' initialize object with invalid id(s)';
+                return false;
+            }
+            else
+            {
+                $this->id_group = $id_group;
+                $this->get();
             }
         }
     }
@@ -117,15 +118,8 @@ class index
         {
             if (!empty($this->id_group))
             {
-                $where_id = $parameters['primary_key'].' IN (-1';
-
-                foreach ($this->id_group as $row_id_index=>$row_id_value)
-                {
-                    $where_id .= ',:id_'.$row_id_index;
-                    $parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
-                }
-                $where_id .= ')';
-                $where = array_merge($where,array($where_id));
+                $where[] = $parameters['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
+                $parameters['bind_param'] = array_merge($parameters['bind_param'],$this->id_group);
             }
         }
 
@@ -153,18 +147,16 @@ class index
         if ($result !== false)
         {
             $new_id_group = array();
+
             foreach ($result as $row_index=>$row_value)
             {
                 $new_id_group[] = $row_value[$parameters['primary_key']];
             }
-            if ($parameters['primary_key'] == $this->parameters['primary_key'])
-            {
-                if ($this->_initialized) $this->id_group = array_intersect($this->id_group, $new_id_group);
-                else $this->id_group = $new_id_group;
-                $this->_initialized = true;
-                return $this->id_group;
-            }
-            return $new_id_group;
+            // Keep the original id order if no specific "order by" is set
+            if ($this->_initialized AND empty($parameters['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
+            else $this->id_group = $new_id_group;
+            $this->_initialized = true;
+            return $this->id_group;
         }
         else
         {

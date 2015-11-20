@@ -237,6 +237,7 @@ class view
             {
                 $new_id_group[] = $row_value[$this->parameters['primary_key']];
             }
+            // Keep the original id order if no specific "order by" is set
             if ($this->_initialized AND empty($parameters['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
             else $this->id_group = $new_id_group;
             $this->_initialized = true;

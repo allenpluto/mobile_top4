@@ -4,7 +4,7 @@
 //print_r($_GET);
     if (isset($_GET['instance']))
     {
-        $format_function = new format;
+        $format_function = format::get_obj();
         $instance = $format_function->instance_text($_GET['instance']);
 //print_r($instance);
         if (isset($_GET['namespace']))

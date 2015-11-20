@@ -44,6 +44,7 @@ $db = new db;
 
 // Format adjust, such as friendly url, phone number, abn...
 include_once(PATH_INCLUDE.'format'.FILE_EXTENSION_INCLUDE);
+$format = format::get_obj();
 
 // Load Classes
 // Each Entity Class represents one and only one table, handle table operations

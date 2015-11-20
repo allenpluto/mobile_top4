@@ -71,7 +71,7 @@ class entity_thing
         $this->parameters = array_merge($this->parameters, $parameters);
     }
 
-	function query($sql, $parameters=array())
+	protected function query($sql, $parameters=array())
 	{
 
 		$query = $this->_conn->prepare($sql);
