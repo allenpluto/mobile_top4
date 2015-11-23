@@ -127,11 +127,6 @@ class index
         {
             $sql .= ' WHERE '.implode(' AND ', $where);
         }
-        else
-        {
-            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot retrieve records without specific where conditions and empty id_group.';
-            return false;
-        }
 
         if (!empty($parameters['order']))
         {
@@ -154,7 +149,12 @@ class index
             }
             // Keep the original id order if no specific "order by" is set
             if ($this->_initialized AND empty($parameters['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
-            else $this->id_group = $new_id_group;
+            else
+            {
+                $format = format::get_obj();
+                $new_id_group = $format->id_group($new_id_group);
+                $this->id_group = $new_id_group;
+            }
             $this->_initialized = true;
             return $this->id_group;
         }

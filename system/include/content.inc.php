@@ -38,7 +38,9 @@ class content {
                         $view_web_page_obj = new view_web_page();
                         $template = PREFIX_TEMPLATE_PAGE.'master';
 
-                        $view_business_summary_obj = new view_business_summary(array(12026, 10596,11760,65031,65083,65100,65217,65667),array('page_size'=>4,'order'=>'RAND()'));
+
+                        $index_organization = new index_organization();
+                        $view_business_summary_obj = new view_business_summary($index_organization->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
                         $view_business_summary_obj->set_page_size(4);
 
                         $render_parameters = array(

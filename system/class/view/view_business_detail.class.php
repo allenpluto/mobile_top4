@@ -11,9 +11,9 @@ class view_business_detail extends view_organization
         'page_size' => 1
 	);
 
-	function __construct($init_value = Null, $parameters = array())
+	function __construct($value = Null, $parameters = array())
 	{
-		parent::__construct($init_value, $parameters);
+		parent::__construct($value, $parameters);
 
 		return $this;
 	}

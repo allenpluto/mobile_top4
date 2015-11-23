@@ -11,11 +11,11 @@ class view_business_summary extends view_organization
 		'primary_key' => 'id'
 	);
 
-	function __construct($init_value = Null, $parameters = array())
+	function __construct($value = Null, $parameters = array())
 	{
 		$this->parameters['page_size'] = $GLOBALS['global_preference']->business_summary_view_page_size;
 		
-		parent::__construct($init_value, $parameters);
+		parent::__construct($value, $parameters);
 
 		return $this;
 	}
