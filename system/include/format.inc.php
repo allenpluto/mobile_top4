@@ -39,7 +39,18 @@ class format
             return $result;
         }
     }
-    function id_group($value)
+
+    private function friendly_url($value)
+    {
+        $value = strtolower($value);
+        $value = preg_replace('/[^a-z0-9]/', '-', $value);
+        $value = preg_replace('/-+/', '-', $value);
+        $result = trim($value,'-');
+
+        return $result;
+    }
+
+    private function id_group($value)
     {
         if (empty($value))
         {
@@ -48,7 +59,7 @@ class format
 
         if (is_array($value))
         {
-            if (isset($value['value']))
+            if (!empty($value['value']))
             {
                 extract($value);
             }
@@ -87,22 +98,45 @@ class format
         }
     }
 
-	function friendly_url($value)
-	{
-		$value = strtolower($value);
-		$value = preg_replace('/[^a-z0-9]/', '-', $value);
-		$value = preg_replace('/-+/', '-', $value);
-		$result = trim($value,'-');
-
-		return $result;
-	}
-
-    function instance_text($value)
+    private function instance_text($value)
     {
         $value = strtolower($value);
         $value = preg_replace('/[^-_a-z0-9]/', '', $value);
 
         return $value;
+    }
+
+    private function  search_term($value)
+    {
+        if (empty($value))
+        {
+            return false;
+        }
+        if (is_array($value))
+        {
+            if (!empty($value['value']))
+            {
+                extract($value);
+            }
+        }
+        if (!isset($delimiter)) $delimiter = ' ';
+        if (!isset($min_string_length)) $min_string_length = 3;
+        if (is_array($value))
+        {
+            $value = implode($delimiter,$value);
+        }
+        $value = preg_replace('/[^a-zA-Z0-9\s]+/', $delimiter, $value);
+        $value = explode($delimiter,$value);
+        $result = array();
+        foreach($value as $key=>$item)
+        {
+            $item = strtolower(trim($item));
+            if (strlen($item) >= $min_string_length)
+            {
+                $result[] = $item;
+            }
+        }
+        return implode($delimiter,$result);
     }
 }
 

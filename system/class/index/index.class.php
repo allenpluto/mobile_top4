@@ -63,11 +63,19 @@ class index
         }
     }
 
+    function reset()
+    {
+        $this->id_group = array();
+        $this->_initialized = false;
+    }
+
     function query($sql, $parameters=array())
     {
 
         $query = $this->_conn->prepare($sql);
         $query->execute($parameters);
+//print_r($sql);
+//print_r($parameters);
 
         if ($query->errorCode() == '00000')
         {

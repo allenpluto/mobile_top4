@@ -30,8 +30,12 @@ print_r($index_organization->id_group);*/
 
 $listing_id = array();
 $index_organization = new index_organization($listing_id);
-print_r($index_organization);
-print_r($index_organization->filter_by_featured());
+$index_postcode = new index_postcode();
+$index_postcode->filter_by_location_text('castle hill, nsw');
+print_r($index_postcode);
 
-$view_business_summary_obj = new view_business_summary($index_organization->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
+print_r($index_organization->filter_by_suburb($index_postcode->id_group));
+
+$view_business_summary_obj = new view_business_summary($index_organization->id_group,array('page_size'=>4,'order'=>'RAND()'));
 print_r($view_business_summary_obj);
+
