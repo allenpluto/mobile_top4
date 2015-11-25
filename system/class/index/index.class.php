@@ -47,12 +47,13 @@ class index
             $this->parameters['primary_key'] = 'id';
         }
 
-        if (!is_null($value)) {
+        if (!empty($value)) {
             $format = format::get_obj();
+
             $id_group = $format->id_group($value);
             if ($id_group === false)
             {
-                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' initialize object with invalid id(s)';
+                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): ['.get_class($this).'] initialize object with invalid id(s)';
                 return false;
             }
             else
@@ -71,11 +72,11 @@ class index
 
     function query($sql, $parameters=array())
     {
-
+print_r($sql);
+print_r($parameters);
         $query = $this->_conn->prepare($sql);
         $query->execute($parameters);
-//print_r($sql);
-//print_r($parameters);
+
 
         if ($query->errorCode() == '00000')
         {
@@ -109,7 +110,15 @@ class index
             $parameters['bind_param'] = array();
         }
 
-        $sql = 'SELECT DISTINCT '.$parameters['primary_key'].' FROM '.$parameters['table'];
+        $sql = 'SELECT DISTINCT '.$parameters['primary_key'];
+        if (isset($parameters['calculated_field']))
+        {
+            foreach ($parameters['calculated_field'] as $field_alias => $field_value)
+            {
+                $sql .= ', '.$field_value.' AS '.$field_alias;
+            }
+        }
+        $sql .= ' FROM '.$parameters['table'];
         $where = array();
         if (!empty($parameters['where']))
         {
@@ -150,10 +159,20 @@ class index
         if ($result !== false)
         {
             $new_id_group = array();
-
+            $calculated_field = array();
             foreach ($result as $row_index=>$row_value)
             {
                 $new_id_group[] = $row_value[$parameters['primary_key']];
+                if (isset($parameters['calculated_field']))
+                {
+                    $calculated_field_row = array();
+                    foreach ($parameters['calculated_field'] as $field_alias => $field_value)
+                    {
+                        $calculated_field_row[$field_alias] = $row_value[$field_alias];
+                    }
+                    $calculated_field[$row_value[$parameters['primary_key']]] = $calculated_field_row;
+                }
+
             }
             // Keep the original id order if no specific "order by" is set
             if ($this->_initialized AND empty($parameters['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
@@ -164,6 +183,7 @@ class index
                 $this->id_group = $new_id_group;
             }
             $this->_initialized = true;
+            if (!empty($calculated_field)) return $calculated_field;
             return $this->id_group;
         }
         else

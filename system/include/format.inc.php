@@ -120,6 +120,7 @@ class format
             }
         }
         if (!isset($delimiter)) $delimiter = ' ';
+        // Make sure min_string_length is greater or equal to db/solr full text search min characters
         if (!isset($min_string_length)) $min_string_length = 3;
         if (is_array($value))
         {
@@ -136,7 +137,7 @@ class format
                 $result[] = $item;
             }
         }
-        return implode($delimiter,$result);
+        return $result;
     }
 }
 

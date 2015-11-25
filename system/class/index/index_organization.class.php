@@ -75,43 +75,63 @@ class index_organization extends index
     function filter_by_keywords($value, $parameters = array())
     {
         $filter_parameters = array(
-            'where' => 'title LIKE :keyword',
+            'where' => 'title LIKE CONCAT(\'%\',:keyword,\'%\')',
             'bind_param' => array(':keyword'=>$value)
         );
         $result_id_group = parent::get($filter_parameters);
-        if ($result_id_group === false) return false;
+        if ($result_id_group === false) $result_id_group = array();
+        print_r($result_id_group);
 
-        $this->reset();
+        $format = format::get_obj();
+        $keyword_phrases = $format->search_term($value);
+        $keyword = implode(' ',$keyword_phrases);
 
-
-        if (isset($value[0])) $keyword = $value[0];
-        if (isset($value['keyword'])) $keyword = $value['keyword'];
-        if (!isset($keyword)) $keyword = '';
-
-        if (isset($value[1])) $location = $value[1];
-        if (isset($value['location'])) $location = $value['location'];
-        if (!isset($location)) $location = '';
-
-        // keywords part allow &, ' as special characters, however, they are not fulltext searchable, need to be separated
-        if (preg_match('/[\&\']/', $keyword))
+        if (!empty($keyword))
         {
-            $keyword_items = explode(' ',$keyword);
-            foreach ($keyword_items as $keyword_item_index=>$keyword_item_value)
-            {
-
-            }
+            $this->reset();
+            $filter_parameters = array(
+                'calculated_field' => array(
+                    'title' => 'title',
+                    'score' => 'MATCH(title, description, keywords) AGAINST (:keyword IN BOOLEAN MODE) / '.count($keyword_phrases)
+                    //'score' => 'MATCH(title) AGAINST (:keyword IN BOOLEAN MODE) / '.count($keyword_phrases)
+                ),
+                'bind_param' => array(
+                    ':keyword' => $keyword
+                ),
+                'where' => 'MATCH(title, description, keywords) AGAINST (:keyword) > 0',
+                //'where' => 'MATCH(title) AGAINST (:keyword) > 0',
+                'order' => 'score DESC'
+            );
+            $new_result = parent::get($filter_parameters);
+        }
+        else
+        {
+            $new_result = false;
         }
 
-        $keyword_refined = preg_replace('/[^a-zA-Z0-9\s]+/', ' ', $keyword);
-        $keyword_refined = preg_replace('/[\s]+/',' ',$keyword_refined);
-        $keyword_refined = trim($keyword_refined);
-        $keyword_refined = strtolower($keyword_refined);
+        $max_score = 1;
+        $result = array();
+        if ($new_result !== false)
+        {
+            // retrieve ids only in Like search result (special characters keywords return no results from full text search)
+            $result_id_group_diff = array_diff($result_id_group,$this->id_group);
+            // retrieve ids only in both search results
+            $result_id_group_intersect = array_intersect($result_id_group,$this->id_group);
+            // change id array order
+            $result_id_group = array_merge($result_id_group_intersect, $result_id_group_diff);
+        }
+        foreach ($result_id_group as $id_index=>$id)
+        {
+            $result = array($id=>array('score'=>$max_score)) + $result;
+        }
+        if ($new_result !== false)
+        {
+            $result = $result + $new_result;
+            $result_id_group = array_merge($result_id_group,$this->id_group);
+        }
 
-        $location_refined = preg_replace('/[^a-zA-Z0-9\s]+/', ' ', $location);
-        $location_refined = preg_replace('/[\s]+/',' ',$location_refined);
-        $location_refined = trim($location_refined);
-        $location_refined = strtolower($location_refined);
-
+        $this->id_group = $result_id_group;
+        return $result;
     }
 }
 
