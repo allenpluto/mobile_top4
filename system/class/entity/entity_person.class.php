@@ -5,16 +5,16 @@
 
 class entity_person extends entity_thing
 {
-	var $parameters = [];
+	var $parameter = [];
 
 	// class person is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'. e.g. $person_obj = new person(1)
 	// use other functions to select a group of people
-	function __construct($init_value = Null, $parameters = array())
+	function __construct($init_value = Null, $parameter = array())
 	{	
 		parent::__construct();
-		if (!empty($parameters))
+		if (!empty($parameter))
 		{
-			$this->set_parameters($parameters);
+			$this->set_parameter($parameter);
 		}
 		if (!is_null($init_value))
 		{
@@ -25,13 +25,13 @@ class entity_person extends entity_thing
 			}
 			else	// Simplified usage, not secured
 			{
-				if (is_numeric($parameters)) // try to initialize with id
+				if (is_numeric($parameter)) // try to initialize with id
 				{
-					$this->get(array('id'=>$parameters));
+					$this->get(array('id'=>$parameter));
 				}
 				else // try to initialize with friendly url
 				{
-					$this->get(array('friendly_url'=>$parameters));
+					$this->get(array('friendly_url'=>$parameter));
 				}
 			}
 		}
@@ -39,37 +39,37 @@ class entity_person extends entity_thing
 		return $this;
 	}
 
-	function get($parameters = array())
+	function get($parameter = array())
 	{
-		$get_parameters = array('bind_param'=>array());
+		$get_parameter = array('bind_param'=>array());
 
-		if (is_array($parameters)) $parameters = array_merge($this->parameters, $parameters);
-		else $parameters = $this->parameters;
+		if (is_array($parameter)) $parameter = array_merge($this->parameter, $parameter);
+		else $parameter = $this->parameter;
 
-		if (!empty($parameters))
+		if (!empty($parameter))
 		{
-			foreach ($parameters as $parameter_index => $parameter_value)
+			foreach ($parameter as $parameter_index => $parameter_value)
 			{
 				switch ($parameter_index)
 				{
 					case 'friendly_url':
-						$get_parameters['where'][] = '`friendly_url` = :friendly_url';
-						$get_parameters['bind_param'][':friendly_url'] = $parameter_value;
+						$get_parameter['where'][] = '`friendly_url` = :friendly_url';
+						$get_parameter['bind_param'][':friendly_url'] = $parameter_value;
 						break;
 					case 'id':
-						$get_parameters['where'][] = '`id` = :id';
-						$get_parameters['bind_param'][':id'] = $parameter_value;
+						$get_parameter['where'][] = '`id` = :id';
+						$get_parameter['bind_param'][':id'] = $parameter_value;
 						break;
 					case 'order_by':
-						$get_parameters['order_by'] = $parameter_value;
+						$get_parameter['order_by'] = $parameter_value;
 						break;
 					case 'limit':
-						$get_parameters['limit'] = ':limit';
-						$get_parameters['bind_param'][':limit'] = $parameter_value;
+						$get_parameter['limit'] = ':limit';
+						$get_parameter['bind_param'][':limit'] = $parameter_value;
 						break;
 					case 'offset':
-						$get_parameters['offset'] = ':offset';
-						$get_parameters['bind_param'][':offset'] = $parameter_value;
+						$get_parameter['offset'] = ':offset';
+						$get_parameter['bind_param'][':offset'] = $parameter_value;
 						break;
 					default:
 						break;
@@ -78,15 +78,15 @@ class entity_person extends entity_thing
 		}
 
 		// Call thing::get function
-		parent::get($get_parameters);
+		parent::get($get_parameter);
 
 		// Additional data format change code here
 	}
 
-	function set($parameters = array())
+	function set($parameter = array())
 	{
 		// Call thing::set function
-		parent::set($parameters);
+		parent::set($parameter);
 	}
 }
 

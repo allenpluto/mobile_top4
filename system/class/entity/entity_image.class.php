@@ -6,7 +6,7 @@
 // image_id in image_object reference to source image. One source image may have zero to multiple thumbnail (cropped versions) for different scenario. Only source image may save exifData, any thumbnail can be regenerated using source image exifData and 
 class entity_image extends entity_thing
 {
-	var $parameters = array(
+	var $parameter = array(
 		'prefix' => 'image_',
 		'select_fields' => array(
 			'id' => 'id',
@@ -41,43 +41,43 @@ class entity_image extends entity_thing
 
 
 	// class image_object is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'.
-	function entity_image($parameters = array())
+	function entity_image($parameter = array())
 	{
-		if (is_array($parameters))
+		if (is_array($parameter))
 		{
-			$get_parameters = Null;
-			if (!empty($parameters['get']))
+			$get_parameter = Null;
+			if (!empty($parameter['get']))
 			{
-				$get_parameters = $parameters['get'];
-				unset($parameters['get']);
+				$get_parameter = $parameter['get'];
+				unset($parameter['get']);
 			}
 
-			$this->set_parameters($parameters);
+			$this->set_parameter($parameter);
 			
-			if ($get_parameters)
+			if ($get_parameter)
 			{
-				$this->get($get_parameters);
+				$this->get($get_parameter);
 			}
 		}
 		else	// Simplified usage, not secured
 		{
-			if (is_numeric($parameters)) // try to initialize with id
+			if (is_numeric($parameter)) // try to initialize with id
 			{
-				$this->get(array('id'=>$parameters));
+				$this->get(array('id'=>$parameter));
 			}
 			else // try to initialize with friendly url
 			{
-				$this->get(array('friendly_url'=>$parameters));
+				$this->get(array('friendly_url'=>$parameter));
 			}
 		}
 
 		return $this;
 	}
 
-	function set($parameters = array())
+	function set($parameter = array())
 	{
 		// Class Set Function
-		if (empty($parameters['row']))
+		if (empty($parameter['row']))
 		{
 			if (empty($this->row))
 			{
@@ -86,12 +86,12 @@ class entity_image extends entity_thing
 			}
 			else
 			{
-				$parameters['row'] = $this->row;
+				$parameter['row'] = $this->row;
 			}
 		}
 		$this->row = array();
 
-		foreach ($parameters['row'] as $row_index => $row_value)
+		foreach ($parameter['row'] as $row_index => $row_value)
 		{
 			if ($row_value['image_id'] > 0)
 			{
@@ -101,11 +101,11 @@ class entity_image extends entity_thing
 		}
 
 		// Call thing::set function
-		parent::set($parameters);
+		parent::set($parameter);
 
 		if ($this->option['db_image_data'])
 		{
-			foreach ($parameters['row'] as $row_index => $row_value)
+			foreach ($parameter['row'] as $row_index => $row_value)
 			{
 				if ($row_value['image_id'] > 0)
 				{				

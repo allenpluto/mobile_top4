@@ -13,38 +13,57 @@ class index
     var $id_group = array();
 
     // Object variables
-    var $parameters = array();
+    var $parameter = array();
     var $_initialized = false;
 
-    function __construct($value = null, $parameters = array())
+    function __construct($value = null, $parameter = array())
     {
-        if (!empty($parameters)) $this->set_parameters($parameters);
+        if (!empty($parameter)) $this->set_parameter($parameter);
 
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
         else $db = new db;
         $this->_conn = $db->db_get_connection();
 
         // By default, index object name as database index table name
-        // parameters['table'] in index is normally multiple tables with JOIN conditions, e.g. $this->parameters['table'] = 'tbl_entity_organization JOIN tbl_entity_organization parent_organization ON tbl_entity_organization.parent_organization_id = parent_organization.id'
-        if (!isset($this->parameters['table'])) {
-            $this->parameters['table'] = DATABASE_TABLE_PREFIX . get_class($this);
+        // parameter['table'] in index is normally multiple tables with JOIN conditions, e.g. $this->parameter['table'] = 'tbl_entity_organization JOIN tbl_entity_organization parent_organization ON tbl_entity_organization.parent_organization_id = parent_organization.id'
+        if (!isset($this->parameter['table'])) {
+            $this->parameter['table'] = DATABASE_TABLE_PREFIX . get_class($this);
         }
 
-        // parameters['table_fields'] in index suggest the columns being selected;
-        // when multiple tables are joined, fields would probably need reference the tables they are in and might need alias, e.g. parameters['table_fields'] = 'tbl_entity_organization.id, tbl_entity_organization.name, parent_organization.id AS parent_id, parent_organization.name AS parent_name'
+        // parameter['table_fields'] in index suggest the columns being selected;
+        // when multiple tables are joined, fields would probably need reference the tables they are in and might need alias, e.g. parameter['table_fields'] = 'tbl_entity_organization.id, tbl_entity_organization.name, parent_organization.id AS parent_id, parent_organization.name AS parent_name'
         // index tables should only have the search related tables, e.g. date, id, value... anything that can be search criteria
-        if (!isset($this->parameters['table_fields'])) {
-            $result = $db->db_get_columns($this->parameters['table']);
+        if (!isset($this->parameter['table_fields'])) {
+            $result = $db->db_get_columns($this->parameter['table']);
             if ($result === false) {
                 return false;
             } else {
-                $this->parameters['table_fields'] = $result;
+                $this->parameter['table_fields'] = $result;
             }
         }
 
-        // parameters['primary_key'] in index need to be single column field, if it is not defined, default to id
-        if (!isset($this->parameters['primary_key'])) {
-            $this->parameters['primary_key'] = 'id';
+        // parameter['primary_key'] in index need to be single column field, if it is not defined, default to id
+        if (!isset($this->parameter['primary_key'])) {
+            $result = $db->db_get_primary_key($this->parameter['table']);
+            if ($result === false) {
+                $this->parameter['primary_key'] = 'id';
+            } else {
+                $this->parameter['primary_key'] = end($result);
+            }
+        }
+
+        // parameter['fulltext_index'] in index
+        if (!isset($this->parameter['fulltext_index'])) {
+            $result = $db->db_get_fulltext_index($this->parameter['table']);
+            if ($result === false) {
+                $this->parameter['fulltext_index'] = array();
+            } else {
+                $this->parameter['fulltext_index'] = $result;
+            }
+        }
+
+        if (!isset($this->parameter['fulltext_index'])) {
+            $this->parameter['primary_key'] = 'id';
         }
 
         if (!empty($value)) {
@@ -70,12 +89,12 @@ class index
         $this->_initialized = false;
     }
 
-    function query($sql, $parameters=array())
+    function query($sql, $parameter=array())
     {
-print_r($sql);
-print_r($parameters);
+//print_r($sql);
+//print_r($parameter);
         $query = $this->_conn->prepare($sql);
-        $query->execute($parameters);
+        $query->execute($parameter);
 
 
         if ($query->errorCode() == '00000')
@@ -91,52 +110,56 @@ print_r($parameters);
         }
     }
 
-    function set_parameters($parameters = array())
+    function set_parameter($parameter = array())
     {
-        $this->parameters = array_merge($this->parameters, $parameters);
+        $this->parameter = array_merge($this->parameter, $parameter);
     }
 
-    function get($parameters = array())
+    function get($parameter = array())
     {
-        $parameters = array_merge($this->parameters,$parameters);
+        $parameter = array_merge($this->parameter,$parameter);
 
         if (count($this->id_group) > 0)
         {
             $this->_initialized = true;
         }
 
-        if (empty($parameters['bind_param']))
+        if (empty($parameter['bind_param']))
         {
-            $parameters['bind_param'] = array();
+            $parameter['bind_param'] = array();
         }
 
-        $sql = 'SELECT DISTINCT '.$parameters['primary_key'];
-        if (isset($parameters['calculated_field']))
+        $sql = 'SELECT DISTINCT '.$parameter['primary_key'];
+        if (isset($parameter['get_field']))
         {
-            foreach ($parameters['calculated_field'] as $field_alias => $field_value)
+            foreach ($parameter['get_field'] as $field_alias => $field_value)
             {
                 $sql .= ', '.$field_value.' AS '.$field_alias;
             }
         }
-        $sql .= ' FROM '.$parameters['table'];
-        $where = array();
-        if (!empty($parameters['where']))
+        else
         {
-            if (is_array($parameters['where']))
+            $parameter['get_field'] = array();
+        }
+        $sql .= ' FROM '.$parameter['table'];
+        $where = array();
+        if (!empty($parameter['where']))
+        {
+            if (is_array($parameter['where']))
             {
-                $where = $parameters['where'];
+                $where = $parameter['where'];
             }
             else
             {
-                $where[] = $parameters['where'];
+                $where[] = $parameter['where'];
             }
         }
         if ($this->_initialized)
         {
             if (!empty($this->id_group))
             {
-                $where[] = $parameters['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
-                $parameters['bind_param'] = array_merge($parameters['bind_param'],$this->id_group);
+                $where[] = $parameter['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
+                $parameter['bind_param'] = array_merge($parameter['bind_param'],$this->id_group);
             }
         }
 
@@ -145,37 +168,35 @@ print_r($parameters);
             $sql .= ' WHERE '.implode(' AND ', $where);
         }
 
-        if (!empty($parameters['order']))
+        if (!empty($parameter['order']))
         {
-            if (is_array($parameters['order']))
+            if (is_array($parameter['order']))
             {
-                $parameters['order'] = implode(', ', $parameters['order']);
+                $parameter['order'] = implode(', ', $parameter['order']);
             }
-            $sql .= ' ORDER BY '.$parameters['order'];
+            $sql .= ' ORDER BY '.$parameter['order'];
         }
 
-        $result = $this->query($sql,$parameters['bind_param']);
+        $result = $this->query($sql,$parameter['bind_param']);
 
         if ($result !== false)
         {
             $new_id_group = array();
-            $calculated_field = array();
+            $get_field = array();
             foreach ($result as $row_index=>$row_value)
             {
-                $new_id_group[] = $row_value[$parameters['primary_key']];
-                if (isset($parameters['calculated_field']))
+                $row_id =  $row_value[$parameter['primary_key']];
+                $new_id_group[] = $row_id;
+                foreach ($parameter['get_field'] as $field_alias => $field_value)
                 {
-                    $calculated_field_row = array();
-                    foreach ($parameters['calculated_field'] as $field_alias => $field_value)
+                    if (isset($parameter['get_field']))
                     {
-                        $calculated_field_row[$field_alias] = $row_value[$field_alias];
+                        $get_field[$field_alias][$row_id] = $row_value[$field_alias];
                     }
-                    $calculated_field[$row_value[$parameters['primary_key']]] = $calculated_field_row;
                 }
-
             }
             // Keep the original id order if no specific "order by" is set
-            if ($this->_initialized AND empty($parameters['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
+            if ($this->_initialized AND empty($parameter['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
             else
             {
                 $format = format::get_obj();
@@ -183,13 +204,133 @@ print_r($parameters);
                 $this->id_group = $new_id_group;
             }
             $this->_initialized = true;
-            if (!empty($calculated_field)) return $calculated_field;
-            return $this->id_group;
+            if (!empty($get_field)) return $get_field;
+            else return $this->id_group;
         }
         else
         {
             return false;
         }
+    }
+
+    function full_text_search($parameter = array())
+    {
+        if (!isset($parameter['value']))
+        {
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): Full text search with empty value input';
+            return false;
+        }
+        if (isset($parameter['fulltext_index_key']))
+        {
+            $parameter['fulltext_columns'] = $this->parameter['fulltext_index'][$parameter['fulltext_index_key']];
+        }
+        if (empty($parameter['fulltext_columns']))
+        {
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): Full text search without corresponding fulltext fields';
+            return false;
+        }
+        if (!isset($parameter['special_pattern'])) $parameter['special_pattern'] = '';
+        if (!isset($parameter['preset_score']))
+        {
+            $parameter['preset_score'] = array();
+        }
+
+        $original_id_group = array();
+        if ($this->_initialized)
+        {
+            if (empty($this->id_group))
+            {
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): Full text search filter down from empty id_group';
+                return false;
+            }
+            else
+            {
+                $original_id_group = $this->id_group;
+            }
+        }
+
+        $format = format::get_obj();
+        $keyword_phrases = $format->search_term(array('value' => $parameter['value'], 'special_pattern' => $parameter['special_pattern']));
+        $keyword = implode(' ', $keyword_phrases['full_text_word']);
+        $keyword_phrase_count = count($keyword_phrases['full_text_word']) + count($keyword_phrases['special_word']);
+
+        // MYSQL fulltext search for standard english words and numbers
+        if (!empty($keyword))
+        {
+            $filter_parameter = array(
+                'get_field' => array(
+                    'score' => 'MATCH('.implode(', ',$parameter['fulltext_columns']).') AGAINST (:keyword IN BOOLEAN MODE)'
+                    //'score' => 'MATCH(title) AGAINST (:keyword IN BOOLEAN MODE) / '.count($keyword_phrases)
+                ),
+                'bind_param' => array(
+                    ':keyword' => $keyword
+                ),
+                'where' => 'MATCH('.implode(', ',$parameter['fulltext_columns']).') AGAINST (:keyword) > 0',
+                //'where' => 'MATCH(title) AGAINST (:keyword) > 0',
+                'order' => 'score DESC'
+            );
+            $result = $this->get($filter_parameter);
+        }
+        else
+        {
+            $result = false;
+        }
+        if ($result === false)
+        {
+            $result = array('score'=>array());
+        }
+
+        // Specific search for words with given special characters, too many of these might reduce the system performance
+        foreach ($keyword_phrases['special_word'] as $special_word_index=>$special_word_item)
+        {
+            $this->id_group = $original_id_group;
+            $filter_parameter = array(
+                'get_field' => array(
+                    'score' => 1
+                ),
+                'where' => 'CONCAT(\' \','.implode(',\' \',',$parameter['fulltext_columns']).',\' \') LIKE CONCAT(\'% \',:keyword,\' %\')',
+                'bind_param' => array(':keyword'=>$special_word_item)
+            );
+            $new_result = $this->get($filter_parameter);
+            if ($new_result === false) continue;
+
+            foreach ($new_result['score'] as $id=>$row_value)
+            {
+                if (isset($result['score'][$id]))
+                {
+                    $result['score'][$id] += $row_value;
+                }
+                else
+                {
+                    $result['score'][$id] = $row_value;
+                }
+            }
+
+        }
+
+        $result_id_group = array();
+
+        foreach ($result['score'] as $id=>$row)
+        {
+            $result_id_group[] = $id;
+
+            $result['score'][$id] = round($result['score'][$id] / $keyword_phrase_count, 6);
+            if (isset($parameter['preset_score'][$id]))
+            {
+                $result['score'][$id] = round(sqrt(0.5*pow($result['score'][$id],2)+0.5*pow($parameter['preset_score'][$id],2)),6);
+            }
+        }
+        array_multisort($result['score'], SORT_NUMERIC, SORT_DESC, $result_id_group);
+
+        // After array_multisort, keys (listing ids) in $result are lost, re-set the ids by creating $new_result
+        $new_result = array();
+        foreach ($result['score'] as $index=>$score)
+        {
+            $new_result[$result_id_group[$index]] = $score;
+        }
+
+        $this->id_group = $format->id_group($result_id_group);
+        return $new_result;
     }
 
 

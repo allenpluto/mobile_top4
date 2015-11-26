@@ -5,24 +5,24 @@
 
 class view_business_summary extends view_organization
 {
-	var $parameters = array(
+	var $parameter = array(
         'namespace' => 'business/',
-		'table' => '`tbl_view_featured`',
+		'table' => '`tbl_view_organization`',
 		'primary_key' => 'id'
 	);
 
-	function __construct($value = Null, $parameters = array())
+	function __construct($value = Null, $parameter = array())
 	{
-		$this->parameters['page_size'] = $GLOBALS['global_preference']->business_summary_view_page_size;
+		$this->parameter['page_size'] = $GLOBALS['global_preference']->business_summary_view_page_size;
 		
-		parent::__construct($value, $parameters);
+		parent::__construct($value, $parameter);
 
 		return $this;
 	}
 	
-	function get($parameters = array())
+	function get($parameter = array())
 	{
-		parent::get($parameters);
+		parent::get($parameter);
 	}
 }
 	

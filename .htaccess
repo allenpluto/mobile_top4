@@ -5,7 +5,7 @@ RewriteBase /allen_frame_trial/
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^([0-9a-z_-]+)/([0-9a-z_-]+)/(.*)$ index.php?namespace=$1&instance=$2&parameters=$3 [L,QSA]
+RewriteRule ^([0-9a-z_-]+)/([0-9a-z_-]+)/(.*)$ index.php?namespace=$1&instance=$2&extra_parameter=$3 [L,QSA]
 RewriteRule ^([0-9a-z_-]+)/([0-9a-z_-]+)$ index.php?namespace=$1&instance=$2 [L]
 RewriteRule ^([0-9a-z_-]+)$ index.php?namespace=default&instance=$1 [L]
 RewriteRule ^()$ index.php?namespace=default&instance=home [L]

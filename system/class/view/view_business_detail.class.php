@@ -5,15 +5,15 @@
 
 class view_business_detail extends view_organization
 {
-	var $parameters = array(
+	var $parameter = array(
 		'table' => '`tbl_view_organization`',
 		'primary_key' => 'id',
         'page_size' => 1
 	);
 
-	function __construct($value = Null, $parameters = array())
+	function __construct($value = Null, $parameter = array())
 	{
-		parent::__construct($value, $parameters);
+		parent::__construct($value, $parameter);
 
 		return $this;
 	}

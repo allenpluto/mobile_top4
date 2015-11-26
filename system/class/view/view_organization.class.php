@@ -5,9 +5,9 @@
 
 class view_organization extends view
 {
-	function __construct($init_value = Null, $parameters = array())
+	function __construct($init_value = Null, $parameter = array())
 	{	
-		parent::__construct($init_value, $parameters);
+		parent::__construct($init_value, $parameter);
 
 		return $this;
 	}

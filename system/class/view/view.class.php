@@ -22,15 +22,15 @@ class view
     protected $rendered_html = '';
 
     // Object variables
-    var $parameters = array();
+    var $parameter = array();
     var $_initialized = false;
 
     /**
      *
      */
-    function __construct($value = null, $parameters = array())
+    function __construct($value = null, $parameter = array())
     {
-        if (!empty($parameters)) $this->set_parameters($parameters);
+        if (!empty($parameter)) $this->set_parameter($parameter);
 
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
         else $db = new db;
@@ -38,55 +38,55 @@ class view
 
         // By default, view object name as database view table name, but if certain view object does not have corresponded view table in db, table name to be overwritten, columns and primary key also need to be defined specifically
 
-        // parameters['table'] in view does not necessarily mean one table, can be multiple tables with JOIN conditions, e.g. $this->parameters['table'] = 'tbl_entity_organization JOIN tbl_entity_organization parent_organization ON tbl_entity_organization.parent_organization_id = parent_organization.id'
-        if (!isset($this->parameters['table']))
+        // parameter['table'] in view does not necessarily mean one table, can be multiple tables with JOIN conditions, e.g. $this->parameter['table'] = 'tbl_entity_organization JOIN tbl_entity_organization parent_organization ON tbl_entity_organization.parent_organization_id = parent_organization.id'
+        if (!isset($this->parameter['table']))
         {
-            $this->parameters['table'] = DATABASE_TABLE_PREFIX.get_class($this);
+            $this->parameter['table'] = DATABASE_TABLE_PREFIX.get_class($this);
         }
 
-        // parameters['table_fields'] in view suggest the columns being selected, when multiple tables are joined, fields would probably need reference the tables they are in and might need alias, e.g. parameters['table_fields'] = 'tbl_entity_organization.id, tbl_entity_organization.name, parent_organization.id AS parent_id, parent_organization.name AS parent_name'
-        if (!isset($this->parameters['table_fields']))
+        // parameter['table_fields'] in view suggest the columns being selected, when multiple tables are joined, fields would probably need reference the tables they are in and might need alias, e.g. parameter['table_fields'] = 'tbl_entity_organization.id, tbl_entity_organization.name, parent_organization.id AS parent_id, parent_organization.name AS parent_name'
+        if (!isset($this->parameter['table_fields']))
         {
-            $result = $db->db_get_columns($this->parameters['table']);
+            $result = $db->db_get_columns($this->parameter['table']);
             if ($result === false)
             {
                 return false;
             }
             else
             {
-                $this->parameters['table_fields'] = $result;
+                $this->parameter['table_fields'] = $result;
             }
         }
 
-        // parameters['primary_key'] in view need to be single column field, if it is not defined, default to id
-        if (!isset($this->parameters['primary_key']))
+        // parameter['primary_key'] in view need to be single column field, if it is not defined, default to id
+        if (!isset($this->parameter['primary_key']))
         {
-            $this->parameters['primary_key'] = '`id`';
+            $this->parameter['primary_key'] = '`id`';
         }
 
-        if (!isset($this->parameters['template']))
+        if (!isset($this->parameter['template']))
         {
             if (file_exists(PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE))
             {
-                $this->parameters['template'] = PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE;
+                $this->parameter['template'] = PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE;
             }
             else
             {
-                $this->parameters['template'] = '';
+                $this->parameter['template'] = '';
             }
         }
 
-        if (!isset($this->parameters['page_number']))
+        if (!isset($this->parameter['page_number']))
         {
-            $this->parameters['page_number'] = 0;
+            $this->parameter['page_number'] = 0;
         }
 
-        if (!isset($this->parameters['page_size']))
+        if (!isset($this->parameter['page_size']))
         {
-            $this->parameters['page_size'] = $GLOBALS['global_preference']->default_view_page_size;
+            $this->parameter['page_size'] = $GLOBALS['global_preference']->default_view_page_size;
         }
 
-        $this->parameters['page_count'] = 0;
+        $this->parameter['page_count'] = 0;
 
 
         if (!is_null($value))
@@ -97,11 +97,11 @@ class view
             {
                 if (is_string($value))
                 {
-                    $parameters = array(
+                    $parameter = array(
                         'bind_param' => array(':friendly_url'=>$value),
                         'where' => array('`friendly_url` = :friendly_url')
                     );
-                    $this->get($parameters);
+                    $this->get($parameter);
                 }
                 else
                 {
@@ -129,21 +129,21 @@ class view
                 }
                 else // try to initialize with friendly url
                 {
-                    $parameters = array(
+                    $parameter = array(
                         'bind_param' => array(':friendly_url'=>$value),
                         'where' => array('`friendly_url` = :friendly_url')
                     );
-                    $this->get($parameters);
+                    $this->get($parameter);
                 }
             }*/
-            $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
+            $this->parameter['page_count'] = ceil(count($this->id_group)/$this->parameter['page_size']);
         }
     }
 
-    function query($sql, $parameters=array())
+    function query($sql, $parameter=array())
     {
         $query = $this->_conn->prepare($sql);
-        $query->execute($parameters);
+        $query->execute($parameter);
 
         if ($query->errorCode() == '00000')
         {
@@ -158,14 +158,14 @@ class view
         }
     }
 
-    function set_parameters($parameters = array())
+    function set_parameter($parameter = array())
     {
         // In view table, primary_key are fixed during construction
-        if (isset($parameters['primary_key']))
+        if (isset($parameter['primary_key']))
         {
-            unset($parameters['primary_key']);
+            unset($parameter['primary_key']);
         }
-        $this->parameters = array_merge($this->parameters, $parameters);
+        $this->parameter = array_merge($this->parameter, $parameter);
     }
 
     function set_page_size($page_size)
@@ -173,49 +173,49 @@ class view
         $page_size = intval($page_size);
         if ($page_size > 0)
         {
-            $this->parameters['page_number'] = 0;
-            $this->parameters['page_size'] = $page_size;
-            $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
+            $this->parameter['page_number'] = 0;
+            $this->parameter['page_size'] = $page_size;
+            $this->parameter['page_count'] = ceil(count($this->id_group)/$this->parameter['page_size']);
         }
     }
 
-    function get($parameters = array())
+    function get($parameter = array())
     {
         // When id_group changes, reset the stored row value and rendered html
         $this->row = null;
         $this->rendered_html = null;
 
-        $parameters = array_merge($this->parameters,$parameters);
+        $parameter = array_merge($this->parameter,$parameter);
 
         if (count($this->id_group) > 0)
         {
             $this->_initialized = true;
         }
 
-        if (empty($parameters['bind_param']))
+        if (empty($parameter['bind_param']))
         {
-            $parameters['bind_param'] = array();
+            $parameter['bind_param'] = array();
         }
 
-        $sql = 'SELECT '.$this->parameters['primary_key'].' FROM '.$this->parameters['table'];
+        $sql = 'SELECT '.$this->parameter['primary_key'].' FROM '.$this->parameter['table'];
         $where = array();
-        if (!empty($parameters['where']))
+        if (!empty($parameter['where']))
         {
-            if (is_array($parameters['where']))
+            if (is_array($parameter['where']))
             {
-                $where = $parameters['where'];
+                $where = $parameter['where'];
             }
             else
             {
-                $where[] = $parameters['where'];
+                $where[] = $parameter['where'];
             }
         }
         if ($this->_initialized)
         {
             if (!empty($this->id_group))
             {
-                $where[] = $parameters['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
-                $parameters['bind_param'] = array_merge($parameters['bind_param'],$this->id_group);
+                $where[] = $parameter['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
+                $parameter['bind_param'] = array_merge($parameter['bind_param'],$this->id_group);
             }
         }
 
@@ -229,32 +229,32 @@ class view
             return false;
         }
 
-        if (!empty($parameters['order']))
+        if (!empty($parameter['order']))
         {
-            if (is_array($parameters['order']))
+            if (is_array($parameter['order']))
             {
-                $parameters['order'] = implode(', ', $parameters['order']);
+                $parameter['order'] = implode(', ', $parameter['order']);
             }
-            $sql .= ' ORDER BY '.$parameters['order'];
+            $sql .= ' ORDER BY '.$parameter['order'];
         }
-        if (!empty($parameters['limit']))
+        if (!empty($parameter['limit']))
         {
-            $sql .= ' LIMIT '.$parameters['limit'];
+            $sql .= ' LIMIT '.$parameter['limit'];
         }
-        if (!empty($parameters['offset']))
+        if (!empty($parameter['offset']))
         {
-            $sql .= ' OFFSET '.$parameters['offset'];
+            $sql .= ' OFFSET '.$parameter['offset'];
         }
-        $result = $this->query($sql,$parameters['bind_param']);
+        $result = $this->query($sql,$parameter['bind_param']);
         if ($result !== false)
         {
             $new_id_group = array();
             foreach ($result as $row_index=>$row_value)
             {
-                $new_id_group[] = $row_value[$this->parameters['primary_key']];
+                $new_id_group[] = $row_value[$this->parameter['primary_key']];
             }
             // Keep the original id order if no specific "order by" is set
-            if ($this->_initialized AND empty($parameters['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
+            if ($this->_initialized AND empty($parameter['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
             else
             {
                 $format = format::get_obj();
@@ -263,7 +263,7 @@ class view
             }
 
             $this->_initialized = true;
-            $this->parameters['page_count'] = ceil(count($this->id_group)/$this->parameters['page_size']);
+            $this->parameter['page_count'] = ceil(count($this->id_group)/$this->parameter['page_size']);
             return $this->id_group;
         }
         else
@@ -272,7 +272,7 @@ class view
         }
     }
 
-    function fetch_value($parameters = array())
+    function fetch_value($parameter = array())
     {
         if (isset($this->row))
         {
@@ -290,15 +290,15 @@ class view
             $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' fetch value from empty array';
             return array();
         }
-        $parameters = array_merge($this->parameters,$parameters);
-        $page_number = intval($parameters['page_number']);
-        if ($page_number > $parameters['page_count']-1) $page_number =  $parameters['page_count']-1;
+        $parameter = array_merge($this->parameter,$parameter);
+        $page_number = intval($parameter['page_number']);
+        if ($page_number > $parameter['page_count']-1) $page_number =  $parameter['page_count']-1;
         if ($page_number < 0) $page_number = 0;
-        $page_size = intval($parameters['page_size']);
+        $page_size = intval($parameter['page_size']);
         if ($page_size < 1) $page_size = 1;
-        $sql = 'SELECT '.implode(',',$parameters['table_fields']).' FROM '.$this->parameters['table'];
-        $where = $parameters['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
-        $order = 'FIELD('.$this->parameters['primary_key'].','.implode(',',array_keys($this->id_group)).')';
+        $sql = 'SELECT '.implode(',',$parameter['table_fields']).' FROM '.$this->parameter['table'];
+        $where = $parameter['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
+        $order = 'FIELD('.$this->parameter['primary_key'].','.implode(',',array_keys($this->id_group)).')';
         $bind_param = $this->id_group;
         $sql .= ' WHERE '.$where.' ORDER BY '.$order.' LIMIT '.$page_size.' OFFSET '.$page_number*$page_size;
         $result = $this->query($sql,$bind_param);
@@ -313,16 +313,16 @@ class view
         return $this->row;
     }
 
-    function render($parameters = array())
+    function render($parameter = array())
     {
-        if (isset($this->rendered_html) AND !isset($parameters['template']))
+        if (isset($this->rendered_html) AND !isset($parameter['template']))
         {
             return $this->rendered_html;
         }
 
         if (!isset($this->row))
         {
-            $result = $this->fetch_value($parameters);
+            $result = $this->fetch_value($parameter);
 
             if ($result === false)
             {
@@ -337,14 +337,13 @@ class view
             return '';
         }
 
-        if (isset($parameters['template']))
+        if (isset($parameter['template']))
         {
-            $parameters['template'] = PATH_TEMPLATE.$parameters['template'].FILE_EXTENSION_TEMPLATE;
+            $parameter['template'] = PATH_TEMPLATE.$parameter['template'].FILE_EXTENSION_TEMPLATE;
         }
 
-        $parameters = array_merge($this->parameters,$parameters);
-
-        $template = $parameters['template'];
+        $parameter = array_merge($this->parameter,$parameter);
+        $template = $parameter['template'];
         if (!file_exists($template)) $template = '';
         else $template = file_get_contents($template);
 
@@ -361,9 +360,9 @@ class view
                 foreach ($this->row as $row_index=>$row_value)
                 {
                     $content = $row_value;
-                    if (isset($parameters['extra_content']))
+                    if (isset($parameter['extra_content']))
                     {
-                        $content = array_merge($content,$parameters['extra_content']);
+                        $content = array_merge($content,$parameter['extra_content']);
                     }
                     $rendered_content = $template;
                     preg_match_all('/\[\[(\W+)?(\w+)\]\]/', $template, $matches, PREG_OFFSET_CAPTURE);
@@ -399,12 +398,12 @@ class view
                                 break;
                             case '&':
                                 // object parameter variable
-                                if (!isset($this->parameters[$value[0]]))
+                                if (!isset($this->parameter[$value[0]]))
                                 {
                                     $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
                                     continue;
                                 }
-                                $rendered_content = str_replace($matches[0][$key][0], $this->parameters[$value[0]], $rendered_content);
+                                $rendered_content = str_replace($matches[0][$key][0], $this->parameter[$value[0]], $rendered_content);
                                 break;
                             case '-':
                                 // comment area, do not render even if it matches any key
@@ -421,7 +420,7 @@ class view
                 }
                 $rendered_html = implode('', $rendered_result);
                 // Only store rendering with default template
-                if (!isset($parameters['template']))
+                if (!isset($parameter['template']))
                 {
                     $this->rendered_html = $rendered_html;
                 }

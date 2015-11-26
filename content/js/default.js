@@ -1130,6 +1130,18 @@ function FrameOnload(){
 		
 		$('#search_wrapper').removeClass('search_expand');
 	});
+
+    $('#search_submit').click(function(event){
+        event.preventDefault();
+
+        var search_page_url = 'listing/search/';
+        search_page_url += encodeURIComponent(encodeURIComponent($('input[name="keyword"]').val()));
+        if ($('input[name="location"]').val())
+        {
+            search_page_url += '/where/'+encodeURIComponent($('input[name="location"]').val());
+        }
+        window.location.href = search_page_url;
+    });
 }
 function BodyOnload(){
 }

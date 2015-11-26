@@ -5,16 +5,16 @@
 
 class view_web_page extends view
 {
-    var $parameters = array(
+    var $parameter = array(
         'table' => '`tbl_view_business_summary`',
         'primary_key' => 'id'
     );
 
-    function __construct($init_value = Null, $parameters = array())
+    function __construct($init_value = Null, $parameter = array())
 	{
         $init_value = 12054;
 
-		parent::__construct($init_value, $parameters);
+		parent::__construct($init_value, $parameter);
 
 		return $this;
 	}

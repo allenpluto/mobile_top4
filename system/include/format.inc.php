@@ -40,6 +40,17 @@ class format
         }
     }
 
+    private function extra_parameter($value)
+    {
+        $value_part = explode('/',$value);
+        $result = array();
+        foreach($value_part as $value_part_index=>$value_part_item)
+        {
+            $result[] = urldecode($value_part_item);
+        }
+        return $result;
+    }
+
     private function friendly_url($value)
     {
         $value = strtolower($value);
@@ -106,7 +117,7 @@ class format
         return $value;
     }
 
-    private function  search_term($value)
+    private function search_term($value)
     {
         if (empty($value))
         {
@@ -121,22 +132,38 @@ class format
         }
         if (!isset($delimiter)) $delimiter = ' ';
         // Make sure min_string_length is greater or equal to db/solr full text search min characters
+        // any word with less length will go into special word, too many special word will slow search down
         if (!isset($min_string_length)) $min_string_length = 3;
+        if (!isset($special_pattern)) $special_pattern = '';
         if (is_array($value))
         {
             $value = implode($delimiter,$value);
         }
-        $value = preg_replace('/[^a-zA-Z0-9\s]+/', $delimiter, $value);
+        $value = preg_replace('/[^'.$special_pattern.'a-zA-Z0-9\s]+/', $delimiter, $value);
         $value = explode($delimiter,$value);
-        $result = array();
+        $result = array('full_text_word'=>array(),'special_word'=>array());
         foreach($value as $key=>$item)
         {
             $item = strtolower(trim($item));
-            if (strlen($item) >= $min_string_length)
+            if (strlen($item) < $min_string_length)
             {
-                $result[] = $item;
+                if (strlen($item) > 0) $result['special_word'][] = $item;
+            }
+            else
+            {
+                if (!empty($special_pattern))
+                {
+                    if (preg_match('/['.$special_pattern.']/', $item))  $result['special_word'][] = $item;
+                    else $result['full_text_word'][] = $item;
+                }
+                else
+                {
+                    $result['full_text_word'][] = $item;
+                }
             }
         }
+        $result['full_text_word'] = array_unique($result['full_text_word']);
+        $result['special_word'] = array_unique($result['special_word']);
         return $result;
     }
 }

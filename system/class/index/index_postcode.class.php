@@ -5,13 +5,13 @@
 
 class index_postcode extends index
 {
-    var $parameters = array(
+    var $parameter = array(
         'table' => 'top4_main.postcode_suburb'
     );
 
-    function __construct($value = Null, $parameters = array())
+    function __construct($value = Null, $parameter = array())
     {
-        parent::__construct($value, $parameters);
+        parent::__construct($value, $parameter);
 
         return $this;
     }
@@ -22,7 +22,7 @@ class index_postcode extends index
 
         if (is_numeric($value))
         {
-            $filter_parameters = array(
+            $filter_parameter = array(
                 'where' => 'post_code = :post_code',
                 'bind_param' => array(':post_code'=>$value)
             );
@@ -44,16 +44,16 @@ class index_postcode extends index
                 // Text matches state long name, change it into state short name
                 $value = $state_list[$value];
             }
-            $filter_parameters = array(
+            $filter_parameter = array(
                 'where' => 'lower(suburb) = :location_text OR lower(region) = :location_text OR lower(state) = :location_text',
                 'bind_param' => array(':location_text'=>$value)
             );
         }
-        return parent::get($filter_parameters);
+        return parent::get($filter_parameter);
     }
 
-    // Filter by suburb name, get id(s)
-    function filter_by_location_text($value, $parameters = array())
+    // Filter by suburb/region/state name, get id(s)
+    function filter_by_location_text($value, $parameter = array())
     {
         $value_parts = explode(',',$value);
         foreach ($value_parts as $value_part_index=>$value_part)

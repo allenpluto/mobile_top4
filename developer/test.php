@@ -41,6 +41,18 @@ print_r($view_business_summary_obj);*/
 
 $listing_id = array();
 $index_organization = new index_organization($listing_id);
-print_r($index_organization->filter_by_keywords($_GET['keyword']));
+$keyword_score = $index_organization->filter_by_keyword($_GET['keyword']);
+print_r($keyword_score);
+$location_score = $index_organization->filter_by_location($_GET['location'],array('preset_score'=>$keyword_score));
+print_r($location_score);
+$final_score = array();
+//$index_organization->reset();
+//print_r($index_organization->filter_by_keywords2($_GET['keyword']));
+print_r($index_organization->id_group);
+$view_business_summary = new view_business_summary($index_organization->id_group);
+print_r($view_business_summary->fetch_value());
 
+
+/*$index_organization = new index_organization();
+print_r($index_organization);*/
 

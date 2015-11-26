@@ -5,30 +5,40 @@
 
 class index_organization extends index
 {
-    var $parameters = array(
+    var $parameter = array(
         'table' => 'listing'
     );
 
-    function __construct($value = Null, $parameters = array())
+    function __construct($value = Null, $parameter = array())
     {
-        parent::__construct($value, $parameters);
+        parent::__construct($value, $parameter);
 
         return $this;
     }
 
-    function filter_by_featured($parameters = array())
+    function filter_by_active($parameter = array())
     {
-        $filer_parameters = array(
+        $filer_parameter = array(
+            'where' => 'status = \'A\''
+        );
+
+        $filer_parameter = array_merge($filer_parameter, $parameter);
+        return parent::get($filer_parameter);
+    }
+
+    function filter_by_featured($parameter = array())
+    {
+        $filer_parameter = array(
             'primary_key' => 'listing_id',
             'table' => 'listingfeatured'
         );
 
-        $filer_parameters = array_merge($filer_parameters, $parameters);
-        return parent::get($filer_parameters);
+        $filer_parameter = array_merge($filer_parameter, $parameter);
+        return parent::get($filer_parameter);
     }
 
     // Exact Match Search
-    function filter_by_category($value, $parameters = array())
+    function filter_by_category($value, $parameter = array())
     {
         $format = format::get_obj();
         $category_id_group = $format->id_group(array('value'=>$value,'key_prefix'=>':category_id_'));
@@ -38,20 +48,20 @@ class index_organization extends index
             return false;
         }
 
-        $filter_parameters = array(
+        $filter_parameter = array(
             'primary_key' => 'listing_id',
             'table' => 'listing_category',
             'where' => 'category_id IN ('.implode(',',array_keys($category_id_group)).')',
         );
 
-        $filter_parameters = array_merge($filter_parameters, $parameters);
-        if (!isset($filter_parameters['bind_param'])) $filter_parameters['bind_param'] = array();
-        $filter_parameters['bind_param'] = array_merge($filter_parameters['bind_param'], $category_id_group);
+        $filter_parameter = array_merge($filter_parameter, $parameter);
+        if (!isset($filter_parameter['bind_param'])) $filter_parameter['bind_param'] = array();
+        $filter_parameter['bind_param'] = array_merge($filter_parameter['bind_param'], $category_id_group);
 
-        return parent::get($filter_parameters);
+        return parent::get($filter_parameter);
     }
 
-    function filter_by_suburb($value, $parameters = array())
+    function filter_by_suburb($value, $parameter = array())
     {
         $format = format::get_obj();
         $postcode_suburb_id_group = $format->id_group(array('value'=>$value,'key_prefix'=>':postcode_suburb_id_'));
@@ -61,78 +71,39 @@ class index_organization extends index
             return false;
         }
 
-        $filter_parameters = array(
+        $filter_parameter = array(
             'where' => 'postcode_suburb_id IN ('.implode(',',array_keys($postcode_suburb_id_group)).')',
         );
-        $filter_parameters = array_merge($filter_parameters, $parameters);
-        if (!isset($filter_parameters['bind_param'])) $filter_parameters['bind_param'] = array();
-        $filter_parameters['bind_param'] = array_merge($filter_parameters['bind_param'], $postcode_suburb_id_group);
+        $filter_parameter = array_merge($filter_parameter, $parameter);
+        if (!isset($filter_parameter['bind_param'])) $filter_parameter['bind_param'] = array();
+        $filter_parameter['bind_param'] = array_merge($filter_parameter['bind_param'], $postcode_suburb_id_group);
 
-        return parent::get($filter_parameters);
+        return parent::get($filter_parameter);
     }
 
     // Fuzzy Search
-    function filter_by_keywords($value, $parameters = array())
+    function filter_by_keyword($value, $parameter = array())
     {
-        $filter_parameters = array(
-            'where' => 'title LIKE CONCAT(\'%\',:keyword,\'%\')',
-            'bind_param' => array(':keyword'=>$value)
+        $filter_parameter = array(
+            'value'=> $value,
+            'special_pattern'=>'\&\'',
+            'fulltext_index_key'=>'fulltext_keyword'
         );
-        $result_id_group = parent::get($filter_parameters);
-        if ($result_id_group === false) $result_id_group = array();
-        print_r($result_id_group);
-
-        $format = format::get_obj();
-        $keyword_phrases = $format->search_term($value);
-        $keyword = implode(' ',$keyword_phrases);
-
-        if (!empty($keyword))
-        {
-            $this->reset();
-            $filter_parameters = array(
-                'calculated_field' => array(
-                    'title' => 'title',
-                    'score' => 'MATCH(title, description, keywords) AGAINST (:keyword IN BOOLEAN MODE) / '.count($keyword_phrases)
-                    //'score' => 'MATCH(title) AGAINST (:keyword IN BOOLEAN MODE) / '.count($keyword_phrases)
-                ),
-                'bind_param' => array(
-                    ':keyword' => $keyword
-                ),
-                'where' => 'MATCH(title, description, keywords) AGAINST (:keyword) > 0',
-                //'where' => 'MATCH(title) AGAINST (:keyword) > 0',
-                'order' => 'score DESC'
-            );
-            $new_result = parent::get($filter_parameters);
-        }
-        else
-        {
-            $new_result = false;
-        }
-
-        $max_score = 1;
-        $result = array();
-        if ($new_result !== false)
-        {
-            // retrieve ids only in Like search result (special characters keywords return no results from full text search)
-            $result_id_group_diff = array_diff($result_id_group,$this->id_group);
-            // retrieve ids only in both search results
-            $result_id_group_intersect = array_intersect($result_id_group,$this->id_group);
-            // change id array order
-            $result_id_group = array_merge($result_id_group_intersect, $result_id_group_diff);
-        }
-        foreach ($result_id_group as $id_index=>$id)
-        {
-            $result = array($id=>array('score'=>$max_score)) + $result;
-        }
-        if ($new_result !== false)
-        {
-            $result = $result + $new_result;
-            $result_id_group = array_merge($result_id_group,$this->id_group);
-        }
-
-        $this->id_group = $result_id_group;
-        return $result;
+        $filter_parameter = array_merge($filter_parameter,$parameter);
+        return $this->full_text_search($filter_parameter);
     }
+
+    function filter_by_location($value, $parameter = array())
+    {
+        $filter_parameter = array(
+            'value'=> $value,
+            'special_pattern'=>'\'',
+            'fulltext_index_key'=>'fulltext_location'
+        );
+        $filter_parameter = array_merge($filter_parameter,$parameter);
+        return $this->full_text_search($filter_parameter);
+    }
+
 }
 
 ?>

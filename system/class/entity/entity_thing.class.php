@@ -13,7 +13,7 @@ class entity_thing
 	public $row = array();
 	
 	// Object variables
-	var $parameters = array();
+	var $parameter = array();
 	var $message = null;
 	var $_initialized = false;
 	var $default_value = array(
@@ -27,15 +27,15 @@ class entity_thing
         {
             $parent_class = get_parent_class($this);
             $this->parent = new $parent_class;
-            $this->parent->set_parameters($this->parameters);
+            $this->parent->set_parameter($this->parameter);
         }
 
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
         else $db = new db;
 		$this->_conn = $db->db_get_connection();
 
-		$this->parameters['table'] = DATABASE_TABLE_PREFIX.get_class($this);
-		$result = $db->db_get_columns($this->parameters['table']);
+		$this->parameter['table'] = DATABASE_TABLE_PREFIX.get_class($this);
+		$result = $db->db_get_columns($this->parameter['table']);
 		if ($result === false)
 		{
 			$this->message = $db->message;
@@ -43,9 +43,9 @@ class entity_thing
 		}
 		else
 		{
-			$this->parameters['table_fields'] = $result;
+			$this->parameter['table_fields'] = $result;
 		}
-		$result = $db->db_get_primary_key($this->parameters['table']);
+		$result = $db->db_get_primary_key($this->parameter['table']);
 		if ($result === false)
 		{
 			$this->message = $this->_conn->message;
@@ -55,7 +55,7 @@ class entity_thing
 		{
 			if (count($result) == 1)
 			{
-				$this->parameters['primary_key'] = $result[0];
+				$this->parameter['primary_key'] = $result[0];
 			}
 			else
 			{
@@ -66,21 +66,21 @@ class entity_thing
 		}
 	}
 
-    function set_parameters($parameters = array())
+    function set_parameter($parameter = array())
     {
-        $this->parameters = array_merge($this->parameters, $parameters);
+        $this->parameter = array_merge($this->parameter, $parameter);
     }
 
-	protected function query($sql, $parameters=array())
+	protected function query($sql, $parameter=array())
 	{
 
 		$query = $this->_conn->prepare($sql);
-		$query->execute($parameters);
+		$query->execute($parameter);
 
 		return $query;
 	}
 
-	function get($parameters = array())
+	function get($parameter = array())
 	{
 		if (count($this->row) > 0)
 		{
@@ -88,31 +88,31 @@ class entity_thing
 		}
 		
 		// If columns not set, use default
-		if (!isset($parameters['columns']))
+		if (!isset($parameter['columns']))
 		{
-			if (!empty($this->parameters['select_fields']))
+			if (!empty($this->parameter['select_fields']))
 			{
-				$parameters['columns'] = $this->parameters['select_fields'];
+				$parameter['columns'] = $this->parameter['select_fields'];
 			}
 			else
 			{
-				$parameters['columns'] = array('*');
+				$parameter['columns'] = array('*');
 			}
 		}
 
-		if (empty($parameters['bind_param']))
+		if (empty($parameter['bind_param']))
 		{
-			$parameters['bind_param'] = array();
+			$parameter['bind_param'] = array();
 		}
 
-		$sql = 'SELECT '.implode(',',$parameters['columns']).' FROM '.DATABASE_TABLE_PREFIX.get_class($this);
-		if (!empty($parameters['where']))
+		$sql = 'SELECT '.implode(',',$parameter['columns']).' FROM '.DATABASE_TABLE_PREFIX.get_class($this);
+		if (!empty($parameter['where']))
 		{
-			if (is_array($parameters['where']))
+			if (is_array($parameter['where']))
 			{
-				$parameters['where'] = implode(' AND ', $parameters['where']);
+				$parameter['where'] = implode(' AND ', $parameter['where']);
 			}
-			$sql .= ' WHERE '.$parameters['where'];
+			$sql .= ' WHERE '.$parameter['where'];
 		}
 		else
 		{
@@ -122,19 +122,19 @@ class entity_thing
 				foreach ($this->row as $row_index=>$row_value)
 				{
 
-					if (!empty($row_value[$this->parameters['primary_key']]))
+					if (!empty($row_value[$this->parameter['primary_key']]))
 					{
-						$row_ids[] = $row_value[$this->parameters['primary_key']];
+						$row_ids[] = $row_value[$this->parameter['primary_key']];
 					}
 				}
 				if (!empty($row_ids))
 				{
-					$where = '`'.$this->parameters['primary_key'].'` IN (-1';
+					$where = '`'.$this->parameter['primary_key'].'` IN (-1';
 
 					foreach ($row_ids as $row_id_index=>$row_id_value)
 					{
 						$where .= ',:id_'.$row_id_index;
-						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
+						$parameter['bind_param'][':id_'.$row_id_index] = $row_id_value;
 					}
 					$where .= ')'; 
 					$sql .= ' WHERE '.$where;
@@ -146,9 +146,9 @@ class entity_thing
 				return false;
 			}
 		}
-		if (!empty($parameters['order']))
+		if (!empty($parameter['order']))
 		{
-			$sql .= ' ORDER BY '.$parameters['order'];
+			$sql .= ' ORDER BY '.$parameter['order'];
 		}
 		else
 		{
@@ -158,38 +158,38 @@ class entity_thing
 				foreach ($this->row as $row_index=>$row_value)
 				{
 
-					if (!empty($row_value[$this->parameters['primary_key']]))
+					if (!empty($row_value[$this->parameter['primary_key']]))
 					{
-						$row_ids[] = $row_value[$this->parameters['primary_key']];
+						$row_ids[] = $row_value[$this->parameter['primary_key']];
 					}
 				}
 				if (!empty($row_ids))
 				{
-					$order = 'FIELD(`'.$this->parameters['primary_key'].'`';
+					$order = 'FIELD(`'.$this->parameter['primary_key'].'`';
 
 					foreach ($row_ids as $row_id_index=>$row_id_value)
 					{
 						$order .= ',:id_'.$row_id_index;
-						$parameters['bind_param'][':id_'.$row_id_index] = $row_id_value;
+						$parameter['bind_param'][':id_'.$row_id_index] = $row_id_value;
 					}
 					$order .= ')'; 
 					$sql .= ' ORDER BY '.$order;
 				}
 			}
 		}
-		if (!empty($parameters['limit']))
+		if (!empty($parameter['limit']))
 		{
-			$sql .= ' LIMIT '.$parameters['limit'];
+			$sql .= ' LIMIT '.$parameter['limit'];
 		}
 		else
 		{
 			$sql .= ' LIMIT '.$GLOBALS['global_preference']->default_entity_row_max;
 		}
-		if (!empty($parameters['offset']))
+		if (!empty($parameter['offset']))
 		{
-			$sql .= ' OFFSET '.$parameters['offset'];
+			$sql .= ' OFFSET '.$parameter['offset'];
 		}
-		$query = $this->query($sql,$parameters['bind_param']);
+		$query = $this->query($sql,$parameter['bind_param']);
 		if ($query->errorCode() == '00000')
 		{
 			$result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -205,12 +205,12 @@ class entity_thing
 		}
 	}
 
-	function set($parameters = array())
+	function set($parameter = array())
 	{
-		if (!empty($parameters['row']))
+		if (!empty($parameter['row']))
 		{
-			$this->row = $parameters['row'];
-			unset($parameters['row']);
+			$this->row = $parameter['row'];
+			unset($parameter['row']);
 		}
 
 		if (empty($this->row))
@@ -219,63 +219,63 @@ class entity_thing
 			return false;
 		}
 		
-		$get_parameters = $parameters;
+		$get_parameter = $parameter;
 		
-		$parameters = array_merge($parameters, $this->parameters);
+		$parameter = array_merge($parameter, $this->parameter);
 
-		if (empty($parameters['bind_param']))
+		if (empty($parameter['bind_param']))
 		{
-			$parameters['bind_param'] = array();
+			$parameter['bind_param'] = array();
 		}
 
 
 		// If columns not set, use default
-		if (!isset($parameters['insert_fields']))
+		if (!isset($parameter['insert_fields']))
 		{
-			if (!empty($this->parameters['insert_fields']))
+			if (!empty($this->parameter['insert_fields']))
 			{
-				$parameters['insert_fields'] = array_unique(array_merge($parameters['primary_key'],$this->parameters['insert_fields']));
+				$parameter['insert_fields'] = array_unique(array_merge($parameter['primary_key'],$this->parameter['insert_fields']));
 			}
 			else
 			{
-				$parameters['insert_fields'] = array();
-				foreach ($this->parameters['table_fields'] as $column_index=>$column_value)
+				$parameter['insert_fields'] = array();
+				foreach ($this->parameter['table_fields'] as $column_index=>$column_value)
 				{
-					$parameters['insert_fields'][] = $column_value;
+					$parameter['insert_fields'][] = $column_value;
 				}
 			}
 		}
-		if (!isset($parameters['update_fields']))
+		if (!isset($parameter['update_fields']))
 		{
-			if (!empty($this->parameters['update_fields']))
+			if (!empty($this->parameter['update_fields']))
 			{
-				$parameters['update_fields'] = $this->parameters['update_fields'];
+				$parameter['update_fields'] = $this->parameter['update_fields'];
 			}
 			else
 			{
-				$parameters['update_fields'] = array();
-				foreach ($this->parameters['table_fields'] as $column_index=>$column_value)
+				$parameter['update_fields'] = array();
+				foreach ($this->parameter['table_fields'] as $column_index=>$column_value)
 				{
-					if ($column_value != $parameters['primary_key'] AND $column_value != 'enter_date')
+					if ($column_value != $parameter['primary_key'] AND $column_value != 'enter_date')
 					{
-						$parameters['update_fields'][] = $column_value;
+						$parameter['update_fields'][] = $column_value;
 					}
 				}
 			}
 		}
 
-		foreach ($parameters['insert_fields'] as $column_index=>$column_value)
+		foreach ($parameter['insert_fields'] as $column_index=>$column_value)
 		{
-			if (!in_array($column_value, $this->parameters['table_fields']))
+			if (!in_array($column_value, $this->parameter['table_fields']))
 			{
-				unset($parameters['insert_fields'][$column_index]);
+				unset($parameter['insert_fields'][$column_index]);
 			}
 		}
-		foreach ($parameters['update_fields'] as $column_index=>$column_value)
+		foreach ($parameter['update_fields'] as $column_index=>$column_value)
 		{
-			if (!in_array($column_value, $this->parameters['table_fields']))
+			if (!in_array($column_value, $this->parameter['table_fields']))
 			{
-				unset($parameters['update_fields'][$column_index]);
+				unset($parameter['update_fields'][$column_index]);
 			}
 		}
 
@@ -286,7 +286,7 @@ class entity_thing
 			$bind_values = array();
 			
 			// Bind values for all insert and update fields
-			$sql_columns = array_unique(array_merge($parameters['insert_fields'],$parameters['update_fields']));
+			$sql_columns = array_unique(array_merge($parameter['insert_fields'],$parameter['update_fields']));
 
 			foreach ($sql_columns as $column_index=>$column_value)
 			{
@@ -307,7 +307,7 @@ class entity_thing
 
 
 			$sql = 'INSERT INTO '.DATABASE_TABLE_PREFIX.get_class($this).' (';
-			foreach($parameters['insert_fields'] as $column_index=>$column_value)
+			foreach($parameter['insert_fields'] as $column_index=>$column_value)
 			{
 				if (isset($sql_values[$column_value]))
 				{
@@ -319,7 +319,7 @@ class entity_thing
 				}
 			}
 			$sql .= ') VALUES (';
-			foreach($parameters['insert_fields'] as $column_index=>$column_value)
+			foreach($parameter['insert_fields'] as $column_index=>$column_value)
 			{
 				if (isset($sql_values[$column_value]))
 				{
@@ -331,7 +331,7 @@ class entity_thing
 				}
 			}
 			$sql .= ') ON DUPLICATE KEY UPDATE ';
-			foreach($parameters['update_fields'] as $column_index=>$column_value)
+			foreach($parameter['update_fields'] as $column_index=>$column_value)
 			{
 				if (isset($sql_values[$column_value]))
 				{
@@ -343,11 +343,11 @@ class entity_thing
 				}
 			}
 
-			$row_bind_values = array_merge($parameters['bind_param'], $bind_values);
+			$row_bind_values = array_merge($parameter['bind_param'], $bind_values);
 			$query = $this->query($sql,$row_bind_values);
 			if ($query->errorCode() == '00000')
 			{
-				$this->row[$row_index][$this->parameters['primary_key']] = $this->_conn->lastInsertId();
+				$this->row[$row_index][$this->parameter['primary_key']] = $this->_conn->lastInsertId();
 			}
 			else
 			{
@@ -358,10 +358,10 @@ class entity_thing
 		}
 
 		// Always Select from database after Insert/Update to keep data consistant
-		$get_parameters = $parameters;
-		unset($get_parameters['bind_param']);
+		$get_parameter = $parameter;
+		unset($get_parameter['bind_param']);
 
-		$result = $this->get($get_parameters);
+		$result = $this->get($get_parameter);
 		return $result;
 	}
 }
