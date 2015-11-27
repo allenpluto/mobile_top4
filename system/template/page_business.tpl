@@ -37,25 +37,25 @@
 		<div id="off_canvas_menu">
         	<div id="off_canvas_menu_section_nav" class="off_canvas_menu_section">
                 <div id="off_canvas_menu_section_nav_item_1" class="off_canvas_menu_item">
-                    <a href="http://stg.top4.com.au/"><span>Home</span></a>
+                    <a href="./"><span>Home</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_2" class="off_canvas_menu_item">
-                    <a href="http://stg.top4.com.au/listing/"><span>Businesses</span></a>
+                    <a href="./listing/"><span>Businesses</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_3" class="off_canvas_menu_item">
-                    <a href="http://stg.top4.com.au/job/"><span>Jobs</span></a>
+                    <a href="./job/"><span>Jobs</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_4" class="off_canvas_menu_item">
-                    <a href="http://stg.top4.com.au/product/"><span>Products</span></a>
+                    <a href="./product/"><span>Products</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_5" class="off_canvas_menu_item">
-                    <a href="http://stg.top4.com.au/feed/friends/find/"><span>People</span></a>
+                    <a href="./feed/friends/find/"><span>People</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_6" class="off_canvas_menu_item">
-                    <a href="http://stg.top4.com.au/pressrelease/"><span>Press Releases</span></a>
+                    <a href="./pressrelease/"><span>Press Releases</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_7" class="off_canvas_menu_item">
-                    <a href="http://stg.top4.com.au/feed/all-updates/"><span>Newsfeeds</span></a>
+                    <a href="./feed/all-updates/"><span>Newsfeeds</span></a>
                 </div>
             </div><!-- #off_canvas_menu_section_main_menu -->
         	<div id="off_canvas_menu_section_sign_in" class="off_canvas_menu_section">
@@ -70,7 +70,7 @@
         <div id="header_wrapper" class="wrapper">
             <div id="top_wrapper" class="wrapper">
                 <div id="top_wrapper_off_canvas_trigger" class="off_canvas_trigger"></div>
-                <div id="top_wrapper_logo"><a href="/"><img src="content/image/the-new-australian-social-business-directory_logo_small.png" alt="Top4 - The New Australian Social Business Directory"></a></div>
+                <div id="top_wrapper_logo"><a href="./"><img src="content/image/the-new-australian-social-business-directory_logo_small.png" alt="Top4 - The New Australian Social Business Directory"></a></div>
                 <div id="top_wrapper_search_trigger" class="search_trigger"></div>
             </div><!-- #top_wrapper -->
             <div id="search_wrapper" class="wrapper">
