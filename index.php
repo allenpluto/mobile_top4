@@ -22,7 +22,7 @@
         echo 'Page Does Not Exist';
         print_r($_GET);
     }
-exit();
+//exit();
 	echo '<pre>';
 
 	//$person_obj = new entity_person(array('prefix'=>'','select_fields'=>array('id','First Name' => 'given_name','Last Name'=>'family_name'),'get'=>array('id'=>1)));

@@ -39,7 +39,7 @@ print_r($index_organization->filter_by_suburb($index_postcode->id_group));
 $view_business_summary_obj = new view_business_summary($index_organization->id_group,array('page_size'=>4,'order'=>'RAND()'));
 print_r($view_business_summary_obj);*/
 
-$listing_id = array();
+/*$listing_id = array();
 $index_organization = new index_organization($listing_id);
 $keyword_score = $index_organization->filter_by_keyword($_GET['keyword']);
 print_r($keyword_score);
@@ -50,9 +50,12 @@ $final_score = array();
 //print_r($index_organization->filter_by_keywords2($_GET['keyword']));
 print_r($index_organization->id_group);
 $view_business_summary = new view_business_summary($index_organization->id_group);
-print_r($view_business_summary->fetch_value());
+print_r($view_business_summary->fetch_value());*/
 
 
 /*$index_organization = new index_organization();
 print_r($index_organization);*/
 
+$index_category = new index_category();
+print_r($index_category->filter_by_listing_count());
+print_r($index_category->filter_by_listing(array(10596,65667)));

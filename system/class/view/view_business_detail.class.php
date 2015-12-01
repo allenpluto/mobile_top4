@@ -5,18 +5,11 @@
 
 class view_business_detail extends view_organization
 {
-	var $parameter = array(
-		'table' => '`tbl_view_organization`',
-		'primary_key' => 'id',
+    var $parameter = array(
+        'table' => '`tbl_view_organization`',
+        'primary_key' => 'id',
         'page_size' => 1
-	);
-
-	function __construct($value = Null, $parameter = array())
-	{
-		parent::__construct($value, $parameter);
-
-		return $this;
-	}
+    );
 
     function fetch_value($parameter = array())
     {
@@ -31,5 +24,5 @@ class view_business_detail extends view_organization
         return $result;
     }
 }
-	
+    
 ?>

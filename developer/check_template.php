@@ -1,6 +1,6 @@
 <?php
-	include('../system/config/config.php');
-	echo '<pre>';
+    include('../system/config/config.php');
+    echo '<pre>';
 
     if (file_exists(PATH_TEMPLATE.$_GET['template'].FILE_EXTENSION_TEMPLATE)) {
         $template = file_get_contents(PATH_TEMPLATE.$_GET['template'].FILE_EXTENSION_TEMPLATE);

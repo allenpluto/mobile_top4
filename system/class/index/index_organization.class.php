@@ -6,7 +6,7 @@
 class index_organization extends index
 {
     var $parameter = array(
-        'table' => 'listing'
+        'table' => 'Listing'
     );
 
     function __construct($value = Null, $parameter = array())

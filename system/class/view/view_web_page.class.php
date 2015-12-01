@@ -6,18 +6,22 @@
 class view_web_page extends view
 {
     var $parameter = array(
-        'table' => '`tbl_view_business_summary`',
+        'table' => '`tbl_view_organization`',
         'primary_key' => 'id'
     );
 
-    function __construct($init_value = Null, $parameter = array())
-	{
-        $init_value = 12054;
+    function fetch_value($parameter = array())
+    {
+        if (isset($this->parameter['build_from_content']))
+        {
+            $this->row = $this->parameter['build_from_content'];
+        }
+        else
+        {
+            parent::fetch_value($parameter);
+        }
+    }
 
-		parent::__construct($init_value, $parameter);
-
-		return $this;
-	}
 }
-	
+    
 ?>

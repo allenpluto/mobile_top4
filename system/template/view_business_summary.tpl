@@ -1,10 +1,8 @@
 [[-view_business_summary]]
 <div id="listing_block_container_[[*id]]" class="block_container listing_block_container[[*extra_classes]]" itemscope="" itemtype="[[*schema_itemtype]]">
     <div class="block_thumb_container">
-        <div class="block_thumb_image_container" style="background-image: url([[*image_src]]);"></div>
-        <div class="block_thumb_logo_container">
-            <img itemprop="image" src="[[*logo_image_src]]">
-        </div>
+        [[$image]]
+        [[$logo]]
         <div class="clear"></div>
     </div>
     <div class="block_content_container">
@@ -22,19 +20,19 @@
         <div class="block_content_rating_container">
             <div class="rating_star_wrapper" listing_id="[[*id]]">
                 <div class="rating_star_container rating_star_bg_container"><!--
-				 --><span class="rating_star"></span><!--
-				 --><span class="rating_star"></span><!--
-				 --><span class="rating_star"></span><!--
-				 --><span class="rating_star"></span><!--
-				 --><span class="rating_star"></span><!--
-			 --></div>
+                 --><span class="rating_star"></span><!--
+                 --><span class="rating_star"></span><!--
+                 --><span class="rating_star"></span><!--
+                 --><span class="rating_star"></span><!--
+                 --><span class="rating_star"></span><!--
+             --></div>
                 <div class="rating_star_container rating_star_front_container" style="width: [[*avg_review_percentage]]%;"><!--
-				 --><span class="rating_star"></span><!--
-				 --><span class="rating_star"></span><!--
-				 --><span class="rating_star"></span><!--
-				 --><span class="rating_star"></span><!--
-				 --><span class="rating_star"></span><!--
-			 --></div>
+                 --><span class="rating_star"></span><!--
+                 --><span class="rating_star"></span><!--
+                 --><span class="rating_star"></span><!--
+                 --><span class="rating_star"></span><!--
+                 --><span class="rating_star"></span><!--
+             --></div>
             </div>
             <div class="block_content_rating_description" itemprop="aggregateRating" itemscope="" itemtype="http://schema.org/AggregateRating">
                 <meta itemprop="ratingValue" content="[[*avg_review]]">

@@ -5,19 +5,19 @@
 
 class message
 {
-	private $property = array('notice'=>array(),'warning'=>array(),'error'=>array());
-	private static $instance;
+    private $property = array('notice'=>array(),'warning'=>array(),'error'=>array());
+    private static $instance;
 
-	private function __construct() {}
+    private function __construct() {}
 
-	public static function get_instance()
-	{
-		if (empty(self::$instance))
-		{
-			self::$instance = new message();
-		}
-		return self::$instance;
-	}
+    public static function get_instance()
+    {
+        if (empty(self::$instance))
+        {
+            self::$instance = new message();
+        }
+        return self::$instance;
+    }
 
     public function __set($key, $value)
     {

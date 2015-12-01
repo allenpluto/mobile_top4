@@ -61,20 +61,42 @@ class content {
                             }
 
                         }
-
                         $view_business_summary_obj = new view_business_summary($index_organization->id_group);
+
+                        $long_title = 'Search '.($what?html_entity_decode($what):'Business').' in '.($where?$where:'Australia');
+
+                        $view_web_page_element_obj_body = new view_web_page_element(null, array(
+                            'template'=>'element_body_section',
+                            'build_from_content'=>array(
+                                array(
+                                    'section_id'=>'listing_search_result_container',
+                                    'section_title'=>$long_title,
+                                    'section_content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                ),
+                                /*array(
+                                    'section_id'=>'home_listing_category_container',
+                                    'section_title'=>'Category',
+                                    'section_content'=>'Some Category here...'
+                                )*/
+                            )
+                        ));
+
                         $render_parameter = array(
                             'template'=>PREFIX_TEMPLATE_PAGE.'master',
-                            'extra_content'=>array(
-                                'title'=>'Search Result',
-                                'meta_description'=>'Search '.($what?html_entity_decode($what):'Business').' IN '.($where?$where:'Australia'),
-                                'featured'=>$view_business_summary_obj
+                            'build_from_content'=>array(
+                                array(
+                                    'title'=>$long_title,
+                                    'meta_description'=>$long_title,
+                                    'body'=>$view_web_page_element_obj_body
+                                )
                             )
                         );
-                        $view_web_page_obj = new view_web_page();
-                        $this->content = $view_web_page_obj->render($render_parameter);
+                        $view_web_page_obj = new view_web_page(null,$render_parameter);
+                        $this->content = $view_web_page_obj->render();
 
                         break;
+                    default:
+
                 }
                 break;
             default:
@@ -82,22 +104,38 @@ class content {
                 switch ($instance)
                 {
                     case 'home':
-                        $view_web_page_obj = new view_web_page();
                         $template = PREFIX_TEMPLATE_PAGE.'master';
-
-
                         $index_organization = new index_organization();
                         $view_business_summary_obj = new view_business_summary($index_organization->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
 
+                        $view_web_page_element_obj_body = new view_web_page_element(null, array(
+                            'template'=>'element_body_section',
+                            'build_from_content'=>array(
+                                array(
+                                    'section_id'=>'home_featured_listing_container',
+                                    'section_title'=>'Featured',
+                                    'section_content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                ),
+                                /*array(
+                                    'section_id'=>'home_listing_category_container',
+                                    'section_title'=>'Category',
+                                    'section_content'=>'Some Category here...'
+                                )*/
+                            )
+                        ));
+
                         $render_parameter = array(
                             'template'=>$template,
-                            'extra_content'=>array(
-                                'title'=>'Home Page',
-                                'meta_description'=>'Home Description',
-                                'featured'=>$view_business_summary_obj
+                            'build_from_content'=>array(
+                                array(
+                                    'title'=>'Home Page',
+                                    'meta_description'=>'Home Description',
+                                    'body'=>$view_web_page_element_obj_body
+                                )
                             )
                         );
-                        $this->content = $view_web_page_obj->render($render_parameter);
+                        $view_web_page_obj = new view_web_page(null, $render_parameter);
+                        $this->content = $view_web_page_obj->render();
                         break;
                     default:
                         $view_web_page_obj = new view_web_page($instance);

@@ -19,7 +19,7 @@ class view
     protected $row = null;
 
     // rendered html, only generate on render(), clear on get()
-    protected $rendered_html = '';
+    protected $rendered_html = null;
 
     // Object variables
     var $parameter = array();
@@ -68,7 +68,7 @@ class view
         {
             if (file_exists(PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE))
             {
-                $this->parameter['template'] = PATH_TEMPLATE.get_class($this).FILE_EXTENSION_TEMPLATE;
+                $this->parameter['template'] = get_class($this);
             }
             else
             {
@@ -105,7 +105,7 @@ class view
                 }
                 else
                 {
-                    $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' initialize object with invalid id(s)';
+                    $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' initialize object with invalid id(s) {'.print_r($id_group,1).'}';
                     return false;
                 }
             }
@@ -135,8 +135,9 @@ class view
                     );
                     $this->get($parameter);
                 }
-            }*/
+            }
             $this->parameter['page_count'] = ceil(count($this->id_group)/$this->parameter['page_size']);
+*/
         }
     }
 
@@ -337,16 +338,11 @@ class view
             return '';
         }
 
-        if (isset($parameter['template']))
-        {
-            $parameter['template'] = PATH_TEMPLATE.$parameter['template'].FILE_EXTENSION_TEMPLATE;
-        }
-
         $parameter = array_merge($this->parameter,$parameter);
-        $template = $parameter['template'];
+
+        $template = PATH_TEMPLATE.$parameter['template'].FILE_EXTENSION_TEMPLATE;
         if (!file_exists($template)) $template = '';
         else $template = file_get_contents($template);
-
 
         if (count($this->row) > 0)
         {
@@ -419,11 +415,8 @@ class view
                     $rendered_result[] = $rendered_content;
                 }
                 $rendered_html = implode('', $rendered_result);
-                // Only store rendering with default template
-                if (!isset($parameter['template']))
-                {
-                    $this->rendered_html = $rendered_html;
-                }
+
+                $this->rendered_html = $rendered_html;
 
                 return $rendered_html;
             }

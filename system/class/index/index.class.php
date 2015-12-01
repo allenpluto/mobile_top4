@@ -168,6 +168,15 @@ class index
             $sql .= ' WHERE '.implode(' AND ', $where);
         }
 
+        if (!empty($parameter['group']))
+        {
+            if (is_array($parameter['group']))
+            {
+                $parameter['group'] = implode(', ', $parameter['group']);
+            }
+            $sql .= ' GROUP BY '.$parameter['group'];
+        }
+
         if (!empty($parameter['order']))
         {
             if (is_array($parameter['order']))
@@ -322,7 +331,7 @@ class index
         }
         array_multisort($result['score'], SORT_NUMERIC, SORT_DESC, $result_id_group);
 
-        // After array_multisort, keys (listing ids) in $result are lost, re-set the ids by creating $new_result
+        // Return score as array(id_1=>score_1,id_2=>score_2...)
         $new_result = array();
         foreach ($result['score'] as $index=>$score)
         {

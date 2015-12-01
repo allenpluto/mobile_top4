@@ -1,41 +1,41 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="author" content="">
-	<meta name="keywords" content="">
-	<meta name="description" content="[[*meta_description]]">
-	<title>[[*title]]</title>
+    <meta charset="UTF-8">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="description" content="[[*meta_description]]">
+    <title>[[*title]]</title>
     <base href="http://localhost/allen_frame_trial/" >
 
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<meta property="og:title" content="Top4 - The New Australian Social Business Directory">
-	<meta property="og:type" content="website">
-	<meta property="og:url" content="http://www.top4.com.au/">
-	<meta property="og:image" content="http://www.top4.com.au/custom/domain_1/theme/top4/images/logo-bottom.png">
-	<meta property="og:locale" content="en_AU">
+    <meta property="og:title" content="Top4 - The New Australian Social Business Directory">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://www.top4.com.au/">
+    <meta property="og:image" content="http://www.top4.com.au/custom/domain_1/theme/top4/images/logo-bottom.png">
+    <meta property="og:locale" content="en_AU">
 
-	<meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="noindex, nofollow">
     
 
 
-	<!-- CSS -->
-	<link href="content/css/default.css" rel="stylesheet" type="text/css">
+    <!-- CSS -->
+    <link href="content/css/default.css" rel="stylesheet" type="text/css">
 
-	<!-- Script -->
-	<script src="content/js/jquery-1.11.3.js" type="text/javascript"></script>
-	<script src="content/js/default.js" type="text/javascript"></script>
+    <!-- Script -->
+    <script src="content/js/jquery-1.11.3.js" type="text/javascript"></script>
+    <script src="content/js/default.js" type="text/javascript"></script>
 
 </head>
 <body>
 <div id="off_canvas_wrapper" class="wrapper">
-	<div id="off_canvas_container" class="wrapper">
-    	<div id="off_canvas_container_mask" class="off_canvas_halt"></div>
-		<div id="off_canvas_menu">
-        	<div id="off_canvas_menu_section_nav" class="off_canvas_menu_section">
+    <div id="off_canvas_container" class="wrapper">
+        <div id="off_canvas_container_mask" class="off_canvas_halt"></div>
+        <div id="off_canvas_menu">
+            <div id="off_canvas_menu_section_nav" class="off_canvas_menu_section">
                 <div id="off_canvas_menu_section_nav_item_1" class="off_canvas_menu_item">
                     <a href="./"><span>Home</span></a>
                 </div>
@@ -58,7 +58,7 @@
                     <a href="./feed/all-updates/"><span>Newsfeeds</span></a>
                 </div>
             </div><!-- #off_canvas_menu_section_main_menu -->
-        	<div id="off_canvas_menu_section_sign_in" class="off_canvas_menu_section">
+            <div id="off_canvas_menu_section_sign_in" class="off_canvas_menu_section">
                 <div id="off_canvas_menu_section_sign_in_item_1" class="off_canvas_menu_item">
                     <a href="#">Sign Up</a>
                 </div>
@@ -66,7 +66,7 @@
                     <a href="#">Sign In</a>
                 </div>
             </div>
-		</div><!-- #off_canvas_menu -->
+        </div><!-- #off_canvas_menu -->
         <div id="header_wrapper" class="wrapper">
             <div id="top_wrapper" class="wrapper">
                 <div id="top_wrapper_off_canvas_trigger" class="off_canvas_trigger"></div>
@@ -93,7 +93,7 @@
                 </div>
             </div><!-- #search_wrapper -->
         </div><!-- #header_wrapper -->
-  	    <div id="body_wrapper" class="wrapper">
+        <div id="body_wrapper" class="wrapper">
             <div id="banner_wrapper" class="wrapper">
                 <div id="banner_mask"></div>
                 <div id="banner_container" class="container">
@@ -104,19 +104,11 @@
             <div id="action_button_wrapper" class="wrapper">
                 <a href="javascript:void(0);" id="action_button_sign_up" class="action_button"><span class="font_icon font_icon_plus general_style_gradient_bg_orange"></span><span class="text">ADD YOUR BUSINESS</span></a>
             </div><!-- #action_button_wrapper -->
-            <div id="home_featured_listing_container" class="content_section container">
-            	<div class="content_section_title">Featured</div>
-                <div class="content_section_body">
-                	<div class="listing_block_wrapper">
-                        [[$featured]]
-                        <div class="clear"></div>
-                    </div>
-                </div>
-            </div>
+            [[$body]]
         </div><!-- #body_wrapper -->
         <div id="footer_wrapper" class="wrapper">
         </div><!-- #footer_wrapper -->
-	</div>
+    </div>
 </div>
 </body>
 </html>
