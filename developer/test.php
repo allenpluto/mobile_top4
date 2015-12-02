@@ -56,6 +56,39 @@ print_r($view_business_summary->fetch_value());*/
 /*$index_organization = new index_organization();
 print_r($index_organization);*/
 
-$index_category = new index_category();
+/*$index_category = new index_category();
 print_r($index_category->filter_by_listing_count());
-print_r($index_category->filter_by_listing(array(10596,65667)));
+print_r($index_category->filter_by_listing(array(10596,65667)));*/
+
+/*$index_image_obj = new index_image();
+print_r($index_image_obj->get_gallery_images(12026));
+print_r($index_image_obj);
+$view_image_obj = new view_image($index_image_obj->id_group);
+print_r($view_image_obj->render());
+$index_image_obj->reset();
+
+print_r($index_image_obj->get_gallery_images(88,array('item_type'=>'listingcategory')));
+print_r($index_image_obj);
+$view_image_obj = new view_image($index_image_obj->id_group);
+print_r($view_image_obj->render());*/
+
+
+$index_category_obj = new index_category();
+$index_category_obj->filter_by_active();
+$index_category_obj->filter_by_listing_count();
+$view_category_obj = new view_category($index_category_obj->id_group);
+echo '<pre>';
+print_r($index_category_obj->id_group);
+print_r($view_category_obj);
+exit();
+$render_parameter = array(
+    'template'=>PREFIX_TEMPLATE_PAGE.'master',
+    'build_from_content'=>array(
+        array(
+            'title'=>'Find Top4 Businesses in Australia',
+            'meta_description'=>'Find Top4 Businesses in Australia',
+            'body'=>$view_category_obj
+        )
+    )
+);
+$view_web_page_obj = new view_web_page(null,$render_parameter);

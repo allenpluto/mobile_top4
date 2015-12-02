@@ -19,16 +19,6 @@ class index_category extends index
     function filter_by_active($parameter = array())
     {
         $filer_parameter = array(
-            'where' => 'status = \'A\''
-        );
-
-        $filer_parameter = array_merge($filer_parameter, $parameter);
-        return parent::get($filer_parameter);
-    }
-
-    function filter_by_featured($parameter = array())
-    {
-        $filer_parameter = array(
             'where' => 'featured = \'y\''
         );
 

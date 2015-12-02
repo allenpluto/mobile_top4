@@ -32,7 +32,7 @@ include_once(PATH_INCLUDE.'preference'.FILE_EXTENSION_INCLUDE);
 $global_preference = preference::get_instance();
 $global_preference->default_entity_row_max = 100;
 $global_preference->default_view_page_size = 100;
-$global_preference->view_business_summary_page_size = 4;
+$global_preference->view_category_page_size = 4;
 $global_preference->view_business_summary_page_size = 8;
 
 // Message (Global message, record handled errors)

@@ -61,7 +61,15 @@ class view
         // parameter['primary_key'] in view need to be single column field, if it is not defined, default to id
         if (!isset($this->parameter['primary_key']))
         {
-            $this->parameter['primary_key'] = '`id`';
+            $result = $db->db_get_primary_key($this->parameter['table']);
+            if ($result === false)
+            {
+                $this->parameter['primary_key'] = 'id';
+            }
+            else
+            {
+                $this->parameter['primary_key'] = $result[0];
+            }
         }
 
         if (!isset($this->parameter['template']))
@@ -143,6 +151,8 @@ class view
 
     function query($sql, $parameter=array())
     {
+//print_r($sql);
+//print_r($parameter);
         $query = $this->_conn->prepare($sql);
         $query->execute($parameter);
 
@@ -297,7 +307,7 @@ class view
         if ($page_number < 0) $page_number = 0;
         $page_size = intval($parameter['page_size']);
         if ($page_size < 1) $page_size = 1;
-        $sql = 'SELECT '.implode(',',$parameter['table_fields']).' FROM '.$this->parameter['table'];
+        $sql = 'SELECT `'.implode('`,`',$parameter['table_fields']).'` FROM '.$this->parameter['table'];
         $where = $parameter['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
         $order = 'FIELD('.$this->parameter['primary_key'].','.implode(',',array_keys($this->id_group)).')';
         $bind_param = $this->id_group;

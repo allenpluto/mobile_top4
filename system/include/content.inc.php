@@ -33,8 +33,27 @@ class content {
             case 'listing':
                 switch ($instance)
                 {
+                    case '':
+                        $index_category_obj = new index_category();
+                        $index_category_obj->filter_by_active();
+                        $index_category_obj->filter_by_listing_count();
+                        $view_category_obj = new view_category($index_category_obj->id_group);
+                        $render_parameter = array(
+                            'template'=>PREFIX_TEMPLATE_PAGE.'master',
+                            'build_from_content'=>array(
+                                array(
+                                    'title'=>'Find Top4 Businesses in Australia',
+                                    'meta_description'=>'Find Top4 Businesses in Australia',
+                                    'body'=>$view_category_obj
+                                )
+                            )
+                        );
+                        $view_web_page_obj = new view_web_page(null,$render_parameter);
+                        $this->content = $view_web_page_obj->render();
+
+                        break;
                     case 'search':
-                        $index_organization = new index_organization();
+                        $index_organization_obj = new index_organization();
                         if (!isset($_GET['extra_parameter']))
                         {
                             echo 'No keyword no search >_<';
@@ -49,7 +68,7 @@ class content {
                             exit();
                         }
                         $what =  trim(html_entity_decode(strtolower($ulr_part[0])));
-                        $score = $index_organization->filter_by_keyword($ulr_part[0]);
+                        $score = $index_organization_obj->filter_by_keyword($ulr_part[0]);
 
                         $where = '';
                         if (isset($ulr_part[2]))
@@ -57,11 +76,11 @@ class content {
                             $where = trim(html_entity_decode(strtolower($ulr_part[2])));
                             if (strtolower($ulr_part[1]) == 'where' AND $where != 'empty')
                             {
-                                $score = $index_organization->filter_by_location($ulr_part[2],array('preset_score'=>$score));
+                                $score = $index_organization_obj->filter_by_location($ulr_part[2],array('preset_score'=>$score));
                             }
 
                         }
-                        $view_business_summary_obj = new view_business_summary($index_organization->id_group);
+                        $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group);
 
                         $long_title = 'Search '.($what?html_entity_decode($what):'Business').' in '.($where?$where:'Australia');
 
@@ -105,8 +124,8 @@ class content {
                 {
                     case 'home':
                         $template = PREFIX_TEMPLATE_PAGE.'master';
-                        $index_organization = new index_organization();
-                        $view_business_summary_obj = new view_business_summary($index_organization->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
+                        $index_organization_obj = new index_organization();
+                        $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
 
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
