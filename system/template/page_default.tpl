@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="author" content="">
-    <meta name="keywords" content="">
-    <meta name="description" content="[[*meta_description]]">
-    <title>[[*title]]</title>
+    <meta name="keywords" content="[[*meta_keywords]]">
+    <meta name="description" content="[[*description]]">
+    <title>[[*name]]</title>
     <base href="http://localhost/allen_frame_trial/" >
 
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -102,7 +102,7 @@
                 </div>
             </div><!-- #banner_wrapper -->
             <div id="action_button_wrapper" class="wrapper">
-                <a href="javascript:void(0);" id="action_button_sign_up" class="action_button"><span class="font_icon font_icon_plus general_style_gradient_bg_orange"></span><span class="text">ADD YOUR BUSINESS</span></a>
+                <a href="javascript:void(0);" id="action_button_sign_up" class="action_button"><span class="font_icon font_icon_plus general_style_bg_gradient_orange"></span><span class="text">ADD YOUR BUSINESS</span></a>
             </div><!-- #action_button_wrapper -->
             [[$body]]
         </div><!-- #body_wrapper -->

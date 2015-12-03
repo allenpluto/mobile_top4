@@ -40,6 +40,16 @@ class format
         }
     }
 
+    private function class_name($value)
+    {
+        $value = strtolower($value);
+        $value = preg_replace('/[^a-z0-9]/', '_', $value);
+        $value = preg_replace('/_+/', '_', $value);
+        $result = trim($value,'_');
+
+        return $result;
+    }
+
     private function extra_parameter($value)
     {
         $value_part = explode('/',$value);
@@ -65,7 +75,8 @@ class format
     {
         if (empty($value))
         {
-            return false;
+            if (is_array($value)) return array();
+            else return false;
         }
 
         if (is_array($value))

@@ -62,7 +62,7 @@ class view
         if (!isset($this->parameter['primary_key']))
         {
             $result = $db->db_get_primary_key($this->parameter['table']);
-            if ($result === false)
+            if (!isset($result[0]))
             {
                 $this->parameter['primary_key'] = 'id';
             }
@@ -147,6 +147,8 @@ class view
             $this->parameter['page_count'] = ceil(count($this->id_group)/$this->parameter['page_size']);
 */
         }
+
+        return true;
     }
 
     function query($sql, $parameter=array())

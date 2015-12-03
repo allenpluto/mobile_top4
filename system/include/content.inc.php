@@ -11,6 +11,7 @@ class content {
 
     function __construct($instance, $namespace = 'default')
     {
+        $format = format::get_obj();
         $template = PREFIX_TEMPLATE_PAGE.$namespace;
         switch ($namespace)
         {
@@ -38,13 +39,24 @@ class content {
                         $index_category_obj->filter_by_active();
                         $index_category_obj->filter_by_listing_count();
                         $view_category_obj = new view_category($index_category_obj->id_group);
+                        $view_web_page_element_obj_body = new view_web_page_element(null, array(
+                            'template'=>'element_body_default',
+                            'build_from_content'=>array(
+                                array(
+                                    'id'=>'category_container',
+                                    'class_extra'=>' category_block_wrapper',
+                                    'page_title'=>'<h1>Popular Categories</h1>',
+                                    'page_content'=>'<div class="column_container">'.$view_category_obj->render().'<div class="clear"></div></div>'
+                                ),
+                            )
+                        ));
                         $render_parameter = array(
-                            'template'=>PREFIX_TEMPLATE_PAGE.'master',
+                            'template'=>PREFIX_TEMPLATE_PAGE.'default',
                             'build_from_content'=>array(
                                 array(
                                     'title'=>'Find Top4 Businesses in Australia',
                                     'meta_description'=>'Find Top4 Businesses in Australia',
-                                    'body'=>$view_category_obj
+                                    'body'=>$view_web_page_element_obj_body
                                 )
                             )
                         );
@@ -59,7 +71,6 @@ class content {
                             echo 'No keyword no search >_<';
                             exit();
                         }
-                        $format = format::get_obj();
                         $ulr_part = $format->extra_parameter($_GET['extra_parameter']);
 
                         if (empty($ulr_part[0]) OR $ulr_part[0] == 'empty')
@@ -101,7 +112,7 @@ class content {
                         ));
 
                         $render_parameter = array(
-                            'template'=>PREFIX_TEMPLATE_PAGE.'master',
+                            'template'=>PREFIX_TEMPLATE_PAGE.'default',
                             'build_from_content'=>array(
                                 array(
                                     'title'=>$long_title,
@@ -123,7 +134,6 @@ class content {
                 switch ($instance)
                 {
                     case 'home':
-                        $template = PREFIX_TEMPLATE_PAGE.'master';
                         $index_organization_obj = new index_organization();
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
 
@@ -156,9 +166,16 @@ class content {
                         $view_web_page_obj = new view_web_page(null, $render_parameter);
                         $this->content = $view_web_page_obj->render();
                         break;
+                    case '404':
+                        header("HTTP/1.0 404 Not Found");
+                        print_r('404 Not Found');
+                        break;
                     default:
                         $view_web_page_obj = new view_web_page($instance);
-                        $template = PREFIX_TEMPLATE_PAGE.'static';
+                        if (count($view_web_page_obj->id_group) == 0)
+                        {
+                            header('Location: ./404');
+                        }
                         $this->content = $view_web_page_obj->render(array('template'=>$template));
                 }
         }

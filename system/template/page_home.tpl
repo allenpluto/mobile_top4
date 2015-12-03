@@ -102,7 +102,7 @@
                 </div>
             </div><!-- #banner_wrapper -->
             <div id="action_button_wrapper" class="wrapper">
-                <a href="javascript:void(0);" id="action_button_sign_up" class="action_button"><span class="font_icon font_icon_plus general_style_gradient_bg_orange"></span><span class="text">ADD YOUR BUSINESS</span></a>
+                <a href="javascript:void(0);" id="action_button_sign_up" class="action_button"><span class="font_icon font_icon_plus general_style_bg_gradient_orange"></span><span class="text">ADD YOUR BUSINESS</span></a>
             </div><!-- #action_button_wrapper -->
             <div id="home_featured_listing_container" class="content_section container">
                 <div class="content_section_title">Featured</div>
