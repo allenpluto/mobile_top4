@@ -1,2 +1,2 @@
 [[-view_image]]
-<img src="[[*image_src]]">
+[[*image_src]]

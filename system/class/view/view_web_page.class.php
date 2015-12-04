@@ -41,12 +41,13 @@ class view_web_page extends view
             foreach ($this->row as $row_index=>$row_value)
             {
                 $this->row[$row_index]['body'] = new view_web_page_element(null, array(
-                    'template'=>'element_body_default',
+                    'template'=>'element_body_section',
                     'build_from_content'=>array(
                         array(
-                            'class_extra'=>' '.$format->class_name($row_value['friendly_url']).'_container general_style_bg_white',
-                            'page_title'=>'<h1>'.$row_value['page_title'].'</h1>',
-                            'page_content'=>$row_value['page_content']
+                            'id'=>$format->class_name($row_value['friendly_url']).'_container',
+                            'class_extra'=>' section_container_bg_white article_container',
+                            'title'=>'<h1>'.$row_value['page_title'].'</h1>',
+                            'content'=>$format->html_text_content($row_value['page_content'])
                         ),
                     )
                 ));

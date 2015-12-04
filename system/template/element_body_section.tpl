@@ -1,6 +1,6 @@
-            <div id="[[*section_id]]" class="content_section container [[*section_class_extra]]">
-                <div class="content_section_title">[[*section_title]]</div>
-                <div class="content_section_body">
-                    [[*section_content]]
+            <div id="[[*id]]" class="section_container container[[*class_extra]]">
+                <div class="section_title">[[*title]]</div>
+                <div class="section_content">
+                    [[*content]]
                 </div>
             </div>

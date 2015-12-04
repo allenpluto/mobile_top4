@@ -177,6 +177,12 @@ class format
         $result['special_word'] = array_unique($result['special_word']);
         return $result;
     }
+
+    private function html_text_content($value)
+    {
+        $result = strip_tags($value, '<h2><h3><h4><h5><h6><p><ul><ol><li><a><span><strong><em>');
+        return $result;
+    }
 }
 
 ?>

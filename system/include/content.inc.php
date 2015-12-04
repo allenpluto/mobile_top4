@@ -40,13 +40,13 @@ class content {
                         $index_category_obj->filter_by_listing_count();
                         $view_category_obj = new view_category($index_category_obj->id_group);
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
-                            'template'=>'element_body_default',
+                            'template'=>'element_body_section',
                             'build_from_content'=>array(
                                 array(
                                     'id'=>'category_container',
                                     'class_extra'=>' category_block_wrapper',
-                                    'page_title'=>'<h1>Popular Categories</h1>',
-                                    'page_content'=>'<div class="column_container">'.$view_category_obj->render().'<div class="clear"></div></div>'
+                                    'title'=>'<h1>Popular Categories</h1>',
+                                    'content'=>'<div class="column_container">'.$view_category_obj->render().'<div class="clear"></div></div>'
                                 ),
                             )
                         ));
@@ -99,15 +99,10 @@ class content {
                             'template'=>'element_body_section',
                             'build_from_content'=>array(
                                 array(
-                                    'section_id'=>'listing_search_result_container',
-                                    'section_title'=>$long_title,
-                                    'section_content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
-                                ),
-                                /*array(
-                                    'section_id'=>'home_listing_category_container',
-                                    'section_title'=>'Category',
-                                    'section_content'=>'Some Category here...'
-                                )*/
+                                    'id'=>'listing_search_result_container',
+                                    'title'=>'<h1>'.$long_title.'</h1>',
+                                    'content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                )
                             )
                         ));
 
@@ -126,7 +121,7 @@ class content {
 
                         break;
                     default:
-
+                        header('Location: ./'.$namespace.'/');
                 }
                 break;
             default:
@@ -141,14 +136,14 @@ class content {
                             'template'=>'element_body_section',
                             'build_from_content'=>array(
                                 array(
-                                    'section_id'=>'home_featured_listing_container',
-                                    'section_title'=>'Featured',
-                                    'section_content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                    'id'=>'home_featured_listing_container',
+                                    'title'=>'<h2>Featured</h2>',
+                                    'content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
                                 ),
                                 /*array(
-                                    'section_id'=>'home_listing_category_container',
-                                    'section_title'=>'Category',
-                                    'section_content'=>'Some Category here...'
+                                    'id'=>'home_listing_category_container',
+                                    'title'=>'Category',
+                                    'content'=>'Some Category here...'
                                 )*/
                             )
                         ));
