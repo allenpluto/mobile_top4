@@ -54,7 +54,7 @@ class content {
                             'template'=>PREFIX_TEMPLATE_PAGE.'default',
                             'build_from_content'=>array(
                                 array(
-                                    'title'=>'Find Top4 Businesses in Australia',
+                                    'name'=>'Find Top4 Businesses in Australia',
                                     'meta_description'=>'Find Top4 Businesses in Australia',
                                     'body'=>$view_web_page_element_obj_body
                                 )

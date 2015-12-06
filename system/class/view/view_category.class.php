@@ -1,7 +1,7 @@
 <?php
 // Class Object
 // Name: view_category
-// Description: entity_web_page's main view table
+// Description: entity_category's main view table
 
 class view_category extends view
 {
