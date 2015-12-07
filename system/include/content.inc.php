@@ -64,18 +64,47 @@ class content {
                         $this->content = $view_web_page_obj->render();
 
                         break;
+                    case 'find':
+                        $index_organization_obj = new index_organization();
+                        if (!isset($_GET['extra_parameter']))
+                        {
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            exit();
+                        }
+                        $ulr_part = $format->extra_parameter($_GET['extra_parameter']);
+
+                        if (empty($ulr_part[0]))
+                        {
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            exit();
+                        }
+
+                        $view_category_obj = new view_category($ulr_part[0]);
+
+                        if ($view_category_obj->id_group == 0)
+                        {
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            exit();
+                        }
+                        $index_organization_obj->filter_by_category($view_category_obj->id_group);
+                        $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group);
+
+
+                        break;
                     case 'search':
                         $index_organization_obj = new index_organization();
                         if (!isset($_GET['extra_parameter']))
                         {
-                            echo 'No keyword no search >_<';
+                            $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' URL pointing to search without search terms';
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
                             exit();
                         }
                         $ulr_part = $format->extra_parameter($_GET['extra_parameter']);
 
                         if (empty($ulr_part[0]) OR $ulr_part[0] == 'empty')
                         {
-                            echo 'No keyword no search >_<';
+                            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' illegal search term';
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
                             exit();
                         }
                         $what =  trim(html_entity_decode(strtolower($ulr_part[0])));
@@ -121,7 +150,7 @@ class content {
 
                         break;
                     default:
-                        header('Location: ./'.$namespace.'/');
+                        header('Location: /'.URI_SITE_PATH.$namespace.'/');
                 }
                 break;
             default:

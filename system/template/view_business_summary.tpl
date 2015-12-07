@@ -42,6 +42,6 @@
     </div>
     <div class="clear"></div>
     <div class="block_cover_over_link_container">
-        <a href="[[&namespace]][[*friendly_url]]" itemprop="url" title="[[*name]]" class="block_thumb_cover_over_link"></a>
+        <a href="[[&namespace]][[&path]][[*friendly_url]]" itemprop="url" title="[[*name]]" class="block_thumb_cover_over_link"></a>
     </div>
 </div>

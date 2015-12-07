@@ -76,5 +76,32 @@ class index_postcode extends index
         else return $this->id_group;
     }
 
-
+    function filter_by_parameter($value, $parameter = array())
+    {
+        if (!is_array($value))
+        {
+            $value = explode('/',$value);
+        }
+        $index_counter = 0;
+        foreach($value as $location_index=>$location_value)
+        {
+            $filter_parameter = array('where'=>array(),'bind_param'=>array());
+            switch($index_counter)
+            {
+                case 0:
+                    $filter_parameter['where'][] = 'lower(state) = :state';
+                    $filter_parameter['bind_param'][':state'] = $location_value;
+                    break;
+                case 1:
+                    $filter_parameter['where'][] = 'lower(region) = :region';
+                    $filter_parameter['bind_param'][':region'] = $location_value;
+                    break;
+                case 2:
+                    $filter_parameter['where'][] = 'lower(suburb) = :suburb';
+                    $filter_parameter['bind_param'][':suburb'] = $location_value;
+            }
+            $index_counter++;
+        }
+        return parent::get($filter_parameter);
+    }
 }

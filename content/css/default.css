@@ -768,9 +768,9 @@ img {display:block;max-width:100%;}
 
 .category_block_container
 {
-    width: 49%;
+    width: 98%;
     float: left;
-    margin: 0 0.5% 1em 0.5%;
+    margin: 0 1% 2% 1%;
 }
 
 .block_thumb_container
@@ -789,7 +789,7 @@ img {display:block;max-width:100%;}
 .category_block_container .block_thumb_container
 {
     width: 100%;
-    height: 11em;
+    height: 16.5em;
     position: static;
     float: none;
 
@@ -868,6 +868,7 @@ img {display:block;max-width:100%;}
 
     color: #ffffff;
 
+    line-height: 1.2;
     vertical-align: middle;
     text-align: center;
 }
@@ -1215,6 +1216,7 @@ img {display:block;max-width:100%;}
         font-size:1.4em;
     }
 
+    .category_block_container .block_thumb_container {height: 12em;}
     .block_thumb_logo_container
     {
         width: 4.5em;
@@ -1234,6 +1236,8 @@ img {display:block;max-width:100%;}
 
 @media only screen and (min-width:480px)
 {
+    .category_block_container {width: 48%;}
+
     .column_s_12 {width:100%;}
     .column_s_11 {width:91.66666667%;}
     .column_s_10 {width:83.33333333%;}
@@ -1267,6 +1271,9 @@ img {display:block;max-width:100%;}
         width:600px;
         font-size:2em;
     }
+
+    .category_block_container .block_thumb_container {height: 20em;}
+    .block_thumb_content {font-size: 2em;}
     .block_thumb_logo_container
     {
         width: 7.5em;
@@ -1308,6 +1315,8 @@ img {display:block;max-width:100%;}
 @media only screen and (min-width:992px) and (max-width:1199px)
 {
     .container {width:960px;}
+
+    .category_block_container .block_thumb_container {height: 12.5em;}
 }
 
 @media only screen and (min-width:992px)
@@ -1403,6 +1412,9 @@ img {display:block;max-width:100%;}
 @media only screen and (min-width:1200px) and (max-width:1599px)
 {
     .container {width:1160px;}
+
+    .category_block_container .block_thumb_container {height: 15em;}
+    .block_thumb_content {font-size: 2em;}
 }
 
 @media only screen and (min-width:1200px)
@@ -1425,6 +1437,9 @@ img {display:block;max-width:100%;}
 @media only screen and (min-width:1600px)
 {
     .container {width:1440px;}
+
+    .category_block_container .block_thumb_container {height: 19em;}
+    .block_thumb_content {font-size: 2.25em;}
 
     .column_xxl_12 {width:100%;}
     .column_xxl_11 {width:91.66666667%;}

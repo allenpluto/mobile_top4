@@ -6,6 +6,8 @@
 class view_category extends view
 {
     var $parameter = array(
+        'namespace' => 'listing',
+        'path' => '/find/',
         'table' => 'ListingCategory',
     );
 

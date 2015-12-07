@@ -73,7 +73,7 @@ $view_image_obj = new view_image($index_image_obj->id_group);
 print_r($view_image_obj->render());*/
 
 
-$index_category_obj = new index_category();
+/*$index_category_obj = new index_category();
 $index_category_obj->filter_by_active();
 $index_category_obj->filter_by_listing_count();
 $view_category_obj = new view_category($index_category_obj->id_group);
@@ -91,4 +91,7 @@ $render_parameter = array(
         )
     )
 );
-$view_web_page_obj = new view_web_page(null,$render_parameter);
+$view_web_page_obj = new view_web_page(null,$render_parameter);*/
+
+$index_postcode_obj = new index_postcode();
+$index_postcode_obj->filter_by_parameter('nsw/sydney')
