@@ -6,7 +6,7 @@
     <meta name="keywords" content="">
     <meta name="description" content="[[*meta_description]]">
     <title>[[*title]]</title>
-    <base href="http://localhost/allen_frame_trial/" >
+    <base href="[[*base]]" >
 
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     

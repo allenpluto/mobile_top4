@@ -93,5 +93,14 @@ $render_parameter = array(
 );
 $view_web_page_obj = new view_web_page(null,$render_parameter);*/
 
-$index_postcode_obj = new index_postcode();
-$index_postcode_obj->filter_by_parameter('nsw/sydney')
+/*$index_postcode_obj = new index_location();
+$index_postcode_obj->filter_by_parameter('nsw/sydney')*/
+
+
+$format = format::get_obj();
+$uri_parameters = $format->uri_decoder('listing/find/plumber/nsw/sydney-region');
+
+$index_location_obj = new index_location();
+$index_location_obj->filter_by_location_parameter($uri_parameters);
+print_r(count($index_location_obj->id_group));
+print_r($global_message);

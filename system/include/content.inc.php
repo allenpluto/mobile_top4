@@ -12,6 +12,7 @@ class content {
     function __construct($instance, $namespace = 'default')
     {
         $format = format::get_obj();
+        $uri_parameter = $format->uri_decoder($_GET);
         $template = PREFIX_TEMPLATE_PAGE.$namespace;
         switch ($namespace)
         {
@@ -26,6 +27,7 @@ class content {
                     'extra_content'=>array(
                         'title'=>$view_business_detail_value[0]['name'],
                         'meta_description'=>$view_business_detail_value[0]['description'],
+                        'base'=>URI_SITE_BASE,
                         'business_detail_content'=>$view_business_detail_obj
                     )
                 );
@@ -66,29 +68,55 @@ class content {
                         break;
                     case 'find':
                         $index_organization_obj = new index_organization();
-                        if (!isset($_GET['extra_parameter']))
-                        {
-                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
-                            exit();
-                        }
-                        $ulr_part = $format->extra_parameter($_GET['extra_parameter']);
-
-                        if (empty($ulr_part[0]))
+                        if (empty($uri_parameter['category']))
                         {
                             header('Location: /'.URI_SITE_PATH.$namespace.'/');
                             exit();
                         }
 
-                        $view_category_obj = new view_category($ulr_part[0]);
-
+                        $view_category_obj = new view_category($uri_parameter['category']);
                         if ($view_category_obj->id_group == 0)
                         {
                             header('Location: /'.URI_SITE_PATH.$namespace.'/');
                             exit();
                         }
                         $index_organization_obj->filter_by_category($view_category_obj->id_group);
+
+                        if (!empty($uri_parameter['state']))
+                        {
+                            $index_location_obj = new index_location();
+                            $index_location_obj->filter_by_location_parameter($uri_parameter);
+
+                            $index_organization_obj->filter_by_location($index_location_obj->id_group);
+                        }
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group);
 
+                        $category_row = $view_category_obj->fetch_value();
+                        $long_title = 'Top 4 '.$category_row[0]['page_title'];
+
+                        $view_web_page_element_obj_body = new view_web_page_element(null, array(
+                            'template'=>'element_body_section',
+                            'build_from_content'=>array(
+                                array(
+                                    'id'=>'listing_search_result_container',
+                                    'title'=>'<h1>'.$long_title.'</h1>',
+                                    'content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                )
+                            )
+                        ));
+
+                        $render_parameter = array(
+                            'template'=>PREFIX_TEMPLATE_PAGE.'default',
+                            'build_from_content'=>array(
+                                array(
+                                    'title'=>$long_title,
+                                    'meta_description'=>$long_title,
+                                    'body'=>$view_web_page_element_obj_body
+                                )
+                            )
+                        );
+                        $view_web_page_obj = new view_web_page(null,$render_parameter);
+                        $this->content = $view_web_page_obj->render();
 
                         break;
                     case 'search':
@@ -99,7 +127,7 @@ class content {
                             header('Location: /'.URI_SITE_PATH.$namespace.'/');
                             exit();
                         }
-                        $ulr_part = $format->extra_parameter($_GET['extra_parameter']);
+                        $ulr_part = $format->split_uri($_GET['extra_parameter']);
 
                         if (empty($ulr_part[0]) OR $ulr_part[0] == 'empty')
                         {

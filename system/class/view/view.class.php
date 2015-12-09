@@ -62,7 +62,7 @@ class view
         if (!isset($this->parameter['primary_key']))
         {
             $result = $db->db_get_primary_key($this->parameter['table']);
-            if (!isset($result[0]))
+            if (empty($result[0]))
             {
                 $this->parameter['primary_key'] = 'id';
             }

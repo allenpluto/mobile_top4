@@ -15,6 +15,11 @@ class view_web_page extends view
         {
             parent::fetch_value($parameter);
         }
+        foreach ($this->row as $row_index=>$row_value)
+        {
+            $this->row[$row_index]['base'] = URI_SITE_BASE;
+        }
+        return $this->row;
     }
 
     function render($parameter = array())

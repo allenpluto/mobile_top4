@@ -45,10 +45,13 @@ class index
         // parameter['primary_key'] in index need to be single column field, if it is not defined, default to id
         if (!isset($this->parameter['primary_key'])) {
             $result = $db->db_get_primary_key($this->parameter['table']);
-            if ($result === false) {
+            if (empty($result[0]))
+            {
                 $this->parameter['primary_key'] = 'id';
-            } else {
-                $this->parameter['primary_key'] = end($result);
+            }
+            else
+            {
+                $this->parameter['primary_key'] = $result[0];
             }
         }
 

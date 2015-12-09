@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `tbl_entity_web_page` (
   `alternate_name` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `description` varchar(500) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `image_id` int(11) NOT NULL DEFAULT '-1',
-  `enter_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `enter_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `update_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   `meta_keywords` varchar(500) COLLATE utf8_unicode_ci NOT NULL COMMENT 'meta keywords',
   `page_title` varchar(200) COLLATE utf8_unicode_ci NOT NULL COMMENT 'content title, h1 tag by default',

@@ -814,11 +814,11 @@ img {display:block;max-width:100%;}
 .block_thumb_logo_container
 {
     display: block;
-    width: 2em;
-    height: 2em;
+    width: 3em;
+    height: 3em;
     position: absolute;
     bottom: 0;
-    left: 0.4em;
+    left: 0.6em;
 
     overflow: hidden;
 
@@ -1141,6 +1141,12 @@ img {display:block;max-width:100%;}
 {
     .container {max-width:300px;}
 
+    .block_thumb_logo_container
+    {
+        width: 3em;
+        height: 3em;
+        left: 0.6em;
+    }
     .block_content_description {display:none;}
     .listing_detail_view_count_visit_label {display:none;}
 }

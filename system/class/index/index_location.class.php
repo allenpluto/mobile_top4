@@ -3,12 +3,11 @@
 // Name: index_postcode
 // Description: postcode's main index table, include all possible search fields
 
-class index_postcode extends index
+class index_location extends index
 {
     var $parameter = array(
-        'table' => 'top4_main.postcode_suburb'
+        'primary_key' => 'id'
     );
-
     function __construct($value = Null, $parameter = array())
     {
         parent::__construct($value, $parameter);
@@ -52,7 +51,37 @@ class index_postcode extends index
         return parent::get($filter_parameter);
     }
 
-    // Filter by suburb/region/state name, get id(s)
+    // Exact Match Search
+    function filter_by_location_parameter($value, $parameter = array())
+    {
+        if (!is_array($value))
+        {
+            $value = explode('/',$value);
+        }
+        foreach($value as $location_index=>$location_value)
+        {
+            $filter_parameter = array('where'=>array(),'bind_param'=>array());
+            switch($location_index)
+            {
+                case 'state':
+                case 'region':
+                case 'suburb':
+                    $filter_parameter['where'][] = 'lower('.$location_index.') = :'.$location_index;
+                    $filter_parameter['bind_param'][':'.$location_index] = $location_value;
+                    break;
+                default:
+                    //$GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): ['.get_class($this).'] illegal location value ['.$location_index.':'.$location_value.'] provided for '.__METHOD__;
+            }
+        }
+        if (count($filter_parameter['where']) > 0)
+        {
+            return parent::get($filter_parameter);
+        }
+        else return false;
+
+    }
+
+    // Filter by suburb/region/state name, get id(s), Fuzzy Search
     function filter_by_location_text($value, $parameter = array())
     {
         $value_parts = explode(',',$value);
@@ -74,34 +103,5 @@ class index_postcode extends index
 
         if (count($this->id_group) == 0) return false;
         else return $this->id_group;
-    }
-
-    function filter_by_parameter($value, $parameter = array())
-    {
-        if (!is_array($value))
-        {
-            $value = explode('/',$value);
-        }
-        $index_counter = 0;
-        foreach($value as $location_index=>$location_value)
-        {
-            $filter_parameter = array('where'=>array(),'bind_param'=>array());
-            switch($index_counter)
-            {
-                case 0:
-                    $filter_parameter['where'][] = 'lower(state) = :state';
-                    $filter_parameter['bind_param'][':state'] = $location_value;
-                    break;
-                case 1:
-                    $filter_parameter['where'][] = 'lower(region) = :region';
-                    $filter_parameter['bind_param'][':region'] = $location_value;
-                    break;
-                case 2:
-                    $filter_parameter['where'][] = 'lower(suburb) = :suburb';
-                    $filter_parameter['bind_param'][':suburb'] = $location_value;
-            }
-            $index_counter++;
-        }
-        return parent::get($filter_parameter);
     }
 }

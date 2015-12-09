@@ -50,17 +50,6 @@ class format
         return $result;
     }
 
-    private function extra_parameter($value)
-    {
-        $value_part = explode('/',$value);
-        $result = array();
-        foreach($value_part as $value_part_index=>$value_part_item)
-        {
-            $result[] = urldecode($value_part_item);
-        }
-        return $result;
-    }
-
     private function friendly_url($value)
     {
         $value = strtolower($value);
@@ -68,6 +57,12 @@ class format
         $value = preg_replace('/-+/', '-', $value);
         $result = trim($value,'-');
 
+        return $result;
+    }
+
+    private function html_text_content($value)
+    {
+        $result = strip_tags($value, '<h2><h3><h4><h5><h6><p><ul><ol><li><a><span><strong><em>');
         return $result;
     }
 
@@ -178,10 +173,74 @@ class format
         return $result;
     }
 
-    private function html_text_content($value)
+    private function split_uri($value)
     {
-        $result = strip_tags($value, '<h2><h3><h4><h5><h6><p><ul><ol><li><a><span><strong><em>');
+        $value_part = explode('/',$value);
+        $result = array();
+        foreach($value_part as $value_part_index=>$value_part_item)
+        {
+            $result[] = urldecode($value_part_item);
+        }
         return $result;
+    }
+
+    private function uri_decoder($value)
+    {
+        if (empty($value))
+        {
+            return false;
+        }
+        if (is_array($value))
+        {
+            if (!empty($value['value']))
+            {
+                extract($value);
+            }
+        }
+        if (!isset($parameter)) $parameter = array();
+
+        $result = array();
+        if (is_string($value))
+        {
+            $uri_part = $this->split_uri($value);
+            $result['namespace'] = isset($uri_part[0])?$uri_part[0]:'default';
+            $result['instance'] = isset($uri_part[1])?$uri_part[1]:'home';
+            $sub_uri = array_slice($uri_part, 2);
+        }
+        else
+        {
+            $result['namespace'] = isset($value['namespace'])?$value['namespace']:'default';
+            $result['instance'] = isset($value['instance'])?$value['instance']:'home';
+            $sub_uri = isset($value['extra_parameter'])?$this->split_uri($value['extra_parameter']):array();
+        }
+
+
+
+        switch($result['namespace'])
+        {
+            case 'listing':
+                switch($result['instance'])
+                {
+                    case 'find':
+                        if (!empty($sub_uri[0])) $result['category'] = $sub_uri[0];
+                        else return false;
+                        if (!empty($sub_uri[1])) $result['state'] = $sub_uri[1];
+                        if (!empty($sub_uri[2])) $result['region'] = str_replace('-',' ',$sub_uri[2]);
+                        if (!empty($sub_uri[3])) $result['suburb'] = str_replace('-',' ',$sub_uri[3]);
+                        break;
+                    case 'search':
+                        if (!empty($sub_uri[0])) $result['name_keyword'] = $sub_uri[0];
+                        else return false;
+                        if (isset($sub_uri[1]) AND $sub_uri[1] == 'where' AND !empty($sub_uri[2])) $result['location_keyword'] = $sub_uri[2];
+                        break;
+                    default:
+                }
+                break;
+            default:
+        }
+
+        return $result;
+
     }
 }
 

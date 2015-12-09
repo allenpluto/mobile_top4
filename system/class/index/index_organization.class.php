@@ -30,7 +30,7 @@ class index_organization extends index
     {
         $filer_parameter = array(
             'primary_key' => 'listing_id',
-            'table' => 'listingfeatured'
+            'table' => 'ListingFeatured'
         );
 
         $filer_parameter = array_merge($filer_parameter, $parameter);

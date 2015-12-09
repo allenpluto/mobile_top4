@@ -1131,6 +1131,20 @@ function FrameOnload(){
         $('#search_wrapper').removeClass('search_expand');
     });
 
+    $('#search_keyword').keydown(function(event){
+        if (event.which == 13)
+        {
+            $('#search_location').focus();
+        }
+    });
+
+    $('#search_location').keydown(function(event){
+        if (event.which == 13)
+        {
+            $('#search_submit').click();
+        }
+    });
+
     $('#search_submit').click(function(event){
         event.preventDefault();
 
