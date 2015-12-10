@@ -975,10 +975,42 @@ img {display:block;max-width:100%;}
     height: 100%;
 }
 
-/*# Body/Home #*/
+/*# Body/Default #*/
+.info_block_container
+{
+    padding: 1.5em;
+}
+.info_block_thumb_container
+{
+    padding: 0 0 56.25% 0;
+
+    background: center center no-repeat;
+    background-size: contain;
+}
+
+.info_block_content_text_container
+{
+    height: 10em;
+
+    font-size: 1.2em;
+    text-align: center;
+
+    overflow: hidden;
+}
+
+.info_block_content_title
+{
+    padding: 0.5em 0;
+
+    text-transform: capitalize;
+}
+
+/*# Body/Default/Home #*/
 #home_featured_listing_container
 {
 }
+
+/*# Body/Default/About Us #*/
 
 /*# Body/Listing #*/
 /*# Body/Listing/Rating #*/

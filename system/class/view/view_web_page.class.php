@@ -5,6 +5,29 @@
 
 class view_web_page extends view
 {
+    function __construct($value = Null, $parameter = array())
+    {
+        if (!isset($parameter['template']) AND isset($parameter['namespace']))
+        {
+            if (isset($parameter['instance']) AND file_exists(PATH_TEMPLATE.PREFIX_TEMPLATE_PAGE.$parameter['namespace'].'_'.$parameter['instance'].FILE_EXTENSION_TEMPLATE))
+            {
+                $this->parameter['template'] = PREFIX_TEMPLATE_PAGE.$parameter['namespace'].'_'.$parameter['instance'];
+            }
+            else if (file_exists(PATH_TEMPLATE.PREFIX_TEMPLATE_PAGE.$parameter['namespace'].FILE_EXTENSION_TEMPLATE))
+            {
+                $this->parameter['template'] = PREFIX_TEMPLATE_PAGE.$parameter['namespace'];
+            }
+            else
+            {
+                $this->parameter['template'] = PREFIX_TEMPLATE_PAGE.'default';
+            }
+        }
+
+        parent::__construct($value, $parameter);
+
+        return $this;
+    }
+
     function fetch_value($parameter = array())
     {
         if (isset($this->parameter['build_from_content']))

@@ -223,12 +223,12 @@ class content {
                         print_r('404 Not Found');
                         break;
                     default:
-                        $view_web_page_obj = new view_web_page($instance);
+                        $view_web_page_obj = new view_web_page($instance,$uri_parameter);
                         if (count($view_web_page_obj->id_group) == 0)
                         {
                             header('Location: ./404');
                         }
-                        $this->content = $view_web_page_obj->render(array('template'=>$template));
+                        $this->content = $view_web_page_obj->render();
                 }
         }
     }
