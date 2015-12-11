@@ -104,7 +104,7 @@
             </div><!-- #action_button_wrapper -->
             <div class="section_container container">
                 <div class="column_container">
-                    <div class="info_block_container column column_4 column_xxs_12 column_s_6 column_m_4">
+                    <div class="info_block_container column column_4 column_xxs_12 column_xs_12 column_s_6 column_m_4">
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/local_search.png');">
                         </div>
                         <div class="info_block_content_container">
@@ -115,7 +115,7 @@
                         </div>
                         <div class="clear"></div>
                     </div>
-                    <div class="info_block_container column column_4 column_xxs_12 column_s_6 column_m_4">
+                    <div class="info_block_container column column_4 column_xxs_12 column_xs_12 column_s_6 column_m_4">
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/marketing.png');"></div>
                         <div class="info_block_content_container">
                             <div class="info_block_content_text_container">
@@ -125,7 +125,7 @@
                         </div>
                         <div class="clear"></div>
                     </div>
-                    <div class="info_block_container column column_4 column_xxs_12 column_s_6 column_m_4">
+                    <div class="info_block_container column column_4 column_xxs_12 column_xs_12 column_s_6 column_m_4">
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/platform.png');"></div>
                         <div class="info_block_content_container">
                             <div class="info_block_content_text_container">
@@ -135,7 +135,7 @@
                         </div>
                         <div class="clear"></div>
                     </div>
-                    <div class="info_block_container column column_4 column_xxs_12 column_s_6 column_m_4">
+                    <div class="info_block_container column column_4 column_xxs_12 column_xs_12 column_s_6 column_m_4">
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/pay_as_you_go.png');"></div>
                         <div class="info_block_content_container">
                             <div class="info_block_content_text_container">
@@ -145,7 +145,7 @@
                         </div>
                         <div class="clear"></div>
                     </div>
-                    <div class="info_block_container column column_4 column_xxs_12 column_s_6 column_m_4">
+                    <div class="info_block_container column column_4 column_xxs_12 column_xs_12 column_s_6 column_m_4">
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/analytics.png');"></div>
                         <div class="info_block_content_container">
                             <div class="info_block_content_text_container">
@@ -155,7 +155,7 @@
                         </div>
                         <div class="clear"></div>
                     </div>
-                    <div class="info_block_container column column_4 column_xxs_12 column_s_6 column_m_4">
+                    <div class="info_block_container column column_4 column_xxs_12 column_xs_12 column_s_6 column_m_4">
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/social.png');"></div>
                         <div class="info_block_content_container">
                             <div class="info_block_content_text_container">
@@ -168,7 +168,53 @@
                     <div class="clear"></div>
                 </div>
             </div>
-            [[$body]]
+            <div class="section_container container">
+                <div class="section_title"></div>
+                <div class="section_content column_container">
+                    <div class="member_block_container column column_6 column_xxs_12 column_xs_12">
+                        <div class="member_block_content">
+                            <p>Internet Industry Veteran since 1997</p>
+                            <p>Michael has a broad set of skills relevant to providing strategic direction and advice on the management and delivery of online content, including business analysis, requirements acquisition, solution building, user-centred design, e-Commerce development, web/ multimedia production tools and processes.</p>
+                            <p>Since 1998, Michael has project managed and produced a wide range of interactive projects, working with top 500 clients such as Caroma Dorf, GWA Group CareFlight, B&amp;D Doors, CSR, Clark, Grifco and ensuring that over 1200 hundred projects ran flawlessly.</p>
+                        </div>
+                        <div class="member_block_thumb"><img src="content/image/static_page_thumb/member-adverbuy-mike.png" alt="Michael" title="Michael" draggable="false"></div>
+                        <div class="member_block_name">Michael / Managing Director</div>
+                    </div>
+                    <div class="member_block_container column column_6 column_xxs_12 column_xs_12">
+                        <div class="member_block_content">
+                            <p>Shailendra has completed hundreds of website projects in the corporate sectors. He has earned his masters degree in Software Engineering and has 9 years of programming experience. He has now been working with the team for over 6 years.</p>
+                            <p>He has extensive experience with programming languages such as: ASP, VB, C++, PHP, JavaScript, Reddot CMS, and XHTML. He has in-depth knowledge of contemporary online technologies such as AJAX and web services as well as database development.</p>
+                            <p>He has worked with a number of top clients such as: Caroma, B&amp;D, Jeld-Wen, CSR, Careflight and many more!</p>
+                        </div>
+                        <div class="member_block_thumb"><img src="content/image/static_page_thumb/member-adverbuy-shailendra.png" alt="Shailendra" title="Shailendra" draggable="false"></div>
+                        <div class="member_block_name">Shailendra</div>
+                    </div>
+                    <div class="member_block_container column column_6 column_xxs_12 column_xs_12">
+                        <div class="member_block_content">
+                            <p>Allen has a passion for all things programming. He has earned his masters degree in Business Systems Professional and has 9 years of programming experience. He has now been working with the team for over 5 years.</p>
+                            <p>He has extensive experience with programming languages such as: VC++, VB6, VB.NET, VBA, 8086 Assemble language, 8051 Assemble language, Embedded System Languages and web related languages like JavaScript, SQL, PHP, ColdFusion and Python. He has in-depth knowledge of contemporary online technologies, software development and hardware assembling. He also manages customer service and training.</p>
+                        </div>
+                        <div class="member_block_thumb"><img src="content/image/static_page_thumb/member-adverbuy-allen.png" alt="Allen" title="Allen" draggable="false"></div>
+                        <div class="member_block_name">Allen</div>
+                    </div>
+                    <div class="member_block_container column column_6 column_xxs_12 column_xs_12">
+                        <div class="member_block_content">
+                            <p>Internet Industry Veteran since the 1980s</p>
+                            <p>Chris Dimmock has over 30 years experience in technology based Sales and Marketing. Chris has held roles ranging from product management of Australia's first national email system back in 1985- through Sales &amp; Marketing Director and General Manager roles for large multinational IT &amp; technology companies in both Australia and Europe through the 1990s. Chris has been providing professional SEO/ SEM consulting and implementation services for corporate clients since 2001. Chris has worked on SEO/ SEM projects over the past 12 years.</p>
+                        </div>
+                        <div class="member_block_thumb"><img src="content/image/static_page_thumb/member-adverbuy-chris.png" alt="Chris" title="Chris" draggable="false"></div>
+                        <div class="member_block_name">Chris</div>
+                    </div>
+                    <div class="member_block_container column column_6 column_xxs_12 column_xs_12">
+                        <div class="member_block_content">
+                            <p>Costas earned his doctorate and is a former lecturer in programming at Macquarie University. Costas's experience overseas with large scale systems development brings a wide range of practical knowledge to the software and database development team. His interpersonal skills are excellent and he excels in tailoring databases to your individual office needs and procedures.</p>
+                            <p>Costas has worked and consulted at the highest level on systems that start in 6 figures with companies such as the London Stock Exchange, BBC TV Websites Content Management System, BBC Online, Absolut vodka , Ford, Tweenies Play To The Music- BBC Multimedia.</p>
+                        </div>
+                        <div class="member_block_thumb"><img src="content/image/static_page_thumb/member-adverbuy-costas.png" alt="Costas" title="Costas" draggable="false"></div>
+                        <div class="member_block_name">Costas</div>
+                    </div>
+                </div>
+            </div>
         </div><!-- #body_wrapper -->
         <div id="footer_wrapper" class="wrapper">
         </div><!-- #footer_wrapper -->
