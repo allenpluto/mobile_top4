@@ -50,7 +50,7 @@ class index_organization extends index
 
         $filter_parameter = array(
             'primary_key' => 'listing_id',
-            'table' => 'listing_category',
+            'table' => 'Listing_Category',
             'where' => 'category_id IN ('.implode(',',array_keys($category_id_group)).')',
         );
 
