@@ -33,35 +33,43 @@
     <div id="off_canvas_container" class="wrapper">
         <div id="off_canvas_container_mask" class="off_canvas_halt"></div>
         <div id="off_canvas_menu">
-            <div id="off_canvas_menu_section_nav" class="off_canvas_menu_section">
+            <div class="off_canvas_menu_section">
                 <div id="off_canvas_menu_section_nav_item_1" class="off_canvas_menu_item">
-                    <a href="./"><span>Home</span></a>
+                    <a href=""><span>Home</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_2" class="off_canvas_menu_item">
-                    <a href="./listing/"><span>Businesses</span></a>
+                    <a href="about-us"><span>About Us</span></a>
                 </div>
-                <div id="off_canvas_menu_section_nav_item_3" class="off_canvas_menu_item">
-                    <a href="./job/"><span>Jobs</span></a>
-                </div>
-                <div id="off_canvas_menu_section_nav_item_4" class="off_canvas_menu_item">
-                    <a href="./product/"><span>Products</span></a>
-                </div>
-                <div id="off_canvas_menu_section_nav_item_5" class="off_canvas_menu_item">
-                    <a href="./feed/friends/find/"><span>People</span></a>
-                </div>
-                <div id="off_canvas_menu_section_nav_item_6" class="off_canvas_menu_item">
-                    <a href="./pressrelease/"><span>Press Releases</span></a>
-                </div>
-                <div id="off_canvas_menu_section_nav_item_7" class="off_canvas_menu_item">
-                    <a href="./feed/all-updates/"><span>Newsfeeds</span></a>
+                <div id="off_canvas_menu_section_business_item_1" class="off_canvas_menu_item">
+                    <a href="listing/">Businesses</a>
                 </div>
             </div><!-- #off_canvas_menu_section_main_menu -->
-            <div id="off_canvas_menu_section_sign_in" class="off_canvas_menu_section">
-                <div id="off_canvas_menu_section_sign_in_item_1" class="off_canvas_menu_item">
-                    <a href="#">Sign Up</a>
+            <div class="off_canvas_menu_section">
+                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
+                    <a href="listing/find/plumbers">Plumbers</a>
                 </div>
-                <div id="off_canvas_menu_section_sign_in_item_2" class="off_canvas_menu_item">
-                    <a href="#">Sign In</a>
+                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
+                    <a href="listing/find/building-services">Building Services</a>
+                </div>
+                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
+                    <a href="listing/find/solicitors">Solicitors</a>
+                </div>
+                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
+                    <a href="listing/find/garage-door">Garage Door</a>
+                </div>
+                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
+                    <a href="listing/find/roofing">Roofing</a>
+                </div>
+            </div>
+            <div id="" class="off_canvas_menu_section">
+                <div id="off_canvas_menu_section_nav_item_3" class="off_canvas_menu_item">
+                    <a href="advertise-with-us"><span>Advertise with Us</span></a>
+                </div>
+                <div id="off_canvas_menu_section_nav_item_4" class="off_canvas_menu_item">
+                    <a href="privacy-policy"><span>Privacy Policy</span></a>
+                </div>
+                <div id="off_canvas_menu_section_nav_item_5" class="off_canvas_menu_item">
+                    <a href="terms-conditions"><span>Terms & Conditions</span></a>
                 </div>
             </div>
         </div><!-- #off_canvas_menu -->
@@ -103,7 +111,8 @@
                 <a href="javascript:void(0);" id="action_button_sign_up" class="action_button"><span class="font_icon font_icon_plus general_style_bg_gradient_orange"></span><span class="text">ADD YOUR BUSINESS</span></a>
             </div><!-- #action_button_wrapper -->
             <div class="section_container container">
-                <div class="column_container">
+                <div class="section_title"><h2>Join now - it's free</h2></div>
+                <div class="section_content column_container">
                     <div class="info_block_container column column_4 column_xxs_12 column_xs_12 column_s_6 column_m_4">
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/local_search.png');">
                         </div>
@@ -169,7 +178,7 @@
                 </div>
             </div>
             <div class="section_container container">
-                <div class="section_title"></div>
+                <div class="section_title"><h2>The Top4 Team</h2></div>
                 <div class="section_content column_container">
                     <div class="member_block_container column column_6 column_xxs_12 column_xs_12">
                         <div class="member_block_content">
