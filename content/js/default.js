@@ -1152,9 +1152,55 @@ function FrameOnload(){
         search_page_url += encodeURIComponent(encodeURIComponent($('input[name="keyword"]').val()));
         if ($('input[name="location"]').val())
         {
-            search_page_url += '/where/'+encodeURIComponent($('input[name="location"]').val());
+            search_page_url += '/where/'+encodeURIComponent(encodeURIComponent($('input[name="location"]').val()));
         }
         window.location.href = search_page_url;
+    });
+
+    var temp = 0;
+    $(window).scroll(function() {
+        if($(window).scrollTop() + $(window).height() - $(document).height() > - 100) {
+            if (Math.abs(temp - ($(window).scrollTop() + $(window).height())) > 20)
+            {
+                //console.log($('.listing_block_wrapper').data('id_group'));
+                console.log($('.listing_block_wrapper').data('page_number'));
+                if ($('.listing_block_wrapper').data('page_number') < $('.listing_block_wrapper').data('page_count'))
+                {
+                    var post_value = {
+                        'id_group':$('.listing_block_wrapper').data('id_group'),
+                        'page_size':$('.listing_block_wrapper').data('page_size'),
+                        'page_number':$('.listing_block_wrapper').data('page_number')+1
+                    };
+                    $.ajax({
+                        'type': 'POST',
+                        'url': 'listing/ajax_load',
+                        'data': post_value,
+                        'timeout': 3000,
+                        'success': function(result_string) {
+                            $('.listing_block_wrapper').append(result_string);
+                            $('.listing_block_wrapper').data('page_number',  $('.listing_block_wrapper').data('page_number')+1);
+                        },
+                        'error': function(request, status, error) {
+                            $('html, body').animate({
+                                scrollTop: 0
+                            }, 800);
+                            overlay_container.removeClass('overlay_container_loading');
+                            if (status == 'timeout')
+                            {
+                                overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Try again later</p>');
+                            }
+                            else
+                            {
+                                overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Error Unknown, Try again later</p>');
+                            }
+                        }
+                    });
+                }
+
+                temp = $(window).scrollTop() + $(window).height();
+                $('.system_debug').html(temp);
+            }
+        }
     });
 }
 function BodyOnload(){

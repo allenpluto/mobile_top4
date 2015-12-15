@@ -123,6 +123,28 @@ class format
         return $value;
     }
 
+    private function pagination_param($value)
+    {
+        $result = array();
+        if (isset($value['page_size']))
+        {
+            $result['page_size'] = intval($value['page_size']);
+            if ($result['page_size'] <= 0)
+            {
+                return false;
+            }
+        }
+        if (isset($value['page_number']))
+        {
+            $result['page_number'] = intval($value['page_number']);
+            if ($result['page_number'] < 0)
+            {
+                return false;
+            }
+        }
+        return $result;
+    }
+
     private function search_term($value)
     {
         if (empty($value))
@@ -229,9 +251,9 @@ class format
                         if (!empty($sub_uri[3])) $result['suburb'] = str_replace('-',' ',$sub_uri[3]);
                         break;
                     case 'search':
-                        if (!empty($sub_uri[0])) $result['name_keyword'] = $sub_uri[0];
+                        if (!empty($sub_uri[0])) $result['what'] = $sub_uri[0];
                         else return false;
-                        if (isset($sub_uri[1]) AND $sub_uri[1] == 'where' AND !empty($sub_uri[2])) $result['location_keyword'] = $sub_uri[2];
+                        if (isset($sub_uri[1]) AND $sub_uri[1] == 'where' AND !empty($sub_uri[2])) $result['where'] = $sub_uri[2];
                         break;
                     default:
                 }

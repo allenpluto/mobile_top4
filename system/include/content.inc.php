@@ -34,6 +34,8 @@ class content {
                 $this->content = $view_business_detail_obj->render($render_parameter);
                 break;
             case 'listing':
+                $page_parameter = $format->pagination_param($_GET);
+                if ($page_parameter === false) $page_parameter = array();
                 switch ($instance)
                 {
                     case '':
@@ -66,6 +68,10 @@ class content {
                         $this->content = $view_web_page_obj->render();
 
                         break;
+                    case 'ajax_load':
+                        $view_business_summary_obj = new view_business_summary($_POST['id_group'],array('page_size'=>$_POST['page_size'],'page_number'=>$_POST['page_number']));
+                        $this->content = $view_business_summary_obj->render();
+                        break;
                     case 'find':
                         $index_organization_obj = new index_organization();
                         if (empty($uri_parameter['category']))
@@ -89,7 +95,15 @@ class content {
 
                             $index_organization_obj->filter_by_location($index_location_obj->id_group);
                         }
-                        $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group);
+                        $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
+                        if (count($view_business_summary_obj->id_group) > 0)
+                        {
+                            $content = '<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
+                        }
+                        else
+                        {
+                            $content = '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
+                        }
 
                         $category_row = $view_category_obj->fetch_value();
                         $long_title = 'Top 4 '.$category_row[0]['page_title'];
@@ -100,7 +114,7 @@ class content {
                                 array(
                                     'id'=>'listing_search_result_container',
                                     'title'=>'<h1>'.$long_title.'</h1>',
-                                    'content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                    'content'=>$content
                                 )
                             )
                         ));
@@ -148,7 +162,18 @@ class content {
                             }
 
                         }
-                        $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group);
+                        $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
+                        if (count($view_business_summary_obj->id_group) > 0)
+                        {
+                            $content = '<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
+                            $inpage_script = '$(document).ready(function(){$(\'.listing_block_wrapper\').data('.json_encode(array('id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count'])).');});';
+                        }
+                        else
+                        {
+                            $content = '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
+                            $inpage_script = '';
+                        }
+
 
                         $long_title = 'Search '.($what?html_entity_decode($what):'Business').' in '.($where?$where:'Australia');
 
@@ -158,7 +183,7 @@ class content {
                                 array(
                                     'id'=>'listing_search_result_container',
                                     'title'=>'<h1>'.$long_title.'</h1>',
-                                    'content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                    'content'=>$content
                                 )
                             )
                         ));
@@ -169,6 +194,7 @@ class content {
                                 array(
                                     'title'=>$long_title,
                                     'meta_description'=>$long_title,
+                                    'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )

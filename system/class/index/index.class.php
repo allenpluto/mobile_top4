@@ -322,6 +322,7 @@ class index
 
         $result_id_group = array();
 
+        if (!isset($result['score'])) $result['score'] = array();
         foreach ($result['score'] as $id=>$row)
         {
             $result_id_group[] = $id;

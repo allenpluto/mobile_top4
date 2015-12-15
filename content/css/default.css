@@ -1015,6 +1015,8 @@ img {display:block;max-width:100%;}
     padding: 0 1em;
 
     font-size: 1.2em;
+
+    overflow-y: auto;
 }
 
 .member_block_content p
@@ -1325,6 +1327,7 @@ img {display:block;max-width:100%;}
     {
         min-height: 13.5em;
     }
+    .member_block_content {height:35em;}
     .listing_detail_view_title_container > * {font-size:2em;}
     .listing_detail_view_rating_container {font-size:1.6em;}
     .listing_detail_view_address_container > * {font-size:1.4em;}
@@ -1385,6 +1388,7 @@ img {display:block;max-width:100%;}
         font-size: 1.5em;
         min-height: 15em;
     }
+    .member_block_content {height:20em;}
 }
 
 @media only screen and (min-width:768px)
@@ -1491,6 +1495,8 @@ img {display:block;max-width:100%;}
 
         overflow: hidden;
     }
+
+    .member_block_content {height:15em;}
 }
 
 /*# Responsive/XL #*/

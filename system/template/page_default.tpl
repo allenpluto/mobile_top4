@@ -49,23 +49,6 @@
                     <a href="advertise-with-us"><span>Advertise with Us</span></a>
                 </div>
             </div><!-- #off_canvas_menu_section_main_menu -->
-            <div class="off_canvas_menu_section">
-                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
-                    <a href="listing/find/plumbers">Plumbers</a>
-                </div>
-                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
-                    <a href="listing/find/building-services">Building Services</a>
-                </div>
-                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
-                    <a href="listing/find/solicitors">Solicitors</a>
-                </div>
-                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
-                    <a href="listing/find/garage-door">Garage Door</a>
-                </div>
-                <div id="off_canvas_menu_section_business_item_2" class="off_canvas_menu_item">
-                    <a href="listing/find/roofing">Roofing</a>
-                </div>
-            </div>
             <div id="" class="off_canvas_menu_section">
                 <div id="off_canvas_menu_section_nav_item_4" class="off_canvas_menu_item">
                     <a href="privacy-policy"><span>Privacy Policy</span></a>
@@ -73,7 +56,7 @@
                 <div id="off_canvas_menu_section_nav_item_5" class="off_canvas_menu_item">
                     <a href="terms-conditions"><span>Terms & Conditions</span></a>
                 </div>
-             </div>
+            </div>
         </div><!-- #off_canvas_menu -->
         <div id="header_wrapper" class="wrapper">
             <div id="top_wrapper" class="wrapper">
@@ -86,12 +69,12 @@
                     <div id="search_wrapper_close" class="search_halt"></div>
                     <div id="search_keyword_container" class="search_form_row">
                         <label for="search_keyword">What are you looking for?</label>
-                        <input name="keyword" type="text" placeholder="What are you looking for?" id="search_keyword" class="general_style_input_text">
+                        <input name="keyword" type="text" placeholder="What are you looking for?" id="search_keyword" class="general_style_input_text" value="[[&keyword]]">
                         <input name="category_id" type="hidden">
                     </div>
                     <div id="search_location_container" class="search_form_row">
                         <label for="search_location">In which Suburb?</label>
-                        <input name="location" type="text" placeholder="In which Suburb?" id="search_location" class="general_style_input_text">
+                        <input name="location" type="text" placeholder="In which Suburb?" id="search_location" class="general_style_input_text" value="[[&location]]">
                         <input name="location_id" type="hidden">
                         <input name="geo_location" type="hidden">
                     </div>
@@ -118,5 +101,8 @@
         </div><!-- #footer_wrapper -->
     </div>
 </div>
+<script>
+    [[*inpage_script]]
+</script>
 </body>
 </html>
