@@ -5,19 +5,19 @@
 
 class preference
 {
-	private $property = array();
-	private static $instance;
+    private $property = array();
+    private static $instance;
 
-	private function __construct() {}
+    private function __construct() {}
 
-	public static function get_instance()
-	{
-		if (empty(self::$instance))
-		{
-			self::$instance = new preference();
-		}
-		return self::$instance;
-	}
+    public static function get_instance()
+    {
+        if (empty(self::$instance))
+        {
+            self::$instance = new preference();
+        }
+        return self::$instance;
+    }
 
     public function __set($key, $value)
     {

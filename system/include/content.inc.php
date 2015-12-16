@@ -6,48 +6,262 @@
 // Render template, create html page view...
 
 class content {
-    protected $view = null;
     protected $template = null;
+    protected $content = array();
 
-    var $content = array();
-
-    function __construct()
+    function __construct($instance, $namespace = 'default')
     {
+        $format = format::get_obj();
+        $uri_parameter = $format->uri_decoder($_GET);
+        $template = PREFIX_TEMPLATE_PAGE.$namespace;
+        switch ($namespace)
+        {
+            case 'business':
+//echo '<pre>';
+                $view_business_detail_obj = new view_business_detail($instance);
+//print_r($view_business_detail_obj);
+//exit();
+                $view_business_detail_value = $view_business_detail_obj->fetch_value();
+                $render_parameter = array(
+                    'template'=>$template,
+                    'extra_content'=>array(
+                        'title'=>$view_business_detail_value[0]['name'],
+                        'meta_description'=>$view_business_detail_value[0]['description'],
+                        'base'=>URI_SITE_BASE,
+                        'business_detail_content'=>$view_business_detail_obj
+                    )
+                );
+                $this->content = $view_business_detail_obj->render($render_parameter);
+                break;
+            case 'listing':
+                $page_parameter = $format->pagination_param($_GET);
+                if ($page_parameter === false) $page_parameter = array();
+                switch ($instance)
+                {
+                    case '':
+                        $index_category_obj = new index_category();
+                        $index_category_obj->filter_by_active();
+                        $index_category_obj->filter_by_listing_count();
+                        $view_category_obj = new view_category($index_category_obj->id_group);
+                        $view_web_page_element_obj_body = new view_web_page_element(null, array(
+                            'template'=>'element_body_section',
+                            'build_from_content'=>array(
+                                array(
+                                    'id'=>'category_container',
+                                    'class_extra'=>' category_block_wrapper',
+                                    'title'=>'<h1>Popular Categories</h1>',
+                                    'content'=>'<div class="column_container">'.$view_category_obj->render().'<div class="clear"></div></div>'
+                                ),
+                            )
+                        ));
+                        $render_parameter = array(
+                            'template'=>PREFIX_TEMPLATE_PAGE.'default',
+                            'build_from_content'=>array(
+                                array(
+                                    'name'=>'Find Top4 Businesses in Australia',
+                                    'meta_description'=>'Find Top4 Businesses in Australia',
+                                    'body'=>$view_web_page_element_obj_body
+                                )
+                            )
+                        );
+                        $view_web_page_obj = new view_web_page(null,$render_parameter);
+                        $this->content = $view_web_page_obj->render();
 
-        if ($GLOBALS['db']) $db = $GLOBALS['db'];
-        else $db = new db;
-        $this->_conn = $db->db_get_connection();
+                        break;
+                    case 'ajax_load':
+                        $view_business_summary_obj = new view_business_summary($_POST['id_group'],array('page_size'=>$_POST['page_size'],'page_number'=>$_POST['page_number']));
+                        $this->content = $view_business_summary_obj->render();
+                        break;
+                    case 'find':
+                        $index_organization_obj = new index_organization();
+                        if (empty($uri_parameter['category']))
+                        {
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            exit();
+                        }
 
-        $this->parameters['table'] = DATABASE_TABLE_PREFIX.get_class($this);
-        $result = $db->db_get_columns($this->parameters['table']);
-        if ($result === false)
-        {
-            $this->message = $db->message;
-            return false;
-        }
-        else
-        {
-            $this->parameters['table_fields'] = $result;
-        }
-        $result = $db->db_get_primary_key($this->parameters['table']);
-        if ($result === false)
-        {
-            $this->message = $this->_conn->message;
-            return false;
-        }
-        else
-        {
-            if (count($result) == 1)
-            {
-                $this->parameters['primary_key'] = $result[0];
-            }
-            else
-            {
-                // Construction Fail, if the table does not have one and only one PK, it is not a typical entity table
-                $this->message[] = 'Object Initialize Error: This table has none or multiple primary key. It is not a standard entity table.';
-                return false;
-            }
+                        $view_category_obj = new view_category($uri_parameter['category']);
+                        if ($view_category_obj->id_group == 0)
+                        {
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            exit();
+                        }
+                        $index_organization_obj->filter_by_category($view_category_obj->id_group);
+
+                        if (!empty($uri_parameter['state']))
+                        {
+                            $index_location_obj = new index_location();
+                            $index_location_obj->filter_by_location_parameter($uri_parameter);
+
+                            $index_organization_obj->filter_by_location($index_location_obj->id_group);
+                        }
+                        $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
+                        if (count($view_business_summary_obj->id_group) > 0)
+                        {
+                            $content = '<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
+                        }
+                        else
+                        {
+                            $content = '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
+                        }
+
+                        $category_row = $view_category_obj->fetch_value();
+                        $long_title = 'Top 4 '.$category_row[0]['page_title'];
+
+                        $view_web_page_element_obj_body = new view_web_page_element(null, array(
+                            'template'=>'element_body_section',
+                            'build_from_content'=>array(
+                                array(
+                                    'id'=>'listing_search_result_container',
+                                    'title'=>'<h1>'.$long_title.'</h1>',
+                                    'content'=>$content
+                                )
+                            )
+                        ));
+
+                        $render_parameter = array(
+                            'template'=>PREFIX_TEMPLATE_PAGE.'default',
+                            'build_from_content'=>array(
+                                array(
+                                    'title'=>$long_title,
+                                    'meta_description'=>$long_title,
+                                    'body'=>$view_web_page_element_obj_body
+                                )
+                            )
+                        );
+                        $view_web_page_obj = new view_web_page(null,$render_parameter);
+                        $this->content = $view_web_page_obj->render();
+
+                        break;
+                    case 'search':
+                        $index_organization_obj = new index_organization();
+                        if (!isset($_GET['extra_parameter']))
+                        {
+                            $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' URL pointing to search without search terms';
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            exit();
+                        }
+                        $ulr_part = $format->split_uri($_GET['extra_parameter']);
+
+                        if (empty($ulr_part[0]) OR $ulr_part[0] == 'empty')
+                        {
+                            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' illegal search term';
+                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            exit();
+                        }
+                        $what =  trim(html_entity_decode(strtolower($ulr_part[0])));
+                        $score = $index_organization_obj->filter_by_keyword($ulr_part[0]);
+
+                        $where = '';
+                        if (isset($ulr_part[2]))
+                        {
+                            $where = trim(html_entity_decode(strtolower($ulr_part[2])));
+                            if (strtolower($ulr_part[1]) == 'where' AND $where != 'empty')
+                            {
+                                $score = $index_organization_obj->filter_by_location($ulr_part[2],array('preset_score'=>$score));
+                            }
+
+                        }
+                        $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
+                        if (count($view_business_summary_obj->id_group) > 0)
+                        {
+                            $content = '<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
+                            $inpage_script = '$(document).ready(function(){$(\'.listing_block_wrapper\').data('.json_encode(array('id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count'])).');});';
+                        }
+                        else
+                        {
+                            $content = '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
+                            $inpage_script = '';
+                        }
+
+
+                        $long_title = 'Search '.($what?html_entity_decode($what):'Business').' in '.($where?$where:'Australia');
+
+                        $view_web_page_element_obj_body = new view_web_page_element(null, array(
+                            'template'=>'element_body_section',
+                            'build_from_content'=>array(
+                                array(
+                                    'id'=>'listing_search_result_container',
+                                    'title'=>'<h1>'.$long_title.'</h1>',
+                                    'content'=>$content
+                                )
+                            )
+                        ));
+
+                        $render_parameter = array(
+                            'template'=>PREFIX_TEMPLATE_PAGE.'default',
+                            'build_from_content'=>array(
+                                array(
+                                    'title'=>$long_title,
+                                    'meta_description'=>$long_title,
+                                    'inpage_script'=>$inpage_script,
+                                    'body'=>$view_web_page_element_obj_body
+                                )
+                            )
+                        );
+                        $view_web_page_obj = new view_web_page(null,$render_parameter);
+                        $this->content = $view_web_page_obj->render();
+
+                        break;
+                    default:
+                        header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                }
+                break;
+            default:
+                $template = PREFIX_TEMPLATE_PAGE.'default';
+                switch ($instance)
+                {
+                    case 'home':
+                        $index_organization_obj = new index_organization();
+                        $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
+
+                        $view_web_page_element_obj_body = new view_web_page_element(null, array(
+                            'template'=>'element_body_section',
+                            'build_from_content'=>array(
+                                array(
+                                    'id'=>'home_featured_listing_container',
+                                    'title'=>'<h2>Featured</h2>',
+                                    'content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                ),
+                                /*array(
+                                    'id'=>'home_listing_category_container',
+                                    'title'=>'Category',
+                                    'content'=>'Some Category here...'
+                                )*/
+                            )
+                        ));
+
+                        $render_parameter = array(
+                            'template'=>$template,
+                            'build_from_content'=>array(
+                                array(
+                                    'title'=>'Home Page',
+                                    'meta_description'=>'Home Description',
+                                    'body'=>$view_web_page_element_obj_body
+                                )
+                            )
+                        );
+                        $view_web_page_obj = new view_web_page(null, $render_parameter);
+                        $this->content = $view_web_page_obj->render();
+                        break;
+                    case '404':
+                        header("HTTP/1.0 404 Not Found");
+                        print_r('404 Not Found');
+                        break;
+                    default:
+                        $view_web_page_obj = new view_web_page($instance,$uri_parameter);
+                        if (count($view_web_page_obj->id_group) == 0)
+                        {
+                            header('Location: ./404');
+                        }
+                        $this->content = $view_web_page_obj->render();
+                }
         }
     }
 
+    function render($parameter = array())
+    {
+        header('Content-Type: text/html; charset=utf-8');
+        return print_r($this->content);
+    }
 }
