@@ -2,5 +2,5 @@
 .idea
 system\config\config.php
 system/config/config.php
-.htaccess
 *error_log
+.htaccess
