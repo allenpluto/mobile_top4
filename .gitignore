@@ -1,5 +1,6 @@
 #Allen Frame Trial
 .idea
-system\config\config.inc.php
-system/config/config.inc.php
+system\config\config.php
+system/config/config.php
 .htaccess
+*error_log

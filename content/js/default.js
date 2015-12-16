@@ -1175,7 +1175,7 @@ function FrameOnload(){
                         'type': 'POST',
                         'url': 'listing/ajax_load',
                         'data': post_value,
-                        'timeout': 3000,
+                        'timeout': 10000,
                         'success': function(result_string) {
                             $('.listing_block_wrapper').append(result_string);
                             $('.listing_block_wrapper').data('page_number',  $('.listing_block_wrapper').data('page_number')+1);
@@ -1184,7 +1184,6 @@ function FrameOnload(){
                             $('html, body').animate({
                                 scrollTop: 0
                             }, 800);
-                            overlay_container.removeClass('overlay_container_loading');
                             if (status == 'timeout')
                             {
                                 overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Try again later</p>');

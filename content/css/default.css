@@ -20,6 +20,7 @@
 }
 
 .font_icon_plus:before {content:'\f067';}
+.font_icon_tags:before {content:'\f02c';}
 
 /*# General #*/
 *, *:before, *:after
@@ -684,6 +685,7 @@ img {display:block;max-width:100%;}
     font-size:1.2em;
     font-weight:bold;
     line-height:2em;
+    text-transform: uppercase;
 }
 
 /*# Body #*/
@@ -1218,6 +1220,8 @@ img {display:block;max-width:100%;}
 /*# Responsive/XXS #*/
 @media only screen and (max-width:319px)
 {
+    .hidden_xxs {display:none;}
+
     .column_xxs_12 {width:100%;}
     .column_xxs_11 {width:91.66666667%;}
     .column_xxs_10 {width:83.33333333%;}
@@ -1250,6 +1254,8 @@ img {display:block;max-width:100%;}
 /*# Responsive/XS #*/
 @media only screen and (min-width:320px) and (max-width:479px)
 {
+    .hidden_xs {display:none;}
+
     .column_xs_12 {width:100%;}
     .column_xs_11 {width:91.66666667%;}
     .column_xs_10 {width:83.33333333%;}
@@ -1291,6 +1297,8 @@ img {display:block;max-width:100%;}
 /*# Responsive/S #*/
 @media only screen and (min-width:480px) and (max-width:767px)
 {
+    .hidden_s {display:none;}
+
     .column_s_12 {width:100%;}
     .column_s_11 {width:91.66666667%;}
     .column_s_10 {width:83.33333333%;}
@@ -1347,6 +1355,8 @@ img {display:block;max-width:100%;}
 /*# Responsive/M #*/
 @media only screen and (min-width:768px) and (max-width:991px)
 {
+    .hidden_m {display:none;}
+
     .column_m_12 {width:100%;}
     .column_m_11 {width:91.66666667%;}
     .column_m_10 {width:83.33333333%;}
@@ -1403,6 +1413,8 @@ img {display:block;max-width:100%;}
 /*# Responsive/L #*/
 @media only screen and (min-width:992px) and (max-width:1199px)
 {
+    .hidden_l {display:none;}
+
     .column_l_12 {width:100%;}
     .column_l_11 {width:91.66666667%;}
     .column_l_10 {width:83.33333333%;}
@@ -1502,6 +1514,8 @@ img {display:block;max-width:100%;}
 /*# Responsive/XL #*/
 @media only screen and (min-width:1200px) and (max-width:1599px)
 {
+    .hidden_xl {display:none;}
+
     .column_xl_12 {width:100%;}
     .column_xl_11 {width:91.66666667%;}
     .column_xl_10 {width:83.33333333%;}
@@ -1528,6 +1542,8 @@ img {display:block;max-width:100%;}
 /*# Responsive/XXL #*/
 @media only screen and (min-width:1600px)
 {
+    .hidden_xxl {display:none;}
+
     .column_xxl_12 {width:100%;}
     .column_xxl_11 {width:91.66666667%;}
     .column_xxl_10 {width:83.33333333%;}
