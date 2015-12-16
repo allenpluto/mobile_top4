@@ -1,27 +1,12 @@
 <?php
 // Database
 define('DATABASE_HOST', '127.0.0.1');
-define('DATABASE_NAME', 'stgtop4_domain1');
-define('DATABASE_USER', 'stgtop4_dbuser');
-define('DATABASE_PASSWORD', 'edir!2011');
+define('DATABASE_NAME', 'allen_frame_trial');
+define('DATABASE_USER', 'root');
+define('DATABASE_PASSWORD', '');
 define('DATABASE_CHARSET', 'utf8');
 define('DATABASE_TABLE_PREFIX', 'tbl_');
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-// Core Paths
-define('PATH_BASE', '/wamp/www/allen_frame_trial/');
-=======
-// URI
-define('URI_DOMAIN','http://mobile.top4.com.au/');
-define('URI_SITE_PATH','');
-define('URI_SITE_BASE',URI_DOMAIN . URI_SITE_PATH);
-
-// Core Paths
-define('PATH_BASE', '/home/mobiletop4/public_html/');
-
->>>>>>> Stashed changes
-=======
 // URI
 define('URI_DOMAIN','http://localhost/');
 define('URI_SITE_PATH','allen_frame_trial/');
@@ -30,7 +15,6 @@ define('URI_SITE_BASE',URI_DOMAIN . URI_SITE_PATH);
 // Core Paths
 define('PATH_BASE', '/wamp/www/allen_frame_trial/');
 
->>>>>>> Universal-ID
 define('PATH_SYSTEM', PATH_BASE . 'system/');
 define('PATH_CLASS', PATH_SYSTEM . 'class/');
 define('PATH_INCLUDE', PATH_SYSTEM . 'include/');

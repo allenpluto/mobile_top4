@@ -305,6 +305,7 @@ class index
             );
             $new_result = $this->get($filter_parameter);
             if ($new_result === false) continue;
+            if (!isset($new_result['score'])) continue;
 
             foreach ($new_result['score'] as $id=>$row_value)
             {

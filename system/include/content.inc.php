@@ -14,6 +14,10 @@ class content {
         $format = format::get_obj();
         $uri_parameter = $format->uri_decoder($_GET);
         $template = PREFIX_TEMPLATE_PAGE.$namespace;
+        $base_render_parameter = array(
+            'namespace'=>$namespace,
+            'instance'=>$instance
+        );
         switch ($namespace)
         {
             case 'business':
@@ -22,16 +26,19 @@ class content {
 //print_r($view_business_detail_obj);
 //exit();
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
+
                 $render_parameter = array(
-                    'template'=>$template,
-                    'extra_content'=>array(
-                        'title'=>$view_business_detail_value[0]['name'],
-                        'meta_description'=>$view_business_detail_value[0]['description'],
-                        'base'=>URI_SITE_BASE,
-                        'business_detail_content'=>$view_business_detail_obj
+                    'build_from_content'=>array(
+                        array(
+                            'title'=>$view_business_detail_value[0]['name'],
+                            'meta_description'=>$view_business_detail_value[0]['description'],
+                            'body'=>$view_business_detail_obj
+                        )
                     )
                 );
-                $this->content = $view_business_detail_obj->render($render_parameter);
+                $render_parameter = array_merge($base_render_parameter, $render_parameter);
+                $view_web_page_obj = new view_web_page(null, $render_parameter);
+                $this->content = $view_web_page_obj->render();
                 break;
             case 'listing':
                 $page_parameter = $format->pagination_param($_GET);
@@ -55,7 +62,6 @@ class content {
                             )
                         ));
                         $render_parameter = array(
-                            'template'=>PREFIX_TEMPLATE_PAGE.'default',
                             'build_from_content'=>array(
                                 array(
                                     'name'=>'Find Top4 Businesses in Australia',
@@ -64,6 +70,7 @@ class content {
                                 )
                             )
                         );
+                        $render_parameter = array_merge($base_render_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
                         $this->content = $view_web_page_obj->render();
 
@@ -129,6 +136,7 @@ class content {
                                 )
                             )
                         );
+                        $render_parameter = array_merge($base_render_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
                         $this->content = $view_web_page_obj->render();
 
@@ -199,6 +207,7 @@ class content {
                                 )
                             )
                         );
+                        $render_parameter = array_merge($base_render_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
                         $this->content = $view_web_page_obj->render();
 
@@ -208,7 +217,6 @@ class content {
                 }
                 break;
             default:
-                $template = PREFIX_TEMPLATE_PAGE.'default';
                 switch ($instance)
                 {
                     case 'home':
@@ -232,7 +240,6 @@ class content {
                         ));
 
                         $render_parameter = array(
-                            'template'=>$template,
                             'build_from_content'=>array(
                                 array(
                                     'title'=>'Home Page',
@@ -241,6 +248,7 @@ class content {
                                 )
                             )
                         );
+                        $render_parameter = array_merge($base_render_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null, $render_parameter);
                         $this->content = $view_web_page_obj->render();
                         break;

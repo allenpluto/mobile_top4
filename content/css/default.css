@@ -21,6 +21,8 @@
 
 .font_icon_plus:before {content:'\f067';}
 .font_icon_tags:before {content:'\f02c';}
+.font_icon_home:before {content:'\f015';}
+
 
 /*# General #*/
 *, *:before, *:after
