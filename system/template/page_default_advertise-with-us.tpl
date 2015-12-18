@@ -86,7 +86,7 @@
             <div id="banner_wrapper" class="wrapper">
                 <div id="banner_mask"></div>
                 <div id="banner_container" class="container">
-                    <h1 id="banner_title">About Us</h1>
+                    <h1 id="banner_title">Advertise<span class="hidden_xxs"> With Us</span></span> </h1>
                     <p id="banner_slogan">Add your business - Find a business - Promote and connect.</p>
                 </div>
             </div><!-- #banner_wrapper -->
