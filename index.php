@@ -14,8 +14,9 @@
     }
     else
     {
-        echo 'Page Does Not Exist';
-        print_r($_GET);
+        header('Location: /'.URI_SITE_BASE);
+        //echo 'Page Does Not Exist';
+        //print_r($_GET);
     }
 
 //    echo '<pre><div class="system_debug">';

@@ -4,3 +4,5 @@
 *error_log
 system/config/config.php
 system\config\config.php
+Research\~*
+Resources\~*

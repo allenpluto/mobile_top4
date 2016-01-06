@@ -43,6 +43,13 @@ class view_business_summary extends view_organization
                 return false;
             }
         }
+
+        if (empty($this->row))
+        {
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' rendering empty array';
+            return '';
+        }
+
         foreach ($this->row as $row_index=>$row_value)
         {
             $this->row[$row_index]['logo'] = new view_business_summary_logo($row_value['logo_id']);
