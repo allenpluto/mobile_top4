@@ -15,7 +15,7 @@ class view_image extends view
     function fetch_value($parameter = array())
     {
         $result = parent::fetch_value($parameter);
-        if ($result !== false)
+        if ($result !== false AND is_array($this->row))
         {
             foreach ($this->row as $row_index=>$row_value)
             {

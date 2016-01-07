@@ -35,7 +35,7 @@ define('FILE_EXTENSION_TEMPLATE', '.tpl');
 define('PREFIX_TEMPLATE_PAGE', 'page_');
 
 // Load Pre-Include Functions (Functions that Classes May Use)
-// Preference (Global constant variables, can be overwritten)
+// Preference (Global variables, can be overwritten)
 include_once(PATH_INCLUDE.'preference'.FILE_EXTENSION_INCLUDE);
 $global_preference = preference::get_instance();
 $global_preference->default_entity_row_max = 100;

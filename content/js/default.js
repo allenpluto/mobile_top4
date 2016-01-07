@@ -1177,13 +1177,11 @@ function FrameOnload(){
                         'data': post_value,
                         'timeout': 10000,
                         'success': function(result_string) {
+console.log(result_string);
                             $('.listing_block_wrapper').append(result_string);
                             $('.listing_block_wrapper').data('page_number',  $('.listing_block_wrapper').data('page_number')+1);
                         },
                         'error': function(request, status, error) {
-                            $('html, body').animate({
-                                scrollTop: 0
-                            }, 800);
                             if (status == 'timeout')
                             {
                                 overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Try again later</p>');
@@ -1192,11 +1190,20 @@ function FrameOnload(){
                             {
                                 overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Error Unknown, Try again later</p>');
                             }
+                        },
+                        'complete': function(url, options)
+                        {
+
+                            temp = $(window).scrollTop() + $(window).height();
+                            console.log(temp);
+                            $('.system_debug').html(temp);
+
                         }
                     });
                 }
 
                 temp = $(window).scrollTop() + $(window).height();
+                console.log(temp);
                 $('.system_debug').html(temp);
             }
         }
