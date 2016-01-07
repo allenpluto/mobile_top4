@@ -1177,7 +1177,6 @@ function FrameOnload(){
                         'data': post_value,
                         'timeout': 10000,
                         'success': function(result_string) {
-console.log(result_string);
                             $('.listing_block_wrapper').append(result_string);
                             $('.listing_block_wrapper').data('page_number',  $('.listing_block_wrapper').data('page_number')+1);
                         },
