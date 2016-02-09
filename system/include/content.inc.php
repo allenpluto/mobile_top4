@@ -258,6 +258,7 @@ class content {
                     case 'home':
                         $index_organization_obj = new index_organization();
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
+                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>'base64','id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
 
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
@@ -265,7 +266,7 @@ class content {
                                 array(
                                     'id'=>'home_featured_listing_container',
                                     'title'=>'<h2>Featured</h2>',
-                                    'content'=>'<div class="listing_block_wrapper block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                    'content'=>'<div class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
                                 ),
                                 /*array(
                                     'id'=>'home_listing_category_container',
@@ -280,6 +281,7 @@ class content {
                                 array(
                                     'title'=>'Home Page',
                                     'meta_description'=>'Home Description',
+                                    'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )

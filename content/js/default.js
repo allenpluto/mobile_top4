@@ -11,13 +11,14 @@ $.fn.ajax_loader = function(user_option) {
 
         var ajax_loader_container = $(this);
         ajax_loader_container.data('option',option);
+        $('<div class="ajax_loader_bottom"><span>Loading...</span></div>').appendTo(ajax_loader_container);
 
         $(window).scroll(function() {
             if($(window).scrollTop() + $(window).height() - $(document).height() > - 100) {
                 var ajax_loader_option = ajax_loader_container.data('option');
                 console.log(ajax_loader_container.data('option'));
                 console.log(ajax_loader_container.data('option').page_count);
-                if ((ajax_loader_container.data('option').page_number < ajax_loader_container.data('option').page_count) && !ajax_loader_container.hasClass('ajax_loader_container_loading')) {
+                if (!ajax_loader_container.hasClass('ajax_loader_container_complete') && !ajax_loader_container.hasClass('ajax_loader_container_loading')) {
                     ajax_loader_container.addClass('ajax_loader_container_loading')
                     var post_value = ajax_loader_container.data('option');
                     /*{
@@ -40,11 +41,9 @@ $.fn.ajax_loader = function(user_option) {
                             var data = callback_obj;
                             var xhr = info_obj;
 
-                            if (typeof ajax_loader_container.data('option').data_encode_type !== 'undefined')
-                            {
+                            if (typeof ajax_loader_container.data('option').data_encode_type !== 'undefined') {
                                 var data_encode_type = ajax_loader_container.data('option').data_encode_type;
-                                switch (data_encode_type)
-                                {
+                                switch (data_encode_type) {
                                     case 'none':
                                         break;
                                     case 'base64':
@@ -57,6 +56,10 @@ $.fn.ajax_loader = function(user_option) {
 
                             ajax_loader_container.append(data);
                             ajax_loader_container.data('option').page_number++;
+                            if (ajax_loader_container.data('option').page_number >= ajax_loader_container.data('option').page_count)
+                            {
+                                ajax_loader_container.addClass('ajax_loader_container_complete');
+                            }
                         }
                         else {
                             var xhr = callback_obj;
