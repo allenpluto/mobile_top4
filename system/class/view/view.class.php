@@ -426,7 +426,19 @@ class view
                     }
                     $rendered_result[] = $rendered_content;
                 }
-                $rendered_html = implode('', $rendered_result);
+
+                if(!isset($parameter['render_format'])) $parameter['render_format'] = 'none';
+                switch($parameter['render_format'])
+                {
+                    case 'array':
+                        $rendered_html = print_r($rendered_result, true);
+                        break;
+                    case 'json':
+                        $rendered_html = json_encode($rendered_result);
+                        break;
+                    default:
+                        $rendered_html = implode('', $rendered_result);
+                }
 
                 $this->rendered_html = $rendered_html;
 

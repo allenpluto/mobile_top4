@@ -50,6 +50,7 @@ class content {
                         $index_category_obj->filter_by_active();
                         $index_category_obj->filter_by_listing_count();
                         $view_category_obj = new view_category($index_category_obj->id_group);
+                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>'base64','id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
                             'build_from_content'=>array(
@@ -57,7 +58,7 @@ class content {
                                     'id'=>'category_container',
                                     'class_extra'=>' category_block_wrapper',
                                     'title'=>'<h1>Popular Categories</h1>',
-                                    'content'=>'<div class="column_container">'.$view_category_obj->render().'<div class="clear"></div></div>'
+                                    'content'=>'<div class="column_container ajax_loader_container">'.$view_category_obj->render().'<div class="clear"></div></div>'
                                 ),
                             )
                         ));
@@ -66,6 +67,7 @@ class content {
                                 array(
                                     'name'=>'Find Top4 Businesses in Australia',
                                     'meta_description'=>'Find Top4 Businesses in Australia',
+                                    'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )
@@ -76,8 +78,39 @@ class content {
 
                         break;
                     case 'ajax_load':
-                        $view_business_summary_obj = new view_business_summary($_POST['id_group'],array('page_size'=>$_POST['page_size'],'page_number'=>$_POST['page_number']));
-                        $this->content = $view_business_summary_obj->render();
+                        if (!isset($_POST['object_type']))
+                        {
+                            $_POST['object_type'] = 'business';
+                        }
+                        switch($_POST['object_type'])
+                        {
+                            case 'business_category':
+                                $view_category_obj = new view_category($_POST['id_group'],array('page_size'=>$_POST['page_size'],'page_number'=>$_POST['page_number']));
+                                $this->content = $view_category_obj->render();
+                                break;
+                            case 'business':
+                            default:
+                                // unknown object type default to 'business'
+                                $view_business_summary_obj = new view_business_summary($_POST['id_group'],array('page_size'=>$_POST['page_size'],'page_number'=>$_POST['page_number']));
+                                $this->content = $view_business_summary_obj->render();
+                                break;
+                        }
+
+                        if (isset($_POST['data_encode_type']))
+                        {
+                            switch ($_POST['data_encode_type'])
+                            {
+                                case 'none':
+                                    break;
+                                case 'base64':
+                                default:
+                                    // unknown encode type default to base64
+                                    $this->content = base64_encode($this->content);
+                                    break;
+
+                            }
+                        }
+
                         break;
                     case 'find':
                         $index_organization_obj = new index_organization();
@@ -105,7 +138,8 @@ class content {
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
                         if (count($view_business_summary_obj->id_group) > 0)
                         {
-                            $content = '<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
+                            $content = '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
+                            $inpage_script = '$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>'base64','id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
                         }
                         else
                         {
@@ -132,6 +166,7 @@ class content {
                                 array(
                                     'title'=>$long_title,
                                     'meta_description'=>$long_title,
+                                    'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )
@@ -173,8 +208,9 @@ class content {
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
                         if (count($view_business_summary_obj->id_group) > 0)
                         {
-                            $content = '<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
-                            $inpage_script = '$(document).ready(function(){$(\'.listing_block_wrapper\').data('.json_encode(array('id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count'])).');});';
+                            $content = '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
+                            //$inpage_script = '$(document).ready(function(){$(\'.listing_block_wrapper\').data('.json_encode(array('id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count'])).');});';
+                            $inpage_script = '$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>'base64','id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
                         }
                         else
                         {
@@ -229,7 +265,7 @@ class content {
                                 array(
                                     'id'=>'home_featured_listing_container',
                                     'title'=>'<h2>Featured</h2>',
-                                    'content'=>'<div class="listing_block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
+                                    'content'=>'<div class="listing_block_wrapper block_wrapper">'.$view_business_summary_obj->render().'<div class="clear"></div></div>'
                                 ),
                                 /*array(
                                     'id'=>'home_listing_category_container',

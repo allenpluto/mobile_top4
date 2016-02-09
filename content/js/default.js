@@ -1,6 +1,87 @@
 // JavaScript Document
 
 // jQuery Plugins
+$.fn.ajax_loader = function(user_option) {
+    var default_option = {
+    };
+    // Extend our default option with user provided.
+    var option = $.extend(default_option, user_option);
+
+    return this.each(function() {
+
+        var ajax_loader_container = $(this);
+        ajax_loader_container.data('option',option);
+
+        $(window).scroll(function() {
+            if($(window).scrollTop() + $(window).height() - $(document).height() > - 100) {
+                var ajax_loader_option = ajax_loader_container.data('option');
+                console.log(ajax_loader_container.data('option'));
+                console.log(ajax_loader_container.data('option').page_count);
+                if ((ajax_loader_container.data('option').page_number < ajax_loader_container.data('option').page_count) && !ajax_loader_container.hasClass('ajax_loader_container_loading')) {
+                    ajax_loader_container.addClass('ajax_loader_container_loading')
+                    var post_value = ajax_loader_container.data('option');
+                    /*{
+                        'data_encode_type': ajax_loader_container.data('option').data_encode_type,
+                        'id_group': ajax_loader_container.data('option').id_group,
+                        'page_size': ajax_loader_container.data('option').page_size,
+                        'page_number': ajax_loader_container.data('option').page_number + 1
+                    };*/
+                    post_value['page_number'] =  post_value['page_number'] + 1;
+                    $.ajax({
+                        'type': 'POST',
+                        'url': 'listing/ajax_load',
+                        'data': post_value,
+                        'timeout': 10000
+                    }).always(function (callback_obj, status, info_obj) {
+                        console.log(status);
+                        console.log(callback_obj);
+                        ajax_loader_container.removeClass('ajax_loader_container_loading');
+                        if (status == 'success') {
+                            var data = callback_obj;
+                            var xhr = info_obj;
+
+                            if (typeof ajax_loader_container.data('option').data_encode_type !== 'undefined')
+                            {
+                                var data_encode_type = ajax_loader_container.data('option').data_encode_type;
+                                switch (data_encode_type)
+                                {
+                                    case 'none':
+                                        break;
+                                    case 'base64':
+                                    default:
+                                        // unknown encode type default to base64
+                                        data = atob(data);
+                                }
+                            }
+
+
+                            ajax_loader_container.append(data);
+                            ajax_loader_container.data('option').page_number++;
+                        }
+                        else {
+                            var xhr = callback_obj;
+                            var error = info_obj;
+
+                            if (status == 'timeout') {
+                                overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Try again later</p>');
+                            }
+                            else {
+                                overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Error Unknown, Try again later</p>');
+                            }
+                        }
+
+                        temp = $(window).scrollTop() + $(window).height();
+                        console.log(temp);
+                        $('.system_debug').html(temp);
+                    });
+                }
+            }
+        });
+
+
+    });
+};
+
 $.fn.drop_file_uploader = function(user_option) {
     var default_option = {
     };
@@ -1157,7 +1238,7 @@ function FrameOnload(){
         window.location.href = search_page_url;
     });
 
-    var temp = 0;
+    /*var temp = 0;
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() - $(document).height() > - 100) {
             if (Math.abs(temp - ($(window).scrollTop() + $(window).height())) > 20)
@@ -1175,8 +1256,8 @@ function FrameOnload(){
                         'type': 'POST',
                         'url': 'listing/ajax_load',
                         'data': post_value,
-                        'timeout': 10000,
-                        'success': function(result_string) {
+                        'timeout': 10000
+                        /*'success': function(result_string) {
                             $('.listing_block_wrapper').append(result_string);
                             $('.listing_block_wrapper').data('page_number',  $('.listing_block_wrapper').data('page_number')+1);
                         },
@@ -1197,7 +1278,35 @@ function FrameOnload(){
                             console.log(temp);
                             $('.system_debug').html(temp);
 
+                        }*//*
+                    }).always(function(callback_obj, status, info_obj) {
+console.log(status);
+                        if (status == 'success')
+                        {
+                            var data = callback_obj;
+                            var xhr = info_obj;
+
+                            $('.listing_block_wrapper').append(callback_obj);
+                            $('.listing_block_wrapper').data('page_number',  $('.listing_block_wrapper').data('page_number')+1);
                         }
+                        else
+                        {
+                            var xhr = callback_obj;
+                            var error = info_obj;
+
+                            if (status == 'timeout')
+                            {
+                                overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Try again later</p>');
+                            }
+                            else
+                            {
+                                overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Error Unknown, Try again later</p>');
+                            }
+                        }
+
+                        temp = $(window).scrollTop() + $(window).height();
+                        console.log(temp);
+                        $('.system_debug').html(temp);
                     });
                 }
 
@@ -1206,7 +1315,7 @@ function FrameOnload(){
                 $('.system_debug').html(temp);
             }
         }
-    });
+    });*/
 }
 function BodyOnload(){
 }

@@ -362,6 +362,20 @@ img {display:block;max-width:100%;}
     cursor:pointer;
 }
 
+/*# Ajax Loading #*/
+.ajax_loader_container
+{
+    padding-bottom: 0;
+}
+
+.ajax_loader_container_loading
+{
+    padding-bottom: 4em;
+
+    background: url("../image/bg_ajax_loader_container_loading.gif") bottom center no-repeat;
+    background-size: 12em 4em;
+}
+
 /*# Search #*/
 /* Base Z-INDEX 900 */
 .search_trigger 
