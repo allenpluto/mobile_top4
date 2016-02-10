@@ -16,6 +16,10 @@ class view_business_detail extends view_organization
         $result = parent::fetch_value($parameter);
         foreach ($result as $row_index=>$row)
         {
+            if (isset($row['keywords']))
+            {
+                $this->row[$row_index]['keywords'] = '<p>'.str_replace('<br />',', ',nl2br(strip_tags($row['keywords']))).'</p>';
+            }
             if (isset($row['long_description']))
             {
                 $this->row[$row_index]['long_description'] = '<p>'.str_replace('<br />','</p><p>',nl2br(strip_tags($row['long_description']))).'</p>';

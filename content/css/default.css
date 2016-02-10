@@ -1252,6 +1252,12 @@ img {display:block;max-width:100%;}
     background: -webkit-linear-gradient(top, rgba(238,238,238,0.2), rgba(238,238,238,0.4) 25%, rgba(238,238,238,1) 50%, rgba(238,238,238,1) 100%);
 }
 
+#listing_detail_view_top_container
+{
+    min-height: 10rem;
+    position: relative;
+}
+
 .listing_detail_view_top_logo
 {
     display: inline-block;
@@ -1273,6 +1279,9 @@ img {display:block;max-width:100%;}
 {
     display: block;
     padding: 0 0 0 1em;
+    position: absolute;
+    bottom: 0;
+    right: 0;
 
     color: #000000;
 }
@@ -1282,14 +1291,15 @@ img {display:block;max-width:100%;}
     display: block;
     padding: 1em 0;
 
-    overflow: hidden;
+    /*overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: nowrap;*/
 }
 
 .listing_detail_view_title_container > *
 {
     font-size: 1.4em;
+    line-height: 1.2;
 }
 
 .listing_detail_view_rating_container
@@ -1312,6 +1322,17 @@ img {display:block;max-width:100%;}
     font-family: FontAwesome;
 
     content: '\f06e';
+}
+
+#listing_detail_view_address_container_small_screen
+{
+    display: block;
+    padding-top: 1em;
+}
+
+#listing_detail_view_address_container_large_screen
+{
+    display: none;
 }
 
 /*# Responsive #*/
@@ -1342,6 +1363,7 @@ img {display:block;max-width:100%;}
         left: 0.6em;
     }
     .block_content_description {display:none;}
+    .listing_detail_view_title_container > * {font-size:1.2em;}
     .listing_detail_view_count_visit_label {display:none;}
 }
 
@@ -1381,7 +1403,6 @@ img {display:block;max-width:100%;}
         left: 0.6em;
     }
     .block_content_description {display:none;}
-    .listing_detail_view_title_container > * {font-size:1.6em;}
     .listing_detail_view_rating_container {font-size:1.4em;}
     .listing_detail_view_count_visit_label {display:none;}
     .listing_detail_view_address_container > * {font-size:1.2em;}
@@ -1501,9 +1522,19 @@ img {display:block;max-width:100%;}
 
 @media only screen and (min-width:768px)
 {
-    .listing_detail_view_title_container > * {height:2.8em;font-size:2.4em;white-space:normal;}
+    .listing_detail_view_title_container > * {font-size:2.4em;white-space:normal;}
     .listing_detail_view_rating_container {font-size:1.6em;}
     .listing_detail_view_address_container > * {font-size:1.6em;}
+
+    #listing_detail_view_address_container_small_screen
+    {
+        display: none;
+    }
+
+    #listing_detail_view_address_container_large_screen
+    {
+        display: block;
+    }
 
     .article_container {font-size:1.4em;}
 }

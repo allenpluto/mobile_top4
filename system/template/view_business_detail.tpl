@@ -30,7 +30,7 @@
                         <meta itemprop="reviewCount" content="[[*count_review]]">
                     </div>
                 </div>
-                <div class="listing_detail_view_address_container">
+                <div id="listing_detail_view_address_container_large_screen" class="listing_detail_view_address_container">
                     <p itemprop="address" itemscope="" itemtype="http://schema.org/PostalAddress">
                         <span itemprop="streetAddress">[[*street_address]]</span>,
                         <span itemprop="addressLocality">[[*suburb]]</span> <span itemprop="addressRegion">[[*state]]</span>
@@ -39,6 +39,13 @@
                 </div>
             </div>
             <div class="clear"></div>
+        </div>
+        <div id="listing_detail_view_address_container_small_screen" class="listing_detail_view_address_container container">
+            <p itemprop="address" itemscope="" itemtype="http://schema.org/PostalAddress">
+                <span itemprop="streetAddress">[[*street_address]]</span>,
+                <span itemprop="addressLocality">[[*suburb]]</span> <span itemprop="addressRegion">[[*state]]</span>
+                <span itemprop="postalCode">[[*post]]</span>
+            </p>
         </div>
     </div>
     <div id="listing_detail_view_summary_wrapper" class="wrapper">
