@@ -38,16 +38,18 @@
             </div>
             <div class="clear"></div>
         </div>
-        <div id="listing_detail_view_address_container_small_screen" class="listing_detail_view_address_container container">
-            <p itemprop="address" itemscope="" itemtype="http://schema.org/PostalAddress">
-                <span itemprop="streetAddress">[[*street_address]]</span>,
-                <span itemprop="addressLocality">[[*suburb]]</span> <span itemprop="addressRegion">[[*state]]</span>
-                <span itemprop="postalCode">[[*post]]</span>
-            </p>
+    </div>
+    <div id="listing_detail_view_contact_wrapper" class="wrapper listing_detail_view_section_wrapper">
+        <div id="listing_detail_view_contact_container" class="container listing_detail_view_section_container">
+            <div id="listing_detail_view_address_container_small_screen" class="listing_detail_view_contact_row container">
+                [[*street_address]], [[*suburb]] [[*state]] [[*post]]
+            </div>
+            <div id="listing_detail_view_phone_container" class="listing_detail_view_contact_row container"></div>
+            <div id="listing_detail_view_website_container" class="listing_detail_view_contact_row container"></div>
         </div>
     </div>
-    <div id="listing_detail_view_summary_wrapper" class="wrapper">
-        <div id="listing_detail_view_summary_container" class="container">
+    <div id="listing_detail_view_summary_wrapper" class="wrapper listing_detail_view_section_wrapper">
+        <div id="listing_detail_view_summary_container" class="container listing_detail_view_section_container">
             <h2>[[*category_name]] in [[*suburb]], [[*state]] [[*post]]</h2>
             <p class="listing_detail_view_summary" itemprop="description">
                 [[*description]]

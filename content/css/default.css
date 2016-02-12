@@ -1345,7 +1345,24 @@ img {display:block;max-width:100%;}
     display: none;
 }
 
-listing_detail_view_map
+#listing_detail_view_map_frame_container
+{
+    display: block;
+    width: 100%;
+    height: 0;
+    position: relative;
+    padding-bottom: 56.25%;
+}
+
+#listing_detail_view_map_frame_container > iframe
+{
+    display: block;;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+
+    border: 2px solid #cccccc;
+}
 
 /*# Responsive #*/
 /*# Responsive/XXS #*/
