@@ -20,22 +20,28 @@ $.fn.ajax_loader = function(user_option) {
                 console.log(ajax_loader_container.data('option').page_count);
                 if (!ajax_loader_container.hasClass('ajax_loader_container_complete') && !ajax_loader_container.hasClass('ajax_loader_container_loading')) {
                     ajax_loader_container.addClass('ajax_loader_container_loading')
-                    var post_value = ajax_loader_container.data('option');
-                    /*{
+                    var next_page_id_group = {};
+                    var id_counter = 0;
+                    for (var id_index in ajax_loader_container.data('option').id_group) {
+                        id_counter++;
+                        if (id_counter < ajax_loader_container.data('option').page_size * (ajax_loader_container.data('option').page_number+1)+1) continue;
+                        if (id_counter >= ajax_loader_container.data('option').page_size * (ajax_loader_container.data('option').page_number+2)+1) break;
+
+                        next_page_id_group[id_index] = ajax_loader_container.data('option').id_group[id_index];
+                    }
+                    var post_value =
+                    {
                         'data_encode_type': ajax_loader_container.data('option').data_encode_type,
-                        'id_group': ajax_loader_container.data('option').id_group,
                         'page_size': ajax_loader_container.data('option').page_size,
-                        'page_number': ajax_loader_container.data('option').page_number + 1
-                    };*/
-                    post_value['page_number'] =  post_value['page_number'] + 1;
+                        'page_number': 0,
+                        'id_group': next_page_id_group
+                    };
                     $.ajax({
                         'type': 'POST',
                         'url': 'listing/ajax_load',
                         'data': post_value,
                         'timeout': 10000
                     }).always(function (callback_obj, status, info_obj) {
-                        console.log(status);
-                        console.log(callback_obj);
                         ajax_loader_container.removeClass('ajax_loader_container_loading');
                         if (status == 'success') {
                             var data = callback_obj;
