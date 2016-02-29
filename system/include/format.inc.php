@@ -240,6 +240,35 @@ class format
 
         switch($result['namespace'])
         {
+            case 'asset':
+                switch($result['instance'])
+                {
+                    case 'image':
+                        if (count($sub_uri) > 1)
+                        {
+                            $result['image_file'] = end($sub_uri);
+                            $result['image_size'] = $sub_uri[0];
+                            if (!empty($result['image_size']) AND $result['image_size'] != 'default')
+                            {
+                                if ($GLOBALS['global_preference']->{'image_size_'.$result['image_size']})
+                                {
+                                    $result['image_width'] = $GLOBALS['global_preference']->{'image_size_'.$result['image_size']};
+                                }
+                                else
+                                {
+                                    $result['image_size'] = 'default';
+                                    $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): invalid file size option "'.$value['size'].'" for file "'.$result['image_file'].'"';
+                                }
+                            }
+                            if (isset($value['image_source']))
+                            {
+                                $result['image_source'] = $value['image_source'];
+                            }
+                        }
+                        else return false;
+                        break;
+                }
+                break;
             case 'listing':
                 switch($result['instance'])
                 {

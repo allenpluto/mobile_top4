@@ -20,6 +20,131 @@ class content {
         );
         switch ($namespace)
         {
+            case 'asset':
+                switch ($instance)
+                {
+                    case 'image':
+                        if (!file_exists(PATH_IMAGE . $uri_parameter['image_size'] . '/' . $uri_parameter['image_file']))
+                        {
+                            if (empty($uri_parameter['image_size']))
+                            {
+                                header('Location: '.URI_IMAGE.'default/'.$uri_parameter['image_file']);
+                                exit();
+                            }
+                            if ($uri_parameter['image_size'] == 'default')
+                            {
+                                $source_image_path = URI_IMAGE_EXTERNAL.$uri_parameter['image_file'];
+                                unset($target_width);
+                            }
+                            else
+                            {
+                                $default_image_path = PATH_IMAGE . 'default/' . $uri_parameter['image_file'];
+                                if (file_exists($default_image_path))
+                                {
+                                    $source_image_path = URI_IMAGE.'default/'.$uri_parameter['image_file'];
+                                    $default_image_exists = true;
+                                }
+                                else
+                                {
+                                    $source_image_path = URI_IMAGE_EXTERNAL.$uri_parameter['image_file'];
+                                    $default_image_exists = false;
+                                }
+                                $target_width = $uri_parameter['image_width'];
+                            }
+                            if (isset($uri_parameter['image_source'])) $source_image_path = $uri_parameter['image_source'];
+
+                            $source_image_size = getimagesize($source_image_path);
+
+                            if (!empty($source_image_size[0]))
+                            {
+                                switch($source_image_size['mime'])
+                                {
+                                    case 'image/png':
+                                        $source_image = imagecreatefrompng($source_image_path);
+                                        break;
+                                    case 'image/gif':
+                                        $source_image = imagecreatefromgif($source_image_path);
+                                        break;
+                                    case 'image/jpg':
+                                    case 'image/jpeg':
+                                        $source_image = imagecreatefromjpeg($source_image_path);
+                                        break;
+                                    default:
+                                        $source_image = imagecreatefromstring($source_image_path);
+                                }
+
+                                if ($source_image === FALSE)
+                                {
+                                    header('Location: '.URI_SITE_BASE.'/content/image/img_listing_default_280_280.jpg');
+                                    exit();
+                                }
+
+
+                                if (!isset($target_width)) $target_width = min($source_image_size[0],  $GLOBALS['global_preference']->image_size_xxl);
+                                $target_height = $source_image_size[1] / $source_image_size[0] *  $target_width;
+                                $target_image = imagecreatetruecolor($target_width, $target_height);
+
+                                imagecopyresized($target_image, $source_image,0,0,0,0,$target_width, $target_height,$source_image_size[0], $source_image_size[1]);
+
+                                if (!$default_image_exists)
+                                {
+                                    $default_image_width = min($source_image_size[0],  $GLOBALS['global_preference']->image_size_xxl);
+                                    $default_image_height = $source_image_size[1] / $source_image_size[0] *  $default_image_width;
+                                    $default_image = imagecreatetruecolor($default_image_width, $default_image_height);
+
+                                    imagecopyresized($default_image, $source_image,0,0,0,0,$default_image_width, $default_image_height,$source_image_size[0], $source_image_size[1]);
+                                }
+
+                                if (!file_exists(PATH_IMAGE. $uri_parameter['image_size'] . '/'))
+                                {
+                                    mkdir(PATH_IMAGE. $uri_parameter['image_size'] . '/', 0664, true);
+                                }
+                                if (!file_exists(PATH_IMAGE. 'default/'))
+                                {
+                                    mkdir(PATH_IMAGE. 'default/', 0664, true);
+                                }
+
+                                if (!isset($source_image_size['mime'])) $source_image_size['mime'] = 'image/jpeg';
+                                $target_image_path = PATH_IMAGE. $uri_parameter['image_size'] . '/' . $uri_parameter['image_file'];
+                                switch($source_image_size['mime'])
+                                {
+                                    case 'image/png':
+                                        imagepng($target_image, $target_image_path, 9, PNG_ALL_FILTERS);
+                                        if (!$default_image_exists)
+                                        {
+                                            imagepng($default_image, $default_image_path, 0, PNG_NO_FILTER);
+                                        }
+                                        break;
+                                    case 'image/gif':
+                                        imagegif($target_image, $target_image_path);
+                                        if (!$default_image_exists)
+                                        {
+                                            imagegif($default_image, $default_image_path);
+                                        }
+                                        break;
+                                    case 'image/jpg':
+                                    case 'image/jpeg':
+                                    default:
+                                        imagejpeg($target_image, $target_image_path, 60);
+                                        if (!$default_image_exists)
+                                        {
+                                            imagejpeg($default_image, $default_image_path, 75);
+                                        }
+                                }
+                                imagedestroy($source_image);
+                                imagedestroy($target_image);
+                                if (!$default_image_exists)
+                                {
+                                    imagedestroy($default_image);
+                                }
+                                header('Content-type: '.$source_image_size['mime']);
+                                header('Content-Length: '.filesize($target_image_path));
+                                readfile($target_image_path);
+                            }
+                        }
+                        break;
+                }
+                break;
             case 'business':
 //echo '<pre>';
                 $view_business_detail_obj = new view_business_detail($instance);

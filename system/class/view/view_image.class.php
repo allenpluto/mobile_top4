@@ -14,12 +14,14 @@ class view_image extends view
 
     function fetch_value($parameter = array())
     {
+        if (!isset($parameter['image_size'])) $parameter['image_size'] = 'default';
         $result = parent::fetch_value($parameter);
         if ($result !== false AND is_array($this->row))
         {
             foreach ($this->row as $row_index=>$row_value)
             {
-                $this->row[$row_index]['image_src'] = URI_IMAGE . $row_value['image_file'];
+                // To Be moved to a separate file - file.inc.php
+                $this->row[$row_index]['image_src'] = URI_IMAGE . $parameter['image_size'] . '/' . $row_value['image_file'];
             }
             $result = $this->row;
         }

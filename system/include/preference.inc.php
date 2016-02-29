@@ -25,6 +25,7 @@ class preference
     }
 
     public function __get($key) {
-        return $this->property[$key];
+        if (isset($this->property[$key])) return $this->property[$key];
+        else return false;
     }
 }
