@@ -125,10 +125,10 @@ class content {
                                     case 'image/jpg':
                                     case 'image/jpeg':
                                     default:
-                                        imagejpeg($target_image, $target_image_path, 60);
+                                        imagejpeg($target_image, $target_image_path, 75);
                                         if (!$default_image_exists)
                                         {
-                                            imagejpeg($default_image, $default_image_path, 75);
+                                            imagejpeg($default_image, $default_image_path, 100);
                                         }
                                 }
                                 imagedestroy($source_image);
@@ -175,7 +175,7 @@ class content {
                         $index_category_obj->filter_by_active();
                         $index_category_obj->filter_by_listing_count();
                         $view_category_obj = new view_category($index_category_obj->id_group);
-                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>'base64','id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
+                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>'none','id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
                             'build_from_content'=>array(
@@ -207,6 +207,11 @@ class content {
                         {
                             $_POST['object_type'] = 'business';
                         }
+                        if (!isset($_POST['id_group']))
+                        {
+                            $this->content = '';
+                            break;
+                        }
                         switch($_POST['object_type'])
                         {
                             case 'business_category':
@@ -214,11 +219,13 @@ class content {
                                 $this->content = $view_category_obj->render();
                                 break;
                             case 'business':
-                            default:
-                                // unknown object type default to 'business'
                                 $view_business_summary_obj = new view_business_summary($_POST['id_group'],array('page_size'=>$_POST['page_size'],'page_number'=>$_POST['page_number']));
                                 $this->content = $view_business_summary_obj->render();
                                 break;
+                            default:
+                                // unknown object type
+                                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.$namespace.' '.$instance.' unknown type';
+
                         }
 
                         if (isset($_POST['data_encode_type']))

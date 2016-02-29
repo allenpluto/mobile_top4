@@ -16,8 +16,8 @@ $.fn.ajax_loader = function(user_option) {
         $(window).scroll(function() {
             if($(window).scrollTop() + $(window).height() - $(document).height() > - 100) {
                 var ajax_loader_option = ajax_loader_container.data('option');
-                console.log(ajax_loader_container.data('option'));
-                console.log(ajax_loader_container.data('option').page_count);
+//console.log(ajax_loader_container.data('option'));
+//console.log(ajax_loader_container.data('option').page_count);
                 if (!ajax_loader_container.hasClass('ajax_loader_container_complete') && !ajax_loader_container.hasClass('ajax_loader_container_loading')) {
                     ajax_loader_container.addClass('ajax_loader_container_loading')
                     var next_page_id_group = {};
@@ -31,11 +31,16 @@ $.fn.ajax_loader = function(user_option) {
                     }
                     var post_value =
                     {
-                        'data_encode_type': ajax_loader_container.data('option').data_encode_type,
-                        'page_size': ajax_loader_container.data('option').page_size,
                         'page_number': 0,
                         'id_group': next_page_id_group
                     };
+                    $.each(ajax_loader_container.data('option'), function (option_key, option_value) {
+                        if (option_key != 'id_group' && option_key != 'page_number')
+                        {
+                            post_value[option_key] = option_value;
+                        }
+                    })
+//console.log(post_value);
                     $.ajax({
                         'type': 'POST',
                         'url': 'listing/ajax_load',
@@ -43,6 +48,8 @@ $.fn.ajax_loader = function(user_option) {
                         'timeout': 10000
                     }).always(function (callback_obj, status, info_obj) {
                         ajax_loader_container.removeClass('ajax_loader_container_loading');
+//console.log(status);
+//console.log(callback_obj);
                         if (status == 'success') {
                             var data = callback_obj;
                             var xhr = info_obj;
@@ -62,7 +69,8 @@ $.fn.ajax_loader = function(user_option) {
 
                             ajax_loader_container.append(data);
                             ajax_loader_container.data('option').page_number++;
-                            if (ajax_loader_container.data('option').page_number >= ajax_loader_container.data('option').page_count)
+//console.log([ajax_loader_container.data('option').page_number,ajax_loader_container.data('option').page_count]);
+                            if (ajax_loader_container.data('option').page_number >= ajax_loader_container.data('option').page_count-1)
                             {
                                 ajax_loader_container.addClass('ajax_loader_container_complete');
                             }
@@ -78,10 +86,6 @@ $.fn.ajax_loader = function(user_option) {
                                 overlay_info.removeClass('overlay_info_success').addClass('overlay_info_error').html('<p>Get Rating Page Failed, Error Unknown, Try again later</p>');
                             }
                         }
-
-                        temp = $(window).scrollTop() + $(window).height();
-                        console.log(temp);
-                        $('.system_debug').html(temp);
                     });
                 }
             }

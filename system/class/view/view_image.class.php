@@ -9,12 +9,13 @@ class view_image extends view
         'namespace' => 'image/',
         'table' => '`tbl_view_image`',
         'primary_key' => 'id',
+        'image_size' => 'm',
         'page_size' => 1
     );
 
     function fetch_value($parameter = array())
     {
-        if (!isset($parameter['image_size'])) $parameter['image_size'] = 'default';
+        $parameter = array_merge($this->parameter,$parameter);
         $result = parent::fetch_value($parameter);
         if ($result !== false AND is_array($this->row))
         {

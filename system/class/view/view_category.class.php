@@ -41,7 +41,7 @@ class view_category extends view
         {
             $index_image_obj = new index_image();
             $index_image_obj->get_gallery_images($row_value['id'],array('item_type'=>'listingcategory','order'=>'RAND()'));
-            $view_image_obj = new view_image($index_image_obj->id_group,array('page_size'=>1));
+            $view_image_obj = new view_category_image($index_image_obj->id_group,array('page_size'=>1));
             $this->row[$row_index]['image'] = $view_image_obj;
         }
 
