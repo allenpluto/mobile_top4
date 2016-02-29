@@ -41,7 +41,7 @@ class content {
                                 $default_image_path = PATH_IMAGE . 'default/' . $uri_parameter['image_file'];
                                 if (file_exists($default_image_path))
                                 {
-                                    $source_image_path = URI_IMAGE.'default/'.$uri_parameter['image_file'];
+                                    $source_image_path = $default_image_path;
                                     $default_image_exists = true;
                                 }
                                 else
@@ -97,11 +97,11 @@ class content {
 
                                 if (!file_exists(PATH_IMAGE. $uri_parameter['image_size'] . '/'))
                                 {
-                                    mkdir(PATH_IMAGE. $uri_parameter['image_size'] . '/', 0664, true);
+                                    mkdir(PATH_IMAGE. $uri_parameter['image_size'] . '/', 0755, true);
                                 }
                                 if (!file_exists(PATH_IMAGE. 'default/'))
                                 {
-                                    mkdir(PATH_IMAGE. 'default/', 0664, true);
+                                    mkdir(PATH_IMAGE. 'default/', 0755, true);
                                 }
 
                                 if (!isset($source_image_size['mime'])) $source_image_size['mime'] = 'image/jpeg';

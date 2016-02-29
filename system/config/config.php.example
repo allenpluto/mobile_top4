@@ -12,8 +12,12 @@ define('URI_DOMAIN','http://localhost/');
 define('URI_SITE_PATH','allen_frame_trial/');
 define('URI_SITE_BASE',URI_DOMAIN . URI_SITE_PATH);
 
+define('URI_ASSET', URI_SITE_BASE . 'asset/');
+define('URI_IMAGE', URI_ASSET . 'image/');
+define('URI_IMAGE_EXTERNAL', 'http://dev.top4.com.au/custom/domain_1/image_files/');
+
 //define('URI_IMAGE',URI_SITE_BASE . 'content/image/');
-define('URI_IMAGE', 'http://dev.top4.com.au/custom/domain_1/image_files/');
+//define('URI_IMAGE', 'http://dev.top4.com.au/custom/domain_1/image_files/');
 
 // Core Paths
 define('PATH_BASE', '/wamp/www/allen_frame_trial/');
@@ -42,6 +46,14 @@ $global_preference->default_entity_row_max = 100;
 $global_preference->default_view_page_size = 100;
 $global_preference->view_category_page_size = 12;
 $global_preference->view_business_summary_page_size = 8;
+
+$global_preference->image_size_xxs = 45;
+$global_preference->image_size_xs = 90;
+$global_preference->image_size_s = 180;
+$global_preference->image_size_m = 300;
+$global_preference->image_size_l = 480;
+$global_preference->image_size_xl = 800;
+$global_preference->image_size_xxl = 1200;
 
 // Message (Global message, record handled errors)
 include_once(PATH_INCLUDE.'message'.FILE_EXTENSION_INCLUDE);

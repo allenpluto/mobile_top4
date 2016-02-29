@@ -5,4 +5,4 @@
 system/config/config.php
 Research/~*
 Resources/~*
-asset/
+asset/*
