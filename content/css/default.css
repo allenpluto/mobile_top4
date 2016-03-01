@@ -27,9 +27,8 @@
 /*# General #*/
 *, *:before, *:after
 {
-    -webkit-box-sizing:border-box;
-    -moz-box-sizing:border-box;
     box-sizing:border-box;
+    -moz-box-sizing:border-box;
 }
 
 :focus {
@@ -1049,9 +1048,8 @@ img {display:block;max-width:100%;}
     line-height: 2;
     text-align: center;
 
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
     box-sizing: content-box;
+    -moz-box-sizing: content-box;
 
     z-index: 103;
 }
@@ -1139,7 +1137,6 @@ img {display:block;max-width:100%;}
     background: #ffffff;
 
     -moz-box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);
-    -webkit-box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);
     box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);
 
     border-radius:50%;

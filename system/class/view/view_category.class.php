@@ -20,6 +20,21 @@ class view_category extends view
         return $this;
     }
 
+    function fetch_value($parameter = array())
+    {
+        $parameter = array_merge($this->parameter,$parameter);
+        $result = parent::fetch_value($parameter);
+        if ($result !== false AND is_array($this->row))
+        {
+            foreach ($this->row as $row_index=>$row_value)
+            {
+                $this->row[$row_index]['full_url'] =  $parameter['namespace'] .  $parameter['path'] . $row_value['friendly_url'];
+            }
+            $result = $this->row;
+        }
+        return $result;
+    }
+
     function render($parameter = array())
     {
         if (isset($this->rendered_html) AND !isset($parameter['template']))

@@ -109,27 +109,30 @@ class content {
                                 switch($source_image_size['mime'])
                                 {
                                     case 'image/png':
-                                        imagepng($target_image, $target_image_path, 9, PNG_ALL_FILTERS);
                                         if (!$default_image_exists)
                                         {
                                             imagepng($default_image, $default_image_path, 0, PNG_NO_FILTER);
                                         }
+                                        imageinterlace($target_image,true);
+                                        imagepng($target_image, $target_image_path, 9, PNG_ALL_FILTERS);
                                         break;
                                     case 'image/gif':
-                                        imagegif($target_image, $target_image_path);
                                         if (!$default_image_exists)
                                         {
                                             imagegif($default_image, $default_image_path);
                                         }
+                                        imageinterlace($target_image,true);
+                                        imagegif($target_image, $target_image_path);
                                         break;
                                     case 'image/jpg':
                                     case 'image/jpeg':
                                     default:
-                                        imagejpeg($target_image, $target_image_path, 75);
                                         if (!$default_image_exists)
                                         {
                                             imagejpeg($default_image, $default_image_path, 100);
                                         }
+                                        imageinterlace($target_image,true);
+                                        imagejpeg($target_image, $target_image_path, 75);
                                 }
                                 imagedestroy($source_image);
                                 imagedestroy($target_image);
@@ -420,6 +423,8 @@ class content {
                         );
                         $render_parameter = array_merge($base_render_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null, $render_parameter);
+                        //$doc = new DOMDocument();
+                        //$doc->loadHTML($view_web_page_obj->render());
                         $this->content = $view_web_page_obj->render();
                         break;
                     case '404':
