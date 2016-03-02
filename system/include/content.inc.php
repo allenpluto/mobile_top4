@@ -8,6 +8,8 @@
 class content {
     protected $template = null;
     protected $content = array();
+    protected $cache = 0;
+    protected $cached_page_file = '';
 
     function __construct($instance, $namespace = 'default')
     {
@@ -18,6 +20,47 @@ class content {
             'namespace'=>$namespace,
             'instance'=>$instance
         );
+
+        // Looking for cached page
+        $cached_page_file =  PATH_CACHE . $namespace . '/';
+        if (isset($_GET['instance']))
+        {
+            if (!empty($_GET['instance']))
+            {
+                $cached_page_file .= $instance . '/';
+            }
+        }
+        if (isset($_GET['extra_parameter']))
+        {
+            if (!empty($_GET['extra_parameter']))
+            {
+                $cached_page_file .= $_GET['extra_parameter'] . '/';
+            }
+        }
+        $this->cached_page_file = $cached_page_file;
+        if (file_exists($cached_page_file.'index.html'))
+        {
+            $cached_page_content = file_get_contents($cached_page_file.'index.html');
+            preg_match_all('/\<\!\-\-(\{.*\})\-\-\>/', $cached_page_content, $matches, PREG_OFFSET_CAPTURE);
+            $cached_page_parameter = array();
+            foreach($matches[1] as $key=>$value)
+            {
+                $json_decode_result = json_decode($value[0],true);
+                if (is_array($json_decode_result)) $cached_page_parameter = array_merge($cached_page_parameter, $json_decode_result);
+            }
+
+            if (isset($cached_page_parameter['Expire']) AND strtotime($cached_page_parameter['Expire']) >= strtotime('now'))
+            {
+                preg_replace('/\<\!\-\-\{.*\}\-\-\>/', '', $cached_page_content);
+                $this->content = $cached_page_content;
+                return true;
+            }
+            else
+            {
+                unlink($cached_page_file.'index.html');
+            }
+        }
+
         switch ($namespace)
         {
             case 'asset':
@@ -391,6 +434,7 @@ class content {
                 switch ($instance)
                 {
                     case 'home':
+                        $this->cache = 1;
                         $index_organization_obj = new index_organization();
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
                         $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>'base64','id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
@@ -445,6 +489,34 @@ class content {
     function render($parameter = array())
     {
         header('Content-Type: text/html; charset=utf-8');
-        return print_r($this->content);
+
+        $html_content = $this->content;
+
+        // Minify HTML
+        $search = array(
+            '/\>[^\S ]+/s',  // strip whitespaces after tags, except space
+            '/[^\S ]+\</s',  // strip whitespaces before tags, except space
+            '/(\s)+/s'       // shorten multiple whitespace sequences
+        );
+        $replace = array(
+            '>',
+            '<',
+            '\\1'
+        );
+        $html_content = preg_replace($search, $replace, $html_content);
+
+        if ($this->cache > 0)
+        {
+            $expire_time = strtotime('+'.$this->cache.' day');
+            $cache_parameter = array('Expire'=>date('d M, Y', $expire_time));
+            if (!file_exists($this->cached_page_file))
+            {
+                mkdir($this->cached_page_file, 0755, true);
+            }
+            file_put_contents($this->cached_page_file.'index.html',$html_content.'<!--'.json_encode($cache_parameter).'-->');
+        }
+
+        print_r($html_content);
+        return true;
     }
 }

@@ -1,7 +1,8 @@
 ErrorDocument 404 /404
 
+# URL Rewrite
 RewriteEngine On
-RewriteBase /allen_frame_trial/
+RewriteBase /
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -10,14 +11,17 @@ RewriteRule ^([0-9a-z_-]+)/([0-9a-z_-]*)$ index.php?namespace=$1&instance=$2 [L]
 RewriteRule ^([0-9a-z_-]+)$ index.php?namespace=default&instance=$1 [L]
 RewriteRule ^()$ index.php?namespace=default&instance=home [L]
 
+# Leverage browser caching
 AddType application/font-woff .woff
+AddType application/font-woff2 .woff2
 AddType text/javascript .js
 
 ExpiresActive On
 ExpiresByType application/font-woff "access 1 year"
+ExpiresByType application/font-woff2 "access 1 year"
 ExpiresByType application/vnd.ms-fontobject "access 1 year"
 ExpiresByType application/x-font-ttf "access 1 year"
-ExpiresByType font/opentype "access 1 year"
+ExpiresByType font/* "access 1 year"
 ExpiresByType image/svg+xml "access 1 year"
 ExpiresByType image/jpg "access 1 year"
 ExpiresByType image/jpeg "access 1 year"
@@ -30,3 +34,31 @@ ExpiresByType text/html "access plus 1 week"
 ExpiresByType text/javascript "access 1 week"
 ExpiresByType text/x-javascript "access 1 week"
 ExpiresDefault "access 2 days"
+
+# Enable gzip compression
+AddOutputFilterByType DEFLATE text/html
+AddOutputFilterByType DEFLATE text/css
+AddOutputFilterByType DEFLATE text/javascript
+AddOutputFilterByType DEFLATE text/xml
+AddOutputFilterByType DEFLATE text/plain
+AddOutputFilterByType DEFLATE image/x-icon
+AddOutputFilterByType DEFLATE image/svg+xml
+AddOutputFilterByType DEFLATE application/rss+xml
+AddOutputFilterByType DEFLATE application/javascript
+AddOutputFilterByType DEFLATE application/x-javascript
+AddOutputFilterByType DEFLATE application/xml
+AddOutputFilterByType DEFLATE application/xhtml+xml
+AddOutputFilterByType DEFLATE application/x-font
+AddOutputFilterByType DEFLATE application/x-font-truetype
+AddOutputFilterByType DEFLATE application/x-font-ttf
+AddOutputFilterByType DEFLATE application/x-font-otf
+AddOutputFilterByType DEFLATE application/x-font-opentype
+AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+AddOutputFilterByType DEFLATE font/ttf
+AddOutputFilterByType DEFLATE font/otf
+AddOutputFilterByType DEFLATE font/opentype
+
+# For Olders Browsers Which Can't Handle Compression
+BrowserMatch ^Mozilla/4 gzip-only-text/html
+BrowserMatch ^Mozilla/4\.0[678] no-gzip
+BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
