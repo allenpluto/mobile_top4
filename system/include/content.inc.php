@@ -192,6 +192,7 @@ class content {
                 }
                 break;
             case 'business':
+                $this->cache = 3;
 //echo '<pre>';
                 $view_business_detail_obj = new view_business_detail($instance);
 //print_r($view_business_detail_obj);
@@ -217,6 +218,7 @@ class content {
                 switch ($instance)
                 {
                     case '':
+                        $this->cache = 1;
                         $index_category_obj = new index_category();
                         $index_category_obj->filter_by_active();
                         $index_category_obj->filter_by_listing_count();
@@ -291,6 +293,7 @@ class content {
 
                         break;
                     case 'find':
+                        $this->cache = 1;
                         $index_organization_obj = new index_organization();
                         if (empty($uri_parameter['category']))
                         {
@@ -476,6 +479,7 @@ class content {
                         print_r('404 Not Found');
                         break;
                     default:
+                        $this->cache = 10;
                         $view_web_page_obj = new view_web_page($instance,$uri_parameter);
                         if (count($view_web_page_obj->id_group) == 0)
                         {

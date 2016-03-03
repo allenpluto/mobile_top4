@@ -33,7 +33,7 @@ class format
             $result = call_user_func_array(array(self::$_obj, $method), $value);
             $previous_call[] = array(
                 'method' => $method,
-                'value' => $value,
+                'value' => print_r($value,true),
                 'result' => $result
             );
             return $result;

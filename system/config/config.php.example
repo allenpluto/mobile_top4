@@ -1,26 +1,23 @@
 <?php
-// Database
+// Database 
 define('DATABASE_HOST', '127.0.0.1');
-define('DATABASE_NAME', 'allen_frame_trial');
-define('DATABASE_USER', 'root');
-define('DATABASE_PASSWORD', '');
+define('DATABASE_NAME', 'top4_domain1');
+define('DATABASE_USER', 'top4_dbuser');
+define('DATABASE_PASSWORD', 'edir!2011');
 define('DATABASE_CHARSET', 'utf8');
 define('DATABASE_TABLE_PREFIX', 'tbl_');
 
 // URI
-define('URI_DOMAIN','http://localhost/');
-define('URI_SITE_PATH','allen_frame_trial/');
+define('URI_DOMAIN','http://mobile.top4.com.au/');
+define('URI_SITE_PATH','');
 define('URI_SITE_BASE',URI_DOMAIN . URI_SITE_PATH);
 
 define('URI_ASSET', URI_SITE_BASE . 'asset/');
 define('URI_IMAGE', URI_ASSET . 'image/');
-define('URI_IMAGE_EXTERNAL', 'http://dev.top4.com.au/custom/domain_1/image_files/');
-
-//define('URI_IMAGE',URI_SITE_BASE . 'content/image/');
-//define('URI_IMAGE', 'http://dev.top4.com.au/custom/domain_1/image_files/');
+define('URI_IMAGE_EXTERNAL', 'http://www.top4.com.au/custom/domain_1/image_files/');
 
 // Core Paths
-define('PATH_BASE', '/wamp/www/allen_frame_trial/');
+define('PATH_BASE', '/home/mobiletop4/public_html/');
 
 define('PATH_SYSTEM', PATH_BASE . 'system/');
 define('PATH_CLASS', PATH_SYSTEM . 'class/');
@@ -29,6 +26,9 @@ define('PATH_TEMPLATE', PATH_SYSTEM . 'template/');
 
 define('PATH_ASSET', PATH_BASE . 'asset/');
 define('PATH_IMAGE', PATH_ASSET . 'image/');
+define('PATH_JS', PATH_ASSET . 'js/');
+define('PATH_CSS', PATH_ASSET . 'css/');
+define('PATH_CACHE', PATH_ASSET . 'cache/');
 
 // File Extensions
 define('FILE_EXTENSION_CLASS', '.class.php');
@@ -39,7 +39,7 @@ define('FILE_EXTENSION_TEMPLATE', '.tpl');
 define('PREFIX_TEMPLATE_PAGE', 'page_');
 
 // Load Pre-Include Functions (Functions that Classes May Use)
-// Preference (Global variables, can be overwritten)
+// Preference (Global constant variables, can be overwritten)
 include_once(PATH_INCLUDE.'preference'.FILE_EXTENSION_INCLUDE);
 $global_preference = preference::get_instance();
 $global_preference->default_entity_row_max = 100;
