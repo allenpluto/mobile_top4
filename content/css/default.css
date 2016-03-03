@@ -1334,12 +1334,19 @@ img {display:block;max-width:100%;}
 #listing_detail_view_address_container_small_screen
 {
     display: block;
-    padding-top: 1em;
 }
 
 #listing_detail_view_address_container_large_screen
 {
     display: none;
+}
+
+/*# Body/Listing/Detail/Contact Section #*/
+.listing_detail_view_contact_row
+{
+    padding: 0.5em 0;
+    color: #666666;
+    font-weight: bold;
 }
 
 #listing_detail_view_map_frame_container

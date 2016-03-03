@@ -103,9 +103,11 @@ class view_business_detail extends view_organization
             if (preg_match('/^(-?\d{2}\.\d+),(\d{3}\.\d+)$/', $geo_location_formatted))
             {
                 $this->row[$row_index]['map_section'] = new view_web_page_element(null, array(
-                    'template'=>'view_business_detail_map',
+                    'template'=>'view_business_detail_contact',
                     'build_from_content'=>array(
                         array(
+                            'phone'=>$this->row[$row_index]['phone']?'<a href="tel:'.$this->row[$row_index]['phone'].'">'.$this->row[$row_index]['phone'].'</a>':'N/A',
+                            'website'=>$this->row[$row_index]['website']?'<a href="'.$this->row[$row_index]['website'].'" target="_blank">'.$this->row[$row_index]['website'].'</a>':'N/A',
                             'street_address'=>$this->row[$row_index]['street_address'],
                             'suburb'=>$this->row[$row_index]['suburb'],
                             'state'=>$this->row[$row_index]['state'],

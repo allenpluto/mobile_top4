@@ -39,15 +39,6 @@
             <div class="clear"></div>
         </div>
     </div>
-    <div id="listing_detail_view_contact_wrapper" class="wrapper listing_detail_view_section_wrapper">
-        <div id="listing_detail_view_contact_container" class="container listing_detail_view_section_container">
-            <div id="listing_detail_view_address_container_small_screen" class="listing_detail_view_contact_row container">
-                [[*street_address]], [[*suburb]] [[*state]] [[*post]]
-            </div>
-            <div id="listing_detail_view_phone_container" class="listing_detail_view_contact_row container"></div>
-            <div id="listing_detail_view_website_container" class="listing_detail_view_contact_row container"></div>
-        </div>
-    </div>
     <div id="listing_detail_view_summary_wrapper" class="wrapper listing_detail_view_section_wrapper">
         <div id="listing_detail_view_summary_container" class="container listing_detail_view_section_container">
             <h2>[[*category_name]] in [[*suburb]], [[*state]] [[*post]]</h2>
