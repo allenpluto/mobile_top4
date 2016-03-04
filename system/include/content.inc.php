@@ -37,8 +37,13 @@ class content {
                 $cached_page_file .= $_GET['extra_parameter'] . '/';
             }
         }
+        $nocache = false;
+        if (isset($_GET['nocache']))
+        {
+            if ($_GET['nocache'] == true) $nocache = true;
+        }
         $this->cached_page_file = $cached_page_file;
-        if (file_exists($cached_page_file.'index.html'))
+        if (file_exists($cached_page_file.'index.html') AND !$nocache)
         {
             $cached_page_content = file_get_contents($cached_page_file.'index.html');
             preg_match_all('/\<\!\-\-(\{.*\})\-\-\>/', $cached_page_content, $matches, PREG_OFFSET_CAPTURE);
@@ -476,7 +481,7 @@ class content {
                         break;
                     case '404':
                         header("HTTP/1.0 404 Not Found");
-                        print_r('404 Not Found');
+                        $this->content = '404 Not Found';
                         break;
                     default:
                         $this->cache = 10;

@@ -6,10 +6,12 @@
         </div>
         <div class="listing_detail_view_section_content_container expand_wrapper">
             <div class="listing_detail_view_section_content expand_container">
-                <div id="listing_detail_view_phone_container" class="listing_detail_view_contact_row container">Phone: [[*phone]]</div>
-                <div id="listing_detail_view_website_container" class="listing_detail_view_contact_row container">Website: [[*website]]</div>
-                <div id="listing_detail_view_address_container" class="listing_detail_view_contact_row container">Address: [[*street_address]], [[*suburb]] [[*state]] [[*post]]</div>
-                <div id="listing_detail_view_map_frame_container"><iframe id="listing_detail_view_map_frame" src="http://maps.google.com/maps?q=[[*geo_location_formatted]]&z=15&output=embed"></iframe></div>
+                <div id="listing_detail_view_phone_container" class="listing_detail_view_contact_row font_icon font_icon_phone">[[*phone]]</div>
+                <div id="listing_detail_view_website_container" class="listing_detail_view_contact_row font_icon font_icon_ie">[[*website]]</div>
+                <div id="listing_detail_view_address_container" class="listing_detail_view_contact_row font_icon font_icon_map"><p>[[*street_address]], <br>[[*suburb]]<br>[[*state]] [[*post]]</p><p class="general_style_colour_orange"><a href="javascript:void(0);">Click to View on Map</a></p></div>
+                <div id="listing_detail_view_map_frame_container" class="listing_detail_view_contact_row">
+                    <iframe id="listing_detail_view_map_frame" src="http://maps.google.com/maps?q=[[*geo_location_formatted]]&z=15&output=embed"></iframe>
+                </div>
             </div>
         </div>
     </div>
