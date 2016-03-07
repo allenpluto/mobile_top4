@@ -40,14 +40,19 @@
         </div>
     </div>
     <div id="listing_detail_view_summary_wrapper" class="wrapper listing_detail_view_section_wrapper">
-        <div id="listing_detail_view_summary_container" class="container listing_detail_view_section_container">
-            <h2>[[*category_name]] in [[*suburb]], [[*state]] [[*post]]</h2>
-            <p class="listing_detail_view_summary" itemprop="description">
-                [[*description]]
-            </p>
+        <div class="wrapper listing_detail_view_section_title_wrapper">
+            <div class="container listing_detail_view_section_title_container"><h2>[[*category_name]] in [[*suburb]], [[*state]] [[*post]]</h2></div>
+        </div>
+        <div class="wrapper listing_detail_view_section_content_wrapper">
+            <div class="container listing_detail_view_section_content_container">
+                <p class="listing_detail_view_summary" itemprop="description">
+                    [[*description]]
+                </p>
+            </div>
         </div>
     </div>
     [[$keyword_section]]
     [[$overview_section]]
+    [[$contact_section]]
     [[$map_section]]
 </div>

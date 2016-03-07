@@ -1213,6 +1213,8 @@ function FrameOnload(){
         
         $('#off_canvas_wrapper').removeClass('off_canvas_expand');
     });
+
+    $('.expand_parent').expandable_content();
     
     $('.search_trigger').click(function(event){
         event.preventDefault();

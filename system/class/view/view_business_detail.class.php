@@ -24,6 +24,14 @@ class view_business_detail extends view_organization
             {
                 $this->row[$row_index]['long_description'] = '<p>'.str_replace('<br />','</p><p>',nl2br(strip_tags($row['long_description']))).'</p>';
             }
+            if (isset($row['latitude']) AND isset($row['longitude']))
+            {
+                $this->row[$row_index]['geo_location_formatted'] =  round($row['latitude'],6).','.round($row['longitude'],6);
+                if (!preg_match('/^(-?\d{2}\.\d+),(\d{3}\.\d+)$/', $this->row[$row_index]['geo_location_formatted']))
+                {
+                    unset($this->row[$row_index]['geo_location_formatted']);
+                }
+            }
         }
         return $result;
     }
@@ -98,26 +106,32 @@ class view_business_detail extends view_organization
             }
             unset($overview_strip_tags);
 
-            $geo_location_formatted = round($this->row[$row_index]['latitude'],6).','.round($this->row[$row_index]['longitude'],6);
-            // check latitude, longitude exists
-            if (preg_match('/^(-?\d{2}\.\d+),(\d{3}\.\d+)$/', $geo_location_formatted))
+            $this->row[$row_index]['contact_section'] = new view_web_page_element(null, array(
+                'template'=>'view_business_detail_contact',
+                'build_from_content'=>array(
+                    array(
+                        'phone'=>$this->row[$row_index]['phone']?'<a href="tel:'.$this->row[$row_index]['phone'].'">'.$this->row[$row_index]['phone'].'</a>':'N/A',
+                        'website'=>$this->row[$row_index]['website']?'<a href="'.$this->row[$row_index]['website'].'" target="_blank">'.$this->row[$row_index]['website'].'</a>':'N/A',
+                        'street_address'=>$this->row[$row_index]['street_address'],
+                        'suburb'=>$this->row[$row_index]['suburb'],
+                        'state'=>$this->row[$row_index]['state'],
+                        'post'=>$this->row[$row_index]['post']
+                    )
+                )
+            ));
+
+            if (isset($this->row[$row_index]['geo_location_formatted']))
             {
                 $this->row[$row_index]['map_section'] = new view_web_page_element(null, array(
-                    'template'=>'view_business_detail_contact',
+                    'template'=>'view_business_detail_map',
                     'build_from_content'=>array(
                         array(
-                            'phone'=>$this->row[$row_index]['phone']?'<a href="tel:'.$this->row[$row_index]['phone'].'">'.$this->row[$row_index]['phone'].'</a>':'N/A',
-                            'website'=>$this->row[$row_index]['website']?'<a href="'.$this->row[$row_index]['website'].'" target="_blank">'.$this->row[$row_index]['website'].'</a>':'N/A',
-                            'street_address'=>$this->row[$row_index]['street_address'],
-                            'suburb'=>$this->row[$row_index]['suburb'],
-                            'state'=>$this->row[$row_index]['state'],
-                            'post'=>$this->row[$row_index]['post'],
-                            'geo_location_formatted'=>$geo_location_formatted
+                            'geo_location_formatted'=>$this->row[$row_index]['geo_location_formatted']
                         )
                     )
                 ));
+
             }
-            unset($geo_location_formatted);
         }
 
         return parent::render($parameter);
