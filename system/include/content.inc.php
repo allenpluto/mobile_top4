@@ -335,6 +335,7 @@ class content {
                         else
                         {
                             $content = '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
+                            $inpage_script = '';
                         }
 
                         $category_row = $view_category_obj->fetch_value();
