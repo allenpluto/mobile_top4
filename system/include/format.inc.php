@@ -293,6 +293,76 @@ class format
         return $result;
 
     }
-}
 
+    private function minify_html($value)
+    {
+        if (!is_string($value))
+        {
+            return false;
+        }
+
+        // Minify HTML
+        $search = array(
+            '/<\!--(?!\[if)(.*?)-->/s',       // remove html comments, except IE comments
+            '/\>[^\S ]+/',                      // strip whitespaces after tags, except space
+            '/[^\S ]+\</',                      // strip whitespaces before tags, except space
+            '/(\s)+/'                            // shorten multiple whitespace sequences
+        );
+        $replace = array(
+            '',
+            '>',
+            '<',
+            '\\1'
+        );
+        return preg_replace($search, $replace, $value);
+    }
+
+    private function minify_css($value)
+    {
+        if (!is_string($value))
+        {
+            return false;
+        }
+
+        // Minify CSS
+        $search = array(
+            '/\/\*(.*?)\*\//s',                  // remove css comments
+            '/([,:;\{\}])[^\S]+/',             // strip whitespaces after , : ; { }
+            '/[^\S]+([,:;\{\}])/',             // strip whitespaces before , : ; { }
+            '/(\s)+/'                            // shorten multiple whitespace sequences
+        );
+        $replace = array(
+            '',
+            '\\1',
+            '\\1',
+            '\\1'
+        );
+        return preg_replace($search, $replace, $value);
+    }
+
+    private function minify_js($value)
+    {
+        if (!is_string($value))
+        {
+            return false;
+        }
+
+        // Minify JS
+        $search = array(
+            '/\/\*(.*?)\*\//s',                       // remove js comments with /* */
+            '/\/\/(.*?)[\n\r]/s',                     // remove js comments with //
+            '/([\<\>\=\+\-,:;\(\)\{\}])[^\S]+(?=([^\']*\'[^\']*\')*[^\']*$)/',        // strip whitespaces after , : ; { }
+            '/[^\S]+([\<\>\=\+\-,:;\(\)\{\}])(?=([^\']*\'[^\']*\')*[^\']*$)/',        // strip whitespaces before , : ; { }
+            '/^(\s)+/'                                 // strip whitespaces in the start of the file
+        );
+        $replace = array(
+            '',
+            '',
+            '\\1',
+            '\\1',
+            ''
+        );
+        return preg_replace($search, $replace, $value);
+    }
+}
 ?>

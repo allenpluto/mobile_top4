@@ -281,6 +281,11 @@ class content {
 
                         }
 
+                        if ($GLOBALS['global_preference']->minify_html)
+                        {
+                            $this->content = $format->minify_html($this->content);
+                        }
+
                         if (isset($_POST['data_encode_type']))
                         {
                             switch ($_POST['data_encode_type'])
@@ -499,20 +504,11 @@ class content {
     {
         header('Content-Type: text/html; charset=utf-8');
 
-        $html_content = $this->content;
-
-        // Minify HTML
-        $search = array(
-            '/\>[^\S ]+/s',  // strip whitespaces after tags, except space
-            '/[^\S ]+\</s',  // strip whitespaces before tags, except space
-            '/(\s)+/s'       // shorten multiple whitespace sequences
-        );
-        $replace = array(
-            '>',
-            '<',
-            '\\1'
-        );
-        $html_content = preg_replace($search, $replace, $html_content);
+        $format = format::get_obj();
+        if ($GLOBALS['global_preference']->minify_html)
+        {
+            $this->content = $format->minify_html($this->content);
+        }
 
         if ($this->cache > 0)
         {
@@ -522,10 +518,10 @@ class content {
             {
                 mkdir($this->cached_page_file, 0755, true);
             }
-            file_put_contents($this->cached_page_file.'index.html',$html_content.'<!--'.json_encode($cache_parameter).'-->');
+            file_put_contents($this->cached_page_file.'index.html',$this->content.'<!--'.json_encode($cache_parameter).'-->');
         }
 
-        print_r($html_content);
+        print_r($this->content);
         return true;
     }
 }

@@ -2,8 +2,7 @@
 
 // jQuery Plugins
 $.fn.ajax_loader = function(user_option) {
-    var default_option = {
-    };
+    var default_option = {};
     // Extend our default option with user provided.
     var option = $.extend(default_option, user_option);
 
@@ -19,7 +18,7 @@ $.fn.ajax_loader = function(user_option) {
 //console.log(ajax_loader_container.data('option'));
 //console.log(ajax_loader_container.data('option').page_count);
                 if (!ajax_loader_container.hasClass('ajax_loader_container_complete') && !ajax_loader_container.hasClass('ajax_loader_container_loading')) {
-                    ajax_loader_container.addClass('ajax_loader_container_loading')
+                    ajax_loader_container.addClass('ajax_loader_container_loading');
                     var next_page_id_group = {};
                     var id_counter = 0;
                     for (var id_index in ajax_loader_container.data('option').id_group) {
@@ -39,8 +38,8 @@ $.fn.ajax_loader = function(user_option) {
                         {
                             post_value[option_key] = option_value;
                         }
-                    })
-//console.log(post_value);
+                    });
+                    //console.log(post_value);
                     $.ajax({
                         'type': 'POST',
                         'url': 'listing/ajax_load',
@@ -96,8 +95,7 @@ $.fn.ajax_loader = function(user_option) {
 };
 
 $.fn.drop_file_uploader = function(user_option) {
-    var default_option = {
-    };
+    var default_option = {};
     // Extend our default option with user provided.
     var option = $.extend(default_option, user_option);
 
@@ -329,7 +327,7 @@ $.fn.form_image_uploader = function(user_option){
                 image_uploader_result.val(result_image.attr('src'));
                 image_uploader.removeClass('form_image_uploader_container_empty');
             }
-        }
+        };
 
         function read_file(file, call_back, option)
         {
@@ -378,7 +376,7 @@ $.fn.form_image_uploader = function(user_option){
                                     call_back();
                                 }
                             }                            
-                        }
+                        };
                 
                         // Pass the reader the file to read and give us the DataURL
                         reader.readAsDataURL(file);
@@ -389,7 +387,7 @@ $.fn.form_image_uploader = function(user_option){
             {
                 error_message = 'Unable to read source file.';
             }
-        }
+        };
 
         image_uploader_trigger.click(function(event)
         {
@@ -438,8 +436,7 @@ $.fn.form_image_uploader = function(user_option){
 $.fn.form_js_selector = function(user_option){
     var default_option = {
         'max_select_allowed': 1,
-        'min_select_required': 0,
-
+        'min_select_required': 0
     };
     // Extend our default option with user provided.
     var option = $.extend(default_option, user_option);
@@ -671,7 +668,7 @@ $.fn.form_js_selector = function(user_option){
             }
 
             item_to_remove.remove();
-        }
+        };
 
         js_select_container.on('reset', function(event) {
             var js_select_drop_down_item = js_select_container.find('.form_js_select_drop_down_item');
