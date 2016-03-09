@@ -27,10 +27,10 @@ echo preg_match($pattern2, $value2);
 echo '<br>';
 
 $css = file_get_contents('../content/css/default.css');
-file_put_contents('test.css',$format->minify_css($css));
+file_put_contents(PATH_CACHE_CSS.'test.css',$format->minify_css($css));
 
 $js = file_get_contents('../content/js/default.js');
-file_put_contents('test.js',$format->minify_js($js));
+file_put_contents(PATH_CACHE_JS.'test.js',$format->minify_js($js));
 
 echo '<link href="test.css" type="text/css" rel="stylesheet">';
 echo '<script type="text/javascript" src="../content/js/jquery-1.11.3.js"></script>';

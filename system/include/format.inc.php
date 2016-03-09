@@ -8,10 +8,29 @@
 
 class format
 {
-    private $previous_call = array();
+    private static $cached = array();
     private static $_obj = null;
 
-    private function __construct() {}
+    private function __construct()
+    {
+        if (file_exists(PATH_CACHE_FORMAT.'format'.FILE_EXTENSION_CATCH))
+        {
+            self::$cached = json_decode(file_get_contents(PATH_CACHE_FORMAT.'format'.FILE_EXTENSION_CATCH),true);
+            if (!is_array(self::$cached)) self::$cached = array();
+        }
+    }
+    function __destruct()
+    {
+        if (!empty(self::$cached))
+        {
+            if (!file_exists(PATH_CACHE_FORMAT))
+            {
+                mkdir(PATH_CACHE_FORMAT, 0755, true);
+            }
+            file_put_contents(PATH_CACHE_FORMAT.'format'.FILE_EXTENSION_CATCH, json_encode(self::$cached));
+
+        }
+    }
 
     public static function get_obj()
     {
@@ -30,13 +49,22 @@ class format
         }
         else
         {
-            $result = call_user_func_array(array(self::$_obj, $method), $value);
-            $previous_call[] = array(
-                'method' => $method,
-                'value' => print_r($value,true),
-                'result' => $result
-            );
-            return $result;
+            $flatten_value = print_r($value,true);
+            if (isset(self::$cached[$method][$flatten_value]))
+            {
+                $GLOBALS['global_message']->notice = 'Format value from cache '.$flatten_value;
+                return self::$cached[$method][$flatten_value];
+            }
+            else
+            {
+                $result = call_user_func_array(array(self::$_obj, $method), $value);
+                if (strlen($flatten_value) <= 200)
+                {
+                    if(!isset(self::$cached[$method])) self::$cached[$method] = array();
+                    self::$cached[$method][$flatten_value] = $result;
+                }
+                return $result;
+            }
         }
     }
 

@@ -19,7 +19,7 @@
         //print_r($_GET);
     }
 
-//    echo '<pre><div class="system_debug">';
-//    print_r($GLOBALS['global_message']->all);
-//    echo '</div>';
+    echo '<pre><div class="system_debug">';
+    print_r($GLOBALS['global_message']->all);
+    echo '</div>';
 ?>
