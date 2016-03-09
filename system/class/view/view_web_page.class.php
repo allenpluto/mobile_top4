@@ -72,10 +72,10 @@ class view_web_page extends view
                     'template'=>'element_body_section',
                     'build_from_content'=>array(
                         array(
-                            'id'=>$format->class_name($row_value['friendly_url']).'_container',
+                            'id'=>$format->element_name($row_value['friendly_url']).'_container',
                             'class_extra'=>' section_container_bg_white article_container',
                             'title'=>'<h1>'.$row_value['page_title'].'</h1>',
-                            'content'=>$format->html_text_content($row_value['page_content'])
+                            'content'=>$format->html_content($row_value['page_content'])
                         ),
                     )
                 ));

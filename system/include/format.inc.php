@@ -15,6 +15,7 @@ class format
     {
         if (file_exists(PATH_CACHE_FORMAT.'format'.FILE_EXTENSION_CATCH))
         {
+            //$GLOBALS['global_message']->notice = 'format object constructed';
             self::$cached = json_decode(file_get_contents(PATH_CACHE_FORMAT.'format'.FILE_EXTENSION_CATCH),true);
             if (!is_array(self::$cached)) self::$cached = array();
         }
@@ -27,7 +28,7 @@ class format
             {
                 mkdir(PATH_CACHE_FORMAT, 0755, true);
             }
-            file_put_contents(PATH_CACHE_FORMAT.'format'.FILE_EXTENSION_CATCH, json_encode(self::$cached));
+            file_put_contents(PATH_CACHE_FORMAT.'format'.FILE_EXTENSION_CATCH, $this->minify_js(json_encode(self::$cached)));
 
         }
     }
@@ -49,10 +50,10 @@ class format
         }
         else
         {
-            $flatten_value = print_r($value,true);
+            $flatten_value = $this->minify_js(json_encode($value));
             if (isset(self::$cached[$method][$flatten_value]))
             {
-                $GLOBALS['global_message']->notice = 'Format value from cache '.$flatten_value;
+                $GLOBALS['global_message']->notice = 'Format value from cache ['.$method.']:'.$flatten_value;
                 return self::$cached[$method][$flatten_value];
             }
             else
@@ -68,31 +69,191 @@ class format
         }
     }
 
-    private function class_name($value)
+    /////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////      Text Input/Output Format Filters    /////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+    // HTML DOM Element id, class, PHP function name
+    private function element_name($value)
     {
         $value = strtolower($value);
-        $value = preg_replace('/[^a-z0-9]/', '_', $value);
+        $value = preg_replace('/[^_a-z0-9]/', '_', $value);
         $value = preg_replace('/_+/', '_', $value);
         $result = trim($value,'_');
 
         return $result;
     }
 
-    private function friendly_url($value)
+    // URI, HTML DOM Element friendly-url, Assets (images, downloadable files) file name
+    private function file_name($value)
     {
         $value = strtolower($value);
-        $value = preg_replace('/[^a-z0-9]/', '-', $value);
+        $value = preg_replace('/[^-a-z0-9]/', '-', $value);
         $value = preg_replace('/-+/', '-', $value);
         $result = trim($value,'-');
 
         return $result;
     }
 
-    private function html_text_content($value)
+    // Display Text Caption, separate words by space, easier to read
+    private function caption($value)
+    {
+        $value = preg_replace('/[^\sa-z0-9]/', ' ', $value);
+        $value = preg_replace('/\s+/', ' ', $value);
+        $result = trim($value);
+
+        return $result;
+    }
+
+    // Display Phone Number
+    private function phone($value)
+    {
+        $value = preg_replace('/[abc]/i', '2', $value);
+        $value = preg_replace('/[def]/i', '3', $value);
+        $value = preg_replace('/[ghi]/i', '4', $value);
+        $value = preg_replace('/[jkl]/i', '5', $value);
+        $value = preg_replace('/[mno]/i', '6', $value);
+        $value = preg_replace('/[pqrs]/i', '7', $value);
+        $value = preg_replace('/[tuv]/i', '8', $value);
+        $value = preg_replace('/[wxyz]/i', '9', $value);
+        $value = preg_replace('/[^\d]/', '', $value);
+
+        switch(strlen($value))
+        {
+            case 10:
+                if(substr($value,0,2) == '04' or substr($value,0,2) == '13' or substr($value,0,2) == '18') //Format for Mobile, National and Free Phone Number
+                {
+                    $result = substr($value,0,4).' '.substr($value,4,3).' '.substr($value,7,3);
+                }
+                else
+                {
+                    $result = '('.substr($value,0,2).') '.substr($value,2,4).' '.substr($value,6,4);
+                }
+                break;
+            case 8:
+                $result = substr($value,0,4).' '.substr($value,4,4);
+                break;
+            case 6:
+                $result = substr($value,0,2).' '.substr($value,2,2).' '.substr($value,4,2);
+                break;
+            default:
+                $result = $value;
+                // Unknown type of phone number, return without space it out
+        }
+        return $result;
+    }
+
+    // Display Website URI
+    private function uri($value)
+    {
+        $value = trim($value);
+        if (empty($value)) return $value;
+
+        if (!preg_match("/^https?\:\/\//", $value))
+        {
+            $value = str_replace(":","",$value);
+            $value = str_replace("//","/",$value);
+            $value = 'http://'.$value;
+        }
+
+        return $value;
+    }
+
+    // Display ABN
+    private function abn($value)
+    {
+        $result = trim($value);
+        switch(strlen($result))
+        {
+            case 11:    // ABN
+                $result = substr($value,0,2).' '.substr($value,2,3).' '.substr($value,5,3).' '.substr($value,8,3);
+                break;
+            case 9:     // ASIC/ACN
+                $result = substr($value,0,3).' '.substr($value,3,3).' '.substr($value,6,3);
+                break;
+        }
+        return $result;
+    }
+
+    // HTML content filter, allow basic html tags, remove rest
+    // Note: need to be wrapped by '<div>' so even content has broken html wont broke the whole page
+    private function html_content($value)
     {
         $result = strip_tags($value, '<h2><h3><h4><h5><h6><p><ul><ol><li><a><span><strong><em>');
         return $result;
     }
+
+    private function minify_html($value)
+    {
+        if (!is_string($value))
+        {
+            return false;
+        }
+
+        // Minify HTML
+        $search = array(
+            '/<\!--(?!\[if)(.*?)-->/s',       // remove html comments, except IE comments
+            '/\>[^\S ]+/',                      // strip whitespaces after tags, except space
+            '/[^\S ]+\</',                      // strip whitespaces before tags, except space
+            '/(\s)+/'                            // shorten multiple whitespace sequences
+        );
+        $replace = array(
+            '',
+            '>',
+            '<',
+            '\\1'
+        );
+        return preg_replace($search, $replace, $value);
+    }
+
+    private function minify_css($value)
+    {
+        if (!is_string($value))
+        {
+            return false;
+        }
+
+        // Minify CSS
+        $search = array(
+            '/\/\*(.*?)\*\//s',                  // remove css comments
+            '/([,:;\{\}])[^\S]+/',             // strip whitespaces after , : ; { }
+            '/[^\S]+([,:;\{\}])/',             // strip whitespaces before , : ; { }
+            '/(\s)+/'                            // shorten multiple whitespace sequences
+        );
+        $replace = array(
+            '',
+            '\\1',
+            '\\1',
+            '\\1'
+        );
+        return preg_replace($search, $replace, $value);
+    }
+
+    private function minify_js($value)
+    {
+        if (!is_string($value))
+        {
+            return false;
+        }
+
+        // Minify JS
+        $search = array(
+            '/\/\*(.*?)\*\//s',                       // remove js comments with /* */
+            '/\/\/(.*?)[\n\r]/s',                     // remove js comments with //
+            '/([\<\>\=\+\-,:;\(\)\{\}])[^\S]+(?=([^\']*\'[^\']*\')*[^\']*$)/',        // strip whitespaces after , : ; { }
+            '/[^\S]+([\<\>\=\+\-,:;\(\)\{\}])(?=([^\']*\'[^\']*\')*[^\']*$)/',        // strip whitespaces before , : ; { }
+            '/^(\s)+/'                                 // strip whitespaces in the start of the file
+        );
+        $replace = array(
+            '',
+            '',
+            '\\1',
+            '\\1',
+            ''
+        );
+        return preg_replace($search, $replace, $value);
+    }
+
 
     private function id_group($value)
     {
@@ -141,14 +302,6 @@ class format
         {
             return false;
         }
-    }
-
-    private function instance_text($value)
-    {
-        $value = strtolower($value);
-        $value = preg_replace('/[^-_a-z0-9]/', '', $value);
-
-        return $value;
     }
 
     private function pagination_param($value)
@@ -320,77 +473,6 @@ class format
 
         return $result;
 
-    }
-
-    private function minify_html($value)
-    {
-        if (!is_string($value))
-        {
-            return false;
-        }
-
-        // Minify HTML
-        $search = array(
-            '/<\!--(?!\[if)(.*?)-->/s',       // remove html comments, except IE comments
-            '/\>[^\S ]+/',                      // strip whitespaces after tags, except space
-            '/[^\S ]+\</',                      // strip whitespaces before tags, except space
-            '/(\s)+/'                            // shorten multiple whitespace sequences
-        );
-        $replace = array(
-            '',
-            '>',
-            '<',
-            '\\1'
-        );
-        return preg_replace($search, $replace, $value);
-    }
-
-    private function minify_css($value)
-    {
-        if (!is_string($value))
-        {
-            return false;
-        }
-
-        // Minify CSS
-        $search = array(
-            '/\/\*(.*?)\*\//s',                  // remove css comments
-            '/([,:;\{\}])[^\S]+/',             // strip whitespaces after , : ; { }
-            '/[^\S]+([,:;\{\}])/',             // strip whitespaces before , : ; { }
-            '/(\s)+/'                            // shorten multiple whitespace sequences
-        );
-        $replace = array(
-            '',
-            '\\1',
-            '\\1',
-            '\\1'
-        );
-        return preg_replace($search, $replace, $value);
-    }
-
-    private function minify_js($value)
-    {
-        if (!is_string($value))
-        {
-            return false;
-        }
-
-        // Minify JS
-        $search = array(
-            '/\/\*(.*?)\*\//s',                       // remove js comments with /* */
-            '/\/\/(.*?)[\n\r]/s',                     // remove js comments with //
-            '/([\<\>\=\+\-,:;\(\)\{\}])[^\S]+(?=([^\']*\'[^\']*\')*[^\']*$)/',        // strip whitespaces after , : ; { }
-            '/[^\S]+([\<\>\=\+\-,:;\(\)\{\}])(?=([^\']*\'[^\']*\')*[^\']*$)/',        // strip whitespaces before , : ; { }
-            '/^(\s)+/'                                 // strip whitespaces in the start of the file
-        );
-        $replace = array(
-            '',
-            '',
-            '\\1',
-            '\\1',
-            ''
-        );
-        return preg_replace($search, $replace, $value);
     }
 }
 ?>

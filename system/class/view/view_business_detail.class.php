@@ -60,6 +60,8 @@ class view_business_detail extends view_organization
             return '';
         }
 
+        $format = format::get_obj();
+
         foreach ($this->row as $row_index=>$row_value)
         {
             $this->row[$row_index]['logo'] = new view_business_detail_logo($row_value['logo_id']);
@@ -110,8 +112,8 @@ class view_business_detail extends view_organization
                 'template'=>'view_business_detail_contact',
                 'build_from_content'=>array(
                     array(
-                        'phone'=>$this->row[$row_index]['phone']?'<a href="tel:'.$this->row[$row_index]['phone'].'">'.$this->row[$row_index]['phone'].'</a>':'N/A',
-                        'website'=>$this->row[$row_index]['website']?'<a href="'.$this->row[$row_index]['website'].'" target="_blank">'.$this->row[$row_index]['website'].'</a>':'N/A',
+                        'phone'=>$this->row[$row_index]['phone']?'<a href="tel:'.$this->row[$row_index]['phone'].'">'.$format->phone($this->row[$row_index]['phone']).'</a>':'N/A',
+                        'website'=>$this->row[$row_index]['website']?'<a href="'.$format->uri($this->row[$row_index]['website']).'" target="_blank">'.$format->uri($this->row[$row_index]['website']).'</a>':'N/A',
                         'street_address'=>$this->row[$row_index]['street_address'],
                         'suburb'=>$this->row[$row_index]['suburb'],
                         'state'=>$this->row[$row_index]['state'],
