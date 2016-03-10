@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="author" content="">
+    <meta name="author" content="Allen Wu">
     <meta name="keywords" content="[[*meta_keywords]]">
     <meta name="description" content="[[*description]]">
     <title>[[*name]]</title>

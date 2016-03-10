@@ -207,8 +207,8 @@ class content {
                 $render_parameter = array(
                     'build_from_content'=>array(
                         array(
-                            'title'=>$view_business_detail_value[0]['name'],
-                            'meta_description'=>$view_business_detail_value[0]['description'],
+                            'name'=>$view_business_detail_value[0]['name'],
+                            'description'=>$view_business_detail_value[0]['description'],
                             'body'=>$view_business_detail_obj
                         )
                     )
@@ -243,8 +243,9 @@ class content {
                         $render_parameter = array(
                             'build_from_content'=>array(
                                 array(
-                                    'name'=>'Find Top4 Businesses in Australia',
-                                    'meta_description'=>'Find Top4 Businesses in Australia',
+                                    'name'=>'Top4 Businesses Australian Local Listings',
+                                    'description'=>'Find restaurants, hotels, plumbers, accountants and all kinds of local businesses with The New Australian Social Media Top4 Business and Brand Directory.',
+                                    'meta_keywords'=>'business category, local services, social directory, top4',
                                     'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
@@ -357,8 +358,8 @@ class content {
                             'template'=>PREFIX_TEMPLATE_PAGE.'default',
                             'build_from_content'=>array(
                                 array(
-                                    'title'=>$long_title,
-                                    'meta_description'=>$long_title,
+                                    'name'=>$long_title,
+                                    'description'=>$long_title,
                                     'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
@@ -429,8 +430,8 @@ class content {
                             'template'=>PREFIX_TEMPLATE_PAGE.'default',
                             'build_from_content'=>array(
                                 array(
-                                    'title'=>$long_title,
-                                    'meta_description'=>$long_title,
+                                    'name'=>$long_title,
+                                    'description'=>$long_title,
                                     'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
@@ -473,8 +474,9 @@ class content {
                         $render_parameter = array(
                             'build_from_content'=>array(
                                 array(
-                                    'title'=>'Home Page',
-                                    'meta_description'=>'Home Description',
+                                    'name'=>'Top4 - The New Australian Social Media Business and Brand Directory',
+                                    'description'=>'Top4 is the new Australian Social Media Business and Brand Directory designed to help Australians find and connect with any business, product, brand, job or person nearest their location.',
+                                    'meta_keywords'=>'social directory, australian business brand',
                                     'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )

@@ -1237,7 +1237,7 @@ function FrameOnload(){
 
     $('.expand_parent').expandable_content();
     $('.listing_detail_view_section_wrapper').expandable_content({
-        'multi_expand':1,
+        'multi_expanded':1,
         'focus_current':1
     });
 
