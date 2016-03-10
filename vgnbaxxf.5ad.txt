@@ -1,0 +1,6 @@
+﻿Stable Release Version 1.0.0
+#
+# Write a message for tag:
+#   R1.0.0
+# Lines starting with '#' will be ignored.
+

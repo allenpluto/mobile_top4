@@ -22,7 +22,7 @@ class content {
         );
 
         // Looking for cached page
-        $cached_page_file =  PATH_CACHE . $namespace . '/';
+        $cached_page_file =  PATH_CACHE_PAGE . $namespace . '/';
         if (isset($_GET['instance']))
         {
             if (!empty($_GET['instance']))
@@ -228,7 +228,7 @@ class content {
                         $index_category_obj->filter_by_active();
                         $index_category_obj->filter_by_listing_count();
                         $view_category_obj = new view_category($index_category_obj->id_group);
-                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>'none','id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
+                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>'base64','id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
                             'build_from_content'=>array(
@@ -255,7 +255,7 @@ class content {
                         $this->content = $view_web_page_obj->render();
 
                         break;
-                    case 'ajax_load':
+                    case 'ajax-load':
                         if (!isset($_POST['object_type']))
                         {
                             $_POST['object_type'] = 'business';
@@ -300,6 +300,7 @@ class content {
 
                             }
                         }
+                        $GLOBALS['global_preference']->minify_html = 0;
 
                         break;
                     case 'find':

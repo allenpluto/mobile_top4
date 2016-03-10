@@ -42,7 +42,7 @@ $.fn.ajax_loader = function(user_option) {
                     //console.log(post_value);
                     $.ajax({
                         'type': 'POST',
-                        'url': 'listing/ajax_load',
+                        'url': 'listing/ajax-load',
                         'data': post_value,
                         'timeout': 10000
                     }).always(function (callback_obj, status, info_obj) {
