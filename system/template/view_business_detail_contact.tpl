@@ -1,5 +1,5 @@
 [[-view_business_detail_contact]]
-<div id="listing_detail_view_contact_wrapper" class="wrapper listing_detail_view_section_wrapper expand_parent">
+<div id="listing_detail_view_contact_wrapper" class="wrapper listing_detail_view_section_wrapper">
     <div class="wrapper listing_detail_view_section_title_wrapper expand_trigger">
         <div class="container listing_detail_view_section_title_container"><h3>Contact</h3></div>
     </div>

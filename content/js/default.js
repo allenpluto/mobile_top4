@@ -132,7 +132,8 @@ $.fn.drop_file_uploader = function(user_option) {
 // Expandable Content
 $.fn.expandable_content = function(user_option){
     var default_option = {
-        'multi_expanded': 0
+        'multi_expanded': 0,
+        'focus_current': 0
     };
     // Extend our default option with user provided.
     var option = $.extend(default_option, user_option);
@@ -164,11 +165,34 @@ $.fn.expandable_content = function(user_option){
                 {
                     expand_parent.parent().children('.expand_parent_expanded').removeClass('expand_parent_expanded');
                 }
+
+                /*$('.listing_detail_view_section_wrapper > .expand_trigger').click(function(){
+                    if (!$(this).parent().hasClass('expand_parent_expanded'))
+                    {
+                        var window_offset_top = 20 + $(this).parent().position().top;
+s
+                        setTimeout(function(){
+                            $(window).scrollTop(window_offset_top);
+                        }, 1000);
+                    }
+                });*/
+                if (expand_parent.data('focus_current'))
+                {
+                    console.log('window top: '+$(window).scrollTop());
+                    console.log('parent top: '+expand_parent.position().top);
+                    $('body').animate({
+                        'scrollTop': Math.min($(window).scrollTop()+expand_wrapper.children('.expand_container').outerHeight(), expand_parent.position().top)
+                    },500);
+                }
                 expand_wrapper.animate({
                     'height': expand_wrapper.children('.expand_container').outerHeight()
                 },500,function(){
                     $(this).css('height','');
                     expand_parent.addClass('expand_parent_expanded');
+                    if (expand_parent.data('focus_current'))
+                    {
+                        $(window).scrollTop(Math.min($(window).scrollTop()+expand_wrapper.children('.expand_container').outerHeight(), expand_parent.position().top));
+                    }
                 });
             }
         });
@@ -1212,7 +1236,11 @@ function FrameOnload(){
     });
 
     $('.expand_parent').expandable_content();
-    
+    $('.listing_detail_view_section_wrapper').expandable_content({
+        'multi_expand':1,
+        'focus_current':1
+    });
+
     $('.search_trigger').click(function(event){
         event.preventDefault();
         
