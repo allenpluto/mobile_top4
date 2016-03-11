@@ -80,7 +80,7 @@ table {
     border-spacing:0;
 }
 
-a, a:hover {
+a, a:hover, a:active {
     color:inherit;
     text-decoration:inherit;
 }

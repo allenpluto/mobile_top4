@@ -7,9 +7,12 @@ RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^([0-9a-z_-]+)/([0-9a-z_-]+)/(.*)$ index.php?namespace=$1&instance=$2&extra_parameter=$3 [L,QSA]
+RewriteRule ^default/([0-9a-z_-]*)$ $1 [R=301,L]
 RewriteRule ^([0-9a-z_-]+)/([0-9a-z_-]*)$ index.php?namespace=$1&instance=$2 [L,QSA]
-RewriteRule ^([0-9a-z_-]+)$ index.php?namespace=default&instance=$1 [L,QSA]
-RewriteRule ^()$ index.php?namespace=default&instance=home [L,QSA]
+RewriteRule ^home$ . [R=301,L]
+RewriteRule ^([0-9a-z_-]+)$ index.php?namespace=default&instance=$1 [L]
+RewriteRule ^()$ index.php?namespace=default&instance=home [L]
+
 
 # Leverage browser caching
 AddType application/font-woff .woff
