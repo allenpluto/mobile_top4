@@ -10,42 +10,38 @@ class content {
     protected $content = array();
     protected $cache = 0;
     protected $cached_page_file = '';
+    protected $uri_parameter = array();
 
-    function __construct($instance, $namespace = 'default')
+    function __construct($parameter)
     {
         $format = format::get_obj();
-        $uri_parameter = $format->uri_decoder($_GET);
-        $template = PREFIX_TEMPLATE_PAGE.$namespace;
-        $base_render_parameter = array(
-            'namespace'=>$namespace,
-            'instance'=>$instance
-        );
+        $this->uri_decoder($parameter);
+        $template = PREFIX_TEMPLATE_PAGE.$this->uri_parameter['namespace'];
 
         // Looking for cached page
-        $cached_page_file =  PATH_CACHE_PAGE . $namespace . '/';
-        if (isset($_GET['instance']))
+        $this->cached_page_file =  PATH_CACHE_PAGE . $this->uri_parameter['namespace'] . '/';
+        if (isset($parameter['instance']))
         {
-            if (!empty($_GET['instance']))
+            if (!empty($parameter['instance']))
             {
-                $cached_page_file .= $instance . '/';
+                $this->cached_page_file .= $this->uri_parameter['instance'] . '/';
             }
         }
-        if (isset($_GET['extra_parameter']))
+        if (isset($parameter['extra_parameter']))
         {
-            if (!empty($_GET['extra_parameter']))
+            if (!empty($parameter['extra_parameter']))
             {
-                $cached_page_file .= $_GET['extra_parameter'] . '/';
+                $this->cached_page_file .= $parameter['extra_parameter'] . '/';
             }
         }
         $nocache = false;
-        if (isset($_GET['nocache']))
+        if (isset($parameter['nocache']))
         {
-            if ($_GET['nocache'] == true) $nocache = true;
+            if ($parameter['nocache'] == true) $nocache = true;
         }
-        $this->cached_page_file = $cached_page_file;
-        if (file_exists($cached_page_file.'index.html') AND !$nocache)
+        if (file_exists($this->cached_page_file.'index.html') AND !$nocache)
         {
-            $cached_page_content = file_get_contents($cached_page_file.'index.html');
+            $cached_page_content = file_get_contents($this->cached_page_file.'index.html');
             preg_match_all('/\<\!\-\-(\{.*\})\-\-\>/', $cached_page_content, $matches, PREG_OFFSET_CAPTURE);
             $cached_page_parameter = array();
             foreach($matches[1] as $key=>$value)
@@ -62,31 +58,31 @@ class content {
             }
             else
             {
-                unlink($cached_page_file.'index.html');
+                unlink($this->cached_page_file.'index.html');
             }
         }
 
-        switch ($namespace)
+        switch ($this->uri_parameter['namespace'])
         {
             case 'asset':
-                switch ($instance)
+                switch ($this->uri_parameter['instance'])
                 {
                     case 'image':
-                        if (!file_exists(PATH_IMAGE . $uri_parameter['image_size'] . '/' . $uri_parameter['image_file']))
+                        if (!file_exists(PATH_IMAGE . $this->uri_parameter['image_size'] . '/' . $this->uri_parameter['image_file']))
                         {
-                            if (empty($uri_parameter['image_size']))
+                            if (empty($this->uri_parameter['image_size']))
                             {
-                                header('Location: '.URI_IMAGE.'default/'.$uri_parameter['image_file']);
+                                header('Location: '.URI_IMAGE.'default/'.$this->uri_parameter['image_file']);
                                 exit();
                             }
-                            if ($uri_parameter['image_size'] == 'default')
+                            if ($this->uri_parameter['image_size'] == 'default')
                             {
-                                $source_image_path = URI_IMAGE_EXTERNAL.$uri_parameter['image_file'];
+                                $source_image_path = URI_IMAGE_EXTERNAL.$this->uri_parameter['image_file'];
                                 unset($target_width);
                             }
                             else
                             {
-                                $default_image_path = PATH_IMAGE . 'default/' . $uri_parameter['image_file'];
+                                $default_image_path = PATH_IMAGE . 'default/' . $this->uri_parameter['image_file'];
                                 if (file_exists($default_image_path))
                                 {
                                     $source_image_path = $default_image_path;
@@ -94,12 +90,12 @@ class content {
                                 }
                                 else
                                 {
-                                    $source_image_path = URI_IMAGE_EXTERNAL.$uri_parameter['image_file'];
+                                    $source_image_path = URI_IMAGE_EXTERNAL.$this->uri_parameter['image_file'];
                                     $default_image_exists = false;
                                 }
-                                $target_width = $uri_parameter['image_width'];
+                                $target_width = $this->uri_parameter['image_width'];
                             }
-                            if (isset($uri_parameter['image_source'])) $source_image_path = $uri_parameter['image_source'];
+                            if (isset($this->uri_parameter['image_source'])) $source_image_path = $this->uri_parameter['image_source'];
 
                             $source_image_size = getimagesize($source_image_path);
 
@@ -143,9 +139,9 @@ class content {
                                     imagecopyresized($default_image, $source_image,0,0,0,0,$default_image_width, $default_image_height,$source_image_size[0], $source_image_size[1]);
                                 }
 
-                                if (!file_exists(PATH_IMAGE. $uri_parameter['image_size'] . '/'))
+                                if (!file_exists(PATH_IMAGE. $this->uri_parameter['image_size'] . '/'))
                                 {
-                                    mkdir(PATH_IMAGE. $uri_parameter['image_size'] . '/', 0755, true);
+                                    mkdir(PATH_IMAGE. $this->uri_parameter['image_size'] . '/', 0755, true);
                                 }
                                 if (!file_exists(PATH_IMAGE. 'default/'))
                                 {
@@ -153,7 +149,7 @@ class content {
                                 }
 
                                 if (!isset($source_image_size['mime'])) $source_image_size['mime'] = 'image/jpeg';
-                                $target_image_path = PATH_IMAGE. $uri_parameter['image_size'] . '/' . $uri_parameter['image_file'];
+                                $target_image_path = PATH_IMAGE. $this->uri_parameter['image_size'] . '/' . $this->uri_parameter['image_file'];
                                 switch($source_image_size['mime'])
                                 {
                                     case 'image/png':
@@ -199,7 +195,7 @@ class content {
             case 'business':
                 $this->cache = 3;
 //echo '<pre>';
-                $view_business_detail_obj = new view_business_detail($instance);
+                $view_business_detail_obj = new view_business_detail($this->uri_parameter['instance']);
 //print_r($view_business_detail_obj);
 //exit();
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
@@ -213,14 +209,14 @@ class content {
                         )
                     )
                 );
-                $render_parameter = array_merge($base_render_parameter, $render_parameter);
+                $render_parameter = array_merge($this->uri_parameter, $render_parameter);
                 $view_web_page_obj = new view_web_page(null, $render_parameter);
                 $this->content = $view_web_page_obj->render();
                 break;
             case 'listing':
-                $page_parameter = $format->pagination_param($_GET);
+                $page_parameter = $format->pagination_param($parameter);
                 if ($page_parameter === false) $page_parameter = array();
-                switch ($instance)
+                switch ($this->uri_parameter['instance'])
                 {
                     case '':
                         $this->cache = 1;
@@ -251,7 +247,7 @@ class content {
                                 )
                             )
                         );
-                        $render_parameter = array_merge($base_render_parameter, $render_parameter);
+                        $render_parameter = array_merge($this->uri_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
                         $this->content = $view_web_page_obj->render();
 
@@ -278,7 +274,7 @@ class content {
                                 break;
                             default:
                                 // unknown object type
-                                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.$namespace.' '.$instance.' unknown type';
+                                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.$this->uri_parameter['namespace'].' '.$this->uri_parameter['instance'].' unknown type';
 
                         }
 
@@ -307,24 +303,24 @@ class content {
                     case 'find':
                         $this->cache = 1;
                         $index_organization_obj = new index_organization();
-                        if (empty($uri_parameter['category']))
+                        if (empty($this->uri_parameter['category']))
                         {
-                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            header('Location: /'.URI_SITE_PATH.$this->uri_parameter['namespace'].'/');
                             exit();
                         }
 
-                        $view_category_obj = new view_category($uri_parameter['category']);
+                        $view_category_obj = new view_category($this->uri_parameter['category']);
                         if ($view_category_obj->id_group == 0)
                         {
-                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            header('Location: /'.URI_SITE_PATH.$this->uri_parameter['namespace'].'/');
                             exit();
                         }
                         $index_organization_obj->filter_by_category($view_category_obj->id_group);
 
-                        if (!empty($uri_parameter['state']))
+                        if (!empty($this->uri_parameter['state']))
                         {
                             $index_location_obj = new index_location();
-                            $index_location_obj->filter_by_location_parameter($uri_parameter);
+                            $index_location_obj->filter_by_location_parameter($this->uri_parameter);
 
                             $index_organization_obj->filter_by_location($index_location_obj->id_group);
                         }
@@ -365,25 +361,25 @@ class content {
                                 )
                             )
                         );
-                        $render_parameter = array_merge($base_render_parameter, $render_parameter);
+                        $render_parameter = array_merge($this->uri_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
                         $this->content = $view_web_page_obj->render();
 
                         break;
                     case 'search':
                         $index_organization_obj = new index_organization();
-                        if (!isset($_GET['extra_parameter']))
+                        if (!isset($parameter['extra_parameter']))
                         {
                             $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' URL pointing to search without search terms';
-                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            header('Location: /'.URI_SITE_PATH.$this->uri_parameter['namespace'].'/');
                             exit();
                         }
-                        $ulr_part = $format->split_uri($_GET['extra_parameter']);
+                        $ulr_part = $format->split_uri($parameter['extra_parameter']);
 
                         if (empty($ulr_part[0]) OR $ulr_part[0] == 'empty')
                         {
                             $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' illegal search term';
-                            header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                            header('Location: /'.URI_SITE_PATH.$this->uri_parameter['namespace'].'/');
                             exit();
                         }
                         $what =  trim(html_entity_decode(strtolower($ulr_part[0])));
@@ -437,17 +433,17 @@ class content {
                                 )
                             )
                         );
-                        $render_parameter = array_merge($base_render_parameter, $render_parameter);
+                        $render_parameter = array_merge($this->uri_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
                         $this->content = $view_web_page_obj->render();
 
                         break;
                     default:
-                        header('Location: /'.URI_SITE_PATH.$namespace.'/');
+                        header('Location: /'.URI_SITE_PATH.$this->uri_parameter['namespace'].'/');
                 }
                 break;
             default:
-                switch ($instance)
+                switch ($this->uri_parameter['instance'])
                 {
                     case 'home':
                         $this->cache = 1;
@@ -482,7 +478,7 @@ class content {
                                 )
                             )
                         );
-                        $render_parameter = array_merge($base_render_parameter, $render_parameter);
+                        $render_parameter = array_merge($this->uri_parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null, $render_parameter);
                         //$doc = new DOMDocument();
                         //$doc->loadHTML($view_web_page_obj->render());
@@ -494,7 +490,7 @@ class content {
                         break;
                     default:
                         $this->cache = 10;
-                        $view_web_page_obj = new view_web_page($instance,$uri_parameter);
+                        $view_web_page_obj = new view_web_page($this->uri_parameter['instance'],$this->uri_parameter);
                         if (count($view_web_page_obj->id_group) == 0)
                         {
                             header('Location: ./404');
@@ -502,6 +498,93 @@ class content {
                         $this->content = $view_web_page_obj->render();
                 }
         }
+    }
+
+    private function uri_decoder($value)
+    {
+        $format = format::get_obj();
+        if (empty($value))
+        {
+            return false;
+        }
+        if (is_array($value))
+        {
+            if (!empty($value['value']))
+            {
+                extract($value);
+            }
+        }
+        if (!isset($parameter)) $parameter = array();
+
+        $result = array();
+        if (is_string($value))
+        {
+            $uri_part = $format->split_uri($value);
+            $result['namespace'] = isset($uri_part[0])?$uri_part[0]:'default';
+            $result['instance'] = isset($uri_part[1])?$uri_part[1]:'home';
+            $sub_uri = array_slice($uri_part, 2);
+        }
+        else
+        {
+            $result['namespace'] = isset($value['namespace'])?$value['namespace']:'default';
+            $result['instance'] = isset($value['instance'])?$value['instance']:'home';
+            $sub_uri = isset($value['extra_parameter'])?$format->split_uri($value['extra_parameter']):array();
+        }
+
+        switch($result['namespace'])
+        {
+            case 'asset':
+                switch($result['instance'])
+                {
+                    case 'image':
+                        if (count($sub_uri) > 1)
+                        {
+                            $result['image_file'] = end($sub_uri);
+                            $result['image_size'] = $sub_uri[0];
+                            if (!empty($result['image_size']) AND $result['image_size'] != 'default')
+                            {
+                                if ($GLOBALS['global_preference']->{'image_size_'.$result['image_size']})
+                                {
+                                    $result['image_width'] = $GLOBALS['global_preference']->{'image_size_'.$result['image_size']};
+                                }
+                                else
+                                {
+                                    $result['image_size'] = 'default';
+                                    $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): invalid file size option "'.$value['size'].'" for file "'.$result['image_file'].'"';
+                                }
+                            }
+                            if (isset($value['image_source']))
+                            {
+                                $result['image_source'] = $value['image_source'];
+                            }
+                        }
+                        else return false;
+                        break;
+                }
+                break;
+            case 'listing':
+                switch($result['instance'])
+                {
+                    case 'find':
+                        if (!empty($sub_uri[0])) $result['category'] = $sub_uri[0];
+                        else return false;
+                        if (!empty($sub_uri[1])) $result['state'] = $sub_uri[1];
+                        if (!empty($sub_uri[2])) $result['region'] = str_replace('-',' ',$sub_uri[2]);
+                        if (!empty($sub_uri[3])) $result['suburb'] = str_replace('-',' ',$sub_uri[3]);
+                        break;
+                    case 'search':
+                        if (!empty($sub_uri[0])) $result['what'] = $sub_uri[0];
+                        else return false;
+                        if (isset($sub_uri[1]) AND $sub_uri[1] == 'where' AND !empty($sub_uri[2])) $result['where'] = $sub_uri[2];
+                        break;
+                    default:
+                }
+                break;
+            default:
+        }
+
+        $this->uri_parameter = $result;
+
     }
 
     function render($parameter = array())

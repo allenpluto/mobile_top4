@@ -1,16 +1,17 @@
 <?php
 	include('system/config/config.php');
+$page_content = new content($_GET);
+$page_content->render();
+exit();
 
     if (isset($_GET['instance']))
     {
         $format = format::get_obj();
-        $instance = $format->file_name($_GET['instance']);
+        $_GET['instance'] = $format->file_name($_GET['instance']);
         if (isset($_GET['namespace']))
         {
-            $namespace = $format->file_name($_GET['namespace']);
+            $_GET['namespace'] = $format->file_name($_GET['namespace']);
         }
-        $page_content = new content($instance, $namespace);
-        $page_content->render();
     }
     else
     {
