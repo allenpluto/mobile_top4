@@ -54,6 +54,8 @@ $global_preference->minify_html = false;
 $global_preference->minify_css = false;
 $global_preference->minify_js = false;
 
+$global_preference->page_cache = true;
+
 // Message (Global message, record handled errors)
 include_once(PATH_INCLUDE.'message'.FILE_EXTENSION_INCLUDE);
 $global_message = message::get_instance();

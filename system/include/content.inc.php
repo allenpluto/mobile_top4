@@ -6,10 +6,8 @@
 // Render template, create html page view...
 
 class content {
-    protected $template = null;
     protected $content_old = array();
     protected $cache = 0;
-    protected $cache_path = '';
     public $parameter = array();
     public $content = array();
 
@@ -20,32 +18,10 @@ class content {
         {
             return false;
         }
-        $this->template = PREFIX_TEMPLATE_PAGE.$this->parameter['namespace'];
 
-        // Looking for cached page
-        $this->cache_path =  PATH_CACHE_PAGE . $this->parameter['namespace'] . '/';
-        if (isset($this->parameter['instance']))
+        if (file_exists($this->parameter['cache_path'].'/index.html') AND $this->parameter['page_cache'])
         {
-            if (!empty($this->parameter['instance']))
-            {
-                $this->cache_path .= $this->parameter['instance'] . '/';
-            }
-        }
-        if (isset($this->parameter['extra_parameter']))
-        {
-            if (!empty($this->parameter['extra_parameter']))
-            {
-                $this->cache_path .= $this->parameter['extra_parameter'] . '/';
-            }
-        }
-        $nocache = false;
-        if (isset($this->parameter['nocache']))
-        {
-            if ($this->parameter['nocache'] == true) $nocache = true;
-        }
-        if (file_exists($this->cache_path.'index.html') AND !$nocache)
-        {
-            $cached_page_content = file_get_contents($this->cache_path.'index.html');
+            $cached_page_content = file_get_contents($this->parameter['cache_path'].'/index.html');
             preg_match_all('/\<\!\-\-(\{.*\})\-\-\>/', $cached_page_content, $matches, PREG_OFFSET_CAPTURE);
             $cached_page_parameter = array();
             foreach($matches[1] as $key=>$value)
@@ -62,7 +38,7 @@ class content {
             }
             else
             {
-                unlink($this->cache_path.'index.html');
+                unlink($this->parameter['cache_path'].'/index.html');
             }
         }
 
@@ -498,7 +474,7 @@ class content {
                         $view_web_page_obj = new view_web_page($this->parameter['instance'],$this->parameter);
                         if (count($view_web_page_obj->id_group) == 0)
                         {
-                            header('Location: ./404');
+                            header('Location: '.URI_SITE_BASE.'404');
                         }
                         $this->content_old = $view_web_page_obj->render();
                 }
@@ -533,9 +509,18 @@ class content {
         }
         else
         {
-            $result = $value;
-            $sub_uri = isset($value['extra_parameter'])?$format->split_uri($value['extra_parameter']):array();
-        }
+            $result['namespace'] = $value['namespace']?$value['namespace']:'default';
+            $result['instance'] = $value['instance']?$value['instance']:'home';
+            if (isset($value['extra_parameter']))
+            {
+                $result['extra_parameter'] = $value['extra_parameter'];
+                $sub_uri = $format->split_uri($value['extra_parameter']);
+            }
+            else
+            {
+                $sub_uri = array();
+            }
+         }
 
         switch($result['namespace'])
         {
@@ -606,6 +591,26 @@ class content {
             }
         }
 
+        // Looking for cached page
+        $result['cache_path'] =  PATH_CACHE_PAGE . $result['namespace'];
+        if (isset($result['instance']))
+        {
+            if (!empty($result['instance']))
+            {
+                $result['cache_path'] .= '/'.$result['instance'];
+            }
+        }
+        if (isset($result['extra_parameter']))
+        {
+            if (!empty($result['extra_parameter']))
+            {
+                $result['cache_path'] .= '/'.$result['extra_parameter'];
+            }
+        }
+
+        if (!isset($value['nocache'])) $result['page_cache'] = $GLOBALS['global_preference']->page_cache;
+        else $result['page_cache'] = !($value['nocache']);
+
         $this->parameter = $result;
         return true;
     }
@@ -624,11 +629,11 @@ class content {
         {
             $expire_time = strtotime('+'.$this->cache.' day');
             $cache_parameter = array('Expire'=>date('d M, Y', $expire_time));
-            if (!file_exists($this->cache_path))
+            if (!file_exists($this->parameter['cache_path']))
             {
-                mkdir($this->cache_path, 0755, true);
+                mkdir($this->parameter['cache_path'], 0755, true);
             }
-            file_put_contents($this->cache_path.'index.html',$this->content_old.'<!--'.json_encode($cache_parameter).'-->');
+            file_put_contents($this->parameter['cache_path'].'/index.html',$this->content_old.'<!--'.json_encode($cache_parameter).'-->');
         }
 
         print_r($this->content_old);
