@@ -15,10 +15,11 @@ class view_web_page_element extends view
         if (isset($this->parameter['build_from_content']))
         {
             $this->row = $this->parameter['build_from_content'];
+            return $this->row;
         }
         else
         {
-            parent::fetch_value($parameter);
+            return parent::fetch_value($parameter);
         }
     }
 

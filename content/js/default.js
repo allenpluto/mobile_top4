@@ -10,7 +10,7 @@ $.fn.ajax_loader = function(user_option) {
 
         var ajax_loader_container = $(this);
         ajax_loader_container.data('option',option);
-        $('<div class="ajax_loader_bottom"><span>Loading...</span></div>').appendTo(ajax_loader_container);
+        $('<div class="ajax_loader_bottom"><div class="ajax_loader_bottom_text_container"><span class="ajax_loader_bottom_icon"></span><span class="ajax_loader_bottom_text">Loading...</span></div></div>').appendTo(ajax_loader_container);
 
         $(window).scroll(function() {
             if($(window).scrollTop() + $(window).height() - $(document).height() > - 100) {

@@ -36,7 +36,10 @@ class view_web_page extends view
         }
         else
         {
-            parent::fetch_value($parameter);
+            if (parent::fetch_value($parameter) === false)
+            {
+                return false;
+            }
         }
         foreach ($this->row as $row_index=>$row_value)
         {

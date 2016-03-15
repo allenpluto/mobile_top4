@@ -50,9 +50,9 @@ $global_preference->image_size_l = 480;
 $global_preference->image_size_xl = 800;
 $global_preference->image_size_xxl = 1200;
 
-$global_preference->minify_html = true;
-$global_preference->minify_css = true;
-$global_preference->minify_js = true;
+$global_preference->minify_html = false;
+$global_preference->minify_css = false;
+$global_preference->minify_js = false;
 
 // Message (Global message, record handled errors)
 include_once(PATH_INCLUDE.'message'.FILE_EXTENSION_INCLUDE);
@@ -76,4 +76,5 @@ spl_autoload_register();
 
 // Load System Functions (Functions that may call Classes)
 include_once(PATH_INCLUDE.'content'.FILE_EXTENSION_INCLUDE);
+//$content = new content($_GET);
 ?>

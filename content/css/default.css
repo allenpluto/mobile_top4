@@ -80,7 +80,7 @@ table {
     border-spacing:0;
 }
 
-a, a:hover, a:active {
+a, a:hover, a:visited {
     color:inherit;
     text-decoration:inherit;
 }
@@ -431,7 +431,7 @@ img {display:block;max-width:100%;}
     display:none;
 }
 
-.ajax_loader_bottom > span
+.ajax_loader_bottom_text_container
 {
     display: inline-block;
     position: relative;
@@ -442,7 +442,7 @@ img {display:block;max-width:100%;}
     line-height: 2rem;
 }
 
-.ajax_loader_bottom > span:before
+.ajax_loader_bottom_icon
 {
     display: block;
     width: 2rem;
