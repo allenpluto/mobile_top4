@@ -13,7 +13,6 @@ class content {
 
     function __construct($parameter)
     {
-        $format = format::get_obj();
         if ($this->uri_decoder($parameter) === false)
         {
             return false;
@@ -21,12 +20,13 @@ class content {
         $this->content = array(
             'html' => array(),
             'script' => array(),
-            'css' => array()
+            'style' => array()
         );
     }
 
     function build_content()
     {
+        $format = format::get_obj();
         switch ($this->parameter['namespace'])
         {
             case 'asset':
@@ -176,7 +176,6 @@ class content {
                 $this->content['html'] = $view_web_page_obj->render();
                 break;
             case 'listing':
-                $format = format::get_obj();
                 $page_parameter = $format->pagination_param($this->parameter);
                 if ($page_parameter === false) $page_parameter = array();
                 switch ($this->parameter['instance'])
@@ -188,11 +187,13 @@ class content {
                         $index_category_obj->filter_by_listing_count();
                         $view_category_obj = new view_category($index_category_obj->id_group);
 
-                        $this->content['script'][] = array('src'=>'content/js/jquery-1.11.3.js');
-                        $this->content['script'][] = array('src'=>'content/js/default.js');
+                        $this->content['script'][] = array('src'=>'asset/js/jquery.min.js');
+                        $this->content['script'][] = array('src'=>'asset/js/default.min.js');
                         $this->content['script'][] = array('content'=>'$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});');
 
-                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
+                        $this->content['style'][] = array('href'=>'content/css/default.min.css');
+
+                        //$inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
                             'build_from_content'=>array(
@@ -210,7 +211,7 @@ class content {
                                     'name'=>'Top4 Businesses Australian Local Listings',
                                     'description'=>'Find restaurants, hotels, plumbers, accountants and all kinds of local businesses with The New Australian Social Media Top4 Business and Brand Directory.',
                                     'meta_keywords'=>'business category, local services, social directory, top4',
-                                    'inpage_script'=>$inpage_script,
+                                    //'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )
@@ -694,6 +695,57 @@ class content {
             {
                 $this->content['html'] = $format->minify_html($this->content['html']);
             }
+            $page_script = '';
+            if ($GLOBALS['global_preference']->minify_js)
+            {
+                foreach ($this->content['script'] as $script_index=>$script)
+                {
+                    if (isset($script['src'])) $page_script .= $format->minify_js(file_get_contents(PATH_BASE.$script['src']));
+                    if (isset($script['content'])) $page_script .= $format->minify_js($script['content']);
+                }
+                if (!empty($page_script)) $page_script = '<script type="text/javascript">'.$page_script.'</script>';
+            }
+            else
+            {
+                foreach ($this->content['script'] as $script_index=>$script)
+                {
+                    if (isset($script['src']))
+                    {
+                        $page_script .= '<script type="text/javascript" src="'.$script['src'].'">';
+                    }
+                    else
+                    {
+                        $page_script .= '<script type="text/javascript">';
+                    }
+                    if (isset($script['content'])) $page_script .= $script['content'];
+                    $page_script .= '</script>';
+                }
+            }
+            $this->content['html'] = str_replace('[[+script]]',$page_script,$this->content['html']);
+            unset($page_script);
+
+            $page_style = '';
+            if ($GLOBALS['global_preference']->minify_css)
+            {
+                foreach ($this->content['style'] as $style_index=>$style)
+                {
+                    if (isset($style['href'])) $page_style .= $format->minify_css(str_replace('../',URI_SITE_BASE.'content/',file_get_contents(PATH_BASE.$style['href'])));
+                    if (isset($style['content'])) $page_style .= $format->minify_css($style['content']);
+                }
+                if (!empty($page_style)) $page_style = '<style>'.$page_style.'</style>';
+            }
+            else
+            {
+                foreach ($this->content['style'] as $style_index=>$style)
+                {
+                    if (isset($style['href'])) $page_style .= '<link href="'.$style['href'].'" rel="stylesheet" type="text/css">';
+                    if (isset($style['content'])) $page_style .= '<style>'.$script['content'].'</style>';
+                }
+
+            }
+            $this->content['html'] = str_replace('[[+style]]',$page_style,$this->content['html']);
+            unset($page_style);
+
             $this->set_cache();
         }
 

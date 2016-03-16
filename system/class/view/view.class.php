@@ -417,6 +417,9 @@ class view
                                 // comment area, do not render even if it matches any key
                                 $rendered_content = str_replace($matches[0][$key][0], '', $rendered_content);
                                 break;
+                            case '+':
+                                // placeholder, do not replace
+                                break;
                             default:
                                 // Un-recognized template variable types, do not process
                                 $GLOBALS['global_message']->warning = 'Un-recognized template variable types. ('.__FILE__.':'.__LINE__.')';
