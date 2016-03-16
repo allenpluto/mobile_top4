@@ -50,6 +50,8 @@ $global_preference->image_size_l = 480;
 $global_preference->image_size_xl = 800;
 $global_preference->image_size_xxl = 1200;
 
+$global_preference->ajax_data_encode = 'base64';
+
 $global_preference->minify_html = false;
 $global_preference->minify_css = false;
 $global_preference->minify_js = false;

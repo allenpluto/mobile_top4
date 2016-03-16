@@ -104,5 +104,8 @@
 <script>
     [[*inpage_script]]
 </script>
+<script>
+    [[*script]]
+</script>
 </body>
 </html>

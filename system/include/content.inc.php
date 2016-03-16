@@ -18,30 +18,15 @@ class content {
         {
             return false;
         }
+        $this->content = array(
+            'html' => array(),
+            'script' => array(),
+            'css' => array()
+        );
+    }
 
-        if (file_exists($this->parameter['cache_path'].'/index.html') AND $this->parameter['page_cache'])
-        {
-            $cached_page_content = file_get_contents($this->parameter['cache_path'].'/index.html');
-            preg_match_all('/\<\!\-\-(\{.*\})\-\-\>/', $cached_page_content, $matches, PREG_OFFSET_CAPTURE);
-            $cached_page_parameter = array();
-            foreach($matches[1] as $key=>$value)
-            {
-                $json_decode_result = json_decode($value[0],true);
-                if (is_array($json_decode_result)) $cached_page_parameter = array_merge($cached_page_parameter, $json_decode_result);
-            }
-
-            if (isset($cached_page_parameter['Expire']) AND strtotime($cached_page_parameter['Expire']) >= strtotime('now'))
-            {
-                preg_replace('/\<\!\-\-\{.*\}\-\-\>/', '', $cached_page_content);
-                $this->content_old = $cached_page_content;
-                return true;
-            }
-            else
-            {
-                unlink($this->parameter['cache_path'].'/index.html');
-            }
-        }
-
+    function build_content()
+    {
         switch ($this->parameter['namespace'])
         {
             case 'asset':
@@ -174,10 +159,7 @@ class content {
                 break;
             case 'business':
                 $this->cache = 3;
-//echo '<pre>';
                 $view_business_detail_obj = new view_business_detail($this->parameter['instance']);
-//print_r($view_business_detail_obj);
-//exit();
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
 
                 $render_parameter = array(
@@ -191,9 +173,10 @@ class content {
                 );
                 $render_parameter = array_merge($this->parameter, $render_parameter);
                 $view_web_page_obj = new view_web_page(null, $render_parameter);
-                $this->content_old = $view_web_page_obj->render();
+                $this->content['html'] = $view_web_page_obj->render();
                 break;
             case 'listing':
+                $format = format::get_obj();
                 $page_parameter = $format->pagination_param($this->parameter);
                 if ($page_parameter === false) $page_parameter = array();
                 switch ($this->parameter['instance'])
@@ -204,7 +187,12 @@ class content {
                         $index_category_obj->filter_by_active();
                         $index_category_obj->filter_by_listing_count();
                         $view_category_obj = new view_category($index_category_obj->id_group);
-                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>'base64','id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
+
+                        $this->content['script'][] = array('src'=>'content/js/jquery-1.11.3.js');
+                        $this->content['script'][] = array('src'=>'content/js/default.js');
+                        $this->content['script'][] = array('content'=>'$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});');
+
+                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
                             'build_from_content'=>array(
@@ -229,7 +217,7 @@ class content {
                         );
                         $render_parameter = array_merge($this->parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
-                        $this->content_old = $view_web_page_obj->render();
+                        $this->content['html'] = $view_web_page_obj->render();
 
                         break;
                     case 'ajax-load':
@@ -239,18 +227,18 @@ class content {
                         }
                         if (!isset($_POST['id_group']))
                         {
-                            $this->content_old = '';
+                            $this->content['html'] = '';
                             break;
                         }
                         switch($_POST['object_type'])
                         {
                             case 'business_category':
                                 $view_category_obj = new view_category($_POST['id_group'],array('page_size'=>$_POST['page_size'],'page_number'=>$_POST['page_number']));
-                                $this->content_old = $view_category_obj->render();
+                                $this->content['html'] = $view_category_obj->render();
                                 break;
                             case 'business':
                                 $view_business_summary_obj = new view_business_summary($_POST['id_group'],array('page_size'=>$_POST['page_size'],'page_number'=>$_POST['page_number']));
-                                $this->content_old = $view_business_summary_obj->render();
+                                $this->content['html'] = $view_business_summary_obj->render();
                                 break;
                             default:
                                 // unknown object type
@@ -260,7 +248,7 @@ class content {
 
                         if ($GLOBALS['global_preference']->minify_html)
                         {
-                            $this->content_old = $format->minify_html($this->content_old);
+                            $this->content['html'] = $format->minify_html($this->content['html']);
                         }
 
                         if (isset($_POST['data_encode_type']))
@@ -272,7 +260,7 @@ class content {
                                 case 'base64':
                                 default:
                                     // unknown encode type default to base64
-                                    $this->content_old = base64_encode($this->content_old);
+                                    $this->content['html'] = base64_encode($this->content['html']);
                                     break;
 
                             }
@@ -291,7 +279,7 @@ class content {
                         }
 
                         $view_category_obj = new view_category($this->parameter['category']);
-                        if ($view_category_obj->id_group == 0)
+                        if (count($view_category_obj->id_group) == 0)
                         {
                             header('Location: /'.URI_SITE_PATH.$this->parameter['namespace'].'/');
                             exit();
@@ -309,7 +297,7 @@ class content {
                         if (count($view_business_summary_obj->id_group) > 0)
                         {
                             $content = '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
-                            $inpage_script = '$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>'base64','id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
+                            $inpage_script = '$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
                         }
                         else
                         {
@@ -344,7 +332,7 @@ class content {
                         );
                         $render_parameter = array_merge($this->parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
-                        $this->content_old = $view_web_page_obj->render();
+                        $this->content['html'] = $view_web_page_obj->render();
 
                         break;
                     case 'search':
@@ -381,7 +369,7 @@ class content {
                         {
                             $content = '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
                             //$inpage_script = '$(document).ready(function(){$(\'.listing_block_wrapper\').data('.json_encode(array('id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count'])).');});';
-                            $inpage_script = '$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>'base64','id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
+                            $inpage_script = '$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
                         }
                         else
                         {
@@ -416,7 +404,7 @@ class content {
                         );
                         $render_parameter = array_merge($this->parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);
-                        $this->content_old = $view_web_page_obj->render();
+                        $this->content['html'] = $view_web_page_obj->render();
 
                         break;
                     default:
@@ -430,7 +418,7 @@ class content {
                         $this->cache = 1;
                         $index_organization_obj = new index_organization();
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
-                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>'base64','id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
+                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
 
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
@@ -463,11 +451,11 @@ class content {
                         $view_web_page_obj = new view_web_page(null, $render_parameter);
                         //$doc = new DOMDocument();
                         //$doc->loadHTML($view_web_page_obj->render());
-                        $this->content_old = $view_web_page_obj->render();
+                        $this->content['html'] = $view_web_page_obj->render();
                         break;
                     case '404':
                         header("HTTP/1.0 404 Not Found");
-                        $this->content_old = '404 Not Found';
+                        $this->content['html'] = '404 Not Found';
                         break;
                     default:
                         $this->cache = 10;
@@ -476,12 +464,13 @@ class content {
                         {
                             header('Location: '.URI_SITE_BASE.'404');
                         }
-                        $this->content_old = $view_web_page_obj->render();
+                        $this->content['html'] = $view_web_page_obj->render();
                 }
         }
     }
 
-    // filter $_GET values or URI string
+
+    // filter $_GET values or URI string, set up class parameter
     private function uri_decoder($value)
     {
         $format = format::get_obj();
@@ -502,15 +491,22 @@ class content {
         if (is_string($value))
         {
             // TODO: if URI is string and has query (?xxx=xxxxx&xxx=xxxxxx) in it, need to be decoded as well
-            $uri_part = $format->split_uri($value);
-            $result['namespace'] = isset($uri_part[0])?$uri_part[0]:'default';
-            $result['instance'] = isset($uri_part[1])?$uri_part[1]:'home';
-            $sub_uri = array_slice($uri_part, 2);
+            $uri_part = parse_url($value);
+            if (!isset($uri_part['path'])) return false;
+            $uri_path_part = $format->split_uri($uri_part['path']);
+            $result['namespace'] = isset($uri_path_part[0])?$uri_path_part[0]:'default';
+            $result['instance'] = isset($uri_path_part[1])?$uri_path_part[1]:'home';
+            $sub_uri = array_slice($uri_path_part, 2);
+
+            if (isset($uri_part['query']))
+            {
+                parse_str($uri_part['query'],$uri_query_part);
+            }
         }
         else
         {
-            $result['namespace'] = $value['namespace']?$value['namespace']:'default';
-            $result['instance'] = $value['instance']?$value['instance']:'home';
+            $result['namespace'] = isset($value['namespace'])?$value['namespace']:'default';
+            $result['instance'] = isset($value['instance'])?$value['instance']:'home';
             if (isset($value['extra_parameter']))
             {
                 $result['extra_parameter'] = $value['extra_parameter'];
@@ -592,20 +588,41 @@ class content {
         }
 
         // Looking for cached page
-        $result['cache_path'] =  PATH_CACHE_PAGE . $result['namespace'];
-        if (isset($result['instance']))
+        switch($result['namespace'])
         {
-            if (!empty($result['instance']))
-            {
-                $result['cache_path'] .= '/'.$result['instance'];
-            }
-        }
-        if (isset($result['extra_parameter']))
-        {
-            if (!empty($result['extra_parameter']))
-            {
-                $result['cache_path'] .= '/'.$result['extra_parameter'];
-            }
+            case 'asset':
+                $result['cache_path'] =  PATH_ASSET . $result['namespace'];
+                if (isset($result['instance']))
+                {
+                    if (!empty($result['instance']))
+                    {
+                        $result['cache_path'] .= '/'.$result['instance'];
+                    }
+                }
+                if (isset($result['extra_parameter']))
+                {
+                    if (!empty($result['extra_parameter']))
+                    {
+                        $result['cache_path'] .= '/'.$result['extra_parameter'];
+                    }
+                }
+                break;
+            default:
+                $result['cache_path'] =  PATH_CACHE_PAGE . $result['namespace'];
+                if (isset($result['instance']))
+                {
+                    if (!empty($result['instance']))
+                    {
+                        $result['cache_path'] .= '/'.$result['instance'];
+                    }
+                }
+                if (isset($result['extra_parameter']))
+                {
+                    if (!empty($result['extra_parameter']))
+                    {
+                        $result['cache_path'] .= '/'.$result['extra_parameter'];
+                    }
+                }
         }
 
         if (!isset($value['nocache'])) $result['page_cache'] = $GLOBALS['global_preference']->page_cache;
@@ -615,16 +632,39 @@ class content {
         return true;
     }
 
-    function render($parameter = array())
+    function get_cache()
     {
-        header('Content-Type: text/html; charset=utf-8');
-
-        $format = format::get_obj();
-        if ($GLOBALS['global_preference']->minify_html)
+        if (file_exists($this->parameter['cache_path'].'/index.html') AND $this->parameter['page_cache'])
         {
-            $this->content_old = $format->minify_html($this->content_old);
-        }
+            $cached_page_content = file_get_contents($this->parameter['cache_path'].'/index.html');
+            preg_match_all('/\<\!\-\-(\{.*\})\-\-\>/', $cached_page_content, $matches, PREG_OFFSET_CAPTURE);
+            $cached_page_parameter = array();
+            foreach($matches[1] as $key=>$value)
+            {
+                $json_decode_result = json_decode($value[0],true);
+                if (is_array($json_decode_result)) $cached_page_parameter = array_merge($cached_page_parameter, $json_decode_result);
+            }
 
+            if (isset($cached_page_parameter['Expire']) AND strtotime($cached_page_parameter['Expire']) >= strtotime('now'))
+            {
+                preg_replace('/\<\!\-\-\{.*\}\-\-\>/', '', $cached_page_content);
+                $this->content['html'] = $cached_page_content;
+                return true;
+            }
+            else
+            {
+                unlink($this->parameter['cache_path'].'/index.html');
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    function set_cache()
+    {
         if ($this->cache > 0)
         {
             $expire_time = strtotime('+'.$this->cache.' day');
@@ -633,10 +673,31 @@ class content {
             {
                 mkdir($this->parameter['cache_path'], 0755, true);
             }
-            file_put_contents($this->parameter['cache_path'].'/index.html',$this->content_old.'<!--'.json_encode($cache_parameter).'-->');
+            $result = file_put_contents($this->parameter['cache_path'].'/index.html',$this->content['html'].'<!--'.json_encode($cache_parameter).'-->');
+            return $result;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    function render($parameter = array())
+    {
+        header('Content-Type: text/html; charset=utf-8');
+
+        if (!$this->get_cache())
+        {
+            $this->build_content();
+            $format = format::get_obj();
+            if ($GLOBALS['global_preference']->minify_html)
+            {
+                $this->content['html'] = $format->minify_html($this->content['html']);
+            }
+            $this->set_cache();
         }
 
-        print_r($this->content_old);
+        print_r($this->content['html']);
         return true;
     }
 }
