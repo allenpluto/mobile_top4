@@ -21,7 +21,7 @@ class view_image extends view
         {
             foreach ($this->row as $row_index=>$row_value)
             {
-                // To Be moved to a separate file - file.inc.php
+                // TODO: To Be moved to a separate file - file.inc.php
                 $this->row[$row_index]['image_src'] = URI_IMAGE . $parameter['image_size'] . '/' . $row_value['image_file'];
             }
             $result = $this->row;
