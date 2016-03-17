@@ -20,13 +20,7 @@
 
     <meta name="robots" content="noindex, nofollow">
 
-    <!-- CSS -->
-    <link href="content/css/default.css" rel="stylesheet" type="text/css">
-
-    <!-- Script -->
-    <script src="content/js/jquery-1.11.3.js" type="text/javascript"></script>
-    <script src="content/js/default.js" type="text/javascript"></script>
-
+    [[+style]]
 </head>
 <body>
 <div id="off_canvas_wrapper" class="wrapper">
@@ -224,5 +218,6 @@
         </div><!-- #footer_wrapper -->
     </div>
 </div>
+[[+script]]
 </body>
 </html>

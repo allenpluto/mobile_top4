@@ -65,8 +65,9 @@ $.fn.ajax_loader = function(user_option) {
                                 }
                             }
 
-
                             ajax_loader_container.append(data);
+                            ajax_loader_container.children('.clear').appendTo(ajax_loader_container);
+                            ajax_loader_container.children('.ajax_loader_bottom').appendTo(ajax_loader_container);
                             ajax_loader_container.data('option').page_number++;
 //console.log([ajax_loader_container.data('option').page_number,ajax_loader_container.data('option').page_count]);
                             if (ajax_loader_container.data('option').page_number >= ajax_loader_container.data('option').page_count-1)

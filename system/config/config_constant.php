@@ -5,6 +5,11 @@ define('URI_SITE_BASE',URI_DOMAIN . URI_SITE_PATH);
 define('URI_ASSET', URI_SITE_BASE . 'asset/');
 define('URI_IMAGE', URI_ASSET . 'image/');
 
+define('URI_CONTENT', URI_SITE_BASE . 'content/');
+define('URI_CONTENT_CSS', URI_CONTENT . 'css/');
+define('URI_CONTENT_IMAGE', URI_CONTENT . 'image/');
+define('URI_CONTENT_JS', URI_CONTENT . 'js/');
+
 // Core Paths
 define('PATH_SYSTEM', PATH_BASE . 'system/');
 define('PATH_CLASS', PATH_SYSTEM . 'class/');
@@ -22,6 +27,7 @@ define('PATH_CACHE_JS', PATH_CACHE . 'js/');
 define('PATH_CONTENT', PATH_BASE . 'content/');
 define('PATH_CONTENT_CSS', PATH_CONTENT . 'css/');
 define('PATH_CONTENT_IMAGE', PATH_CONTENT . 'image/');
+define('PATH_CONTENT_JAR', PATH_CONTENT . 'jar/');
 define('PATH_CONTENT_JS', PATH_CONTENT . 'js/');
 
 // File Extensions

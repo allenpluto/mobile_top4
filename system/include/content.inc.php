@@ -27,6 +27,11 @@ class content {
     function build_content()
     {
         $format = format::get_obj();
+        $this->content['script'][] = array('type'=>'local_file', 'file_name'=>'jquery-1.11.3');
+        $this->content['script'][] = array('type'=>'local_file', 'file_name'=>'default');
+
+        $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'default');
+
         switch ($this->parameter['namespace'])
         {
             case 'asset':
@@ -187,13 +192,14 @@ class content {
                         $index_category_obj->filter_by_listing_count();
                         $view_category_obj = new view_category($index_category_obj->id_group);
 
-                        $this->content['script'][] = array('src'=>'asset/js/jquery.min.js');
-                        $this->content['script'][] = array('src'=>'asset/js/default.min.js');
-                        $this->content['script'][] = array('content'=>'$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});');
+                        $inline_script = json_encode(array('object_type'=>'business_category','data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>array_values($view_category_obj->id_group),'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']));
+                        if ($GLOBALS['global_preference']->ajax_data_encode == 'base64')
+                        {
+                            $inline_script = '$.parseJSON(atob(\'' . base64_encode($inline_script) . '\'))';
+                        }
+                        $this->content['script'][] = array('type'=>'text_content', 'content'=>'$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader('.$inline_script.');});');
+                        unset($inline_script);
 
-                        $this->content['style'][] = array('href'=>'content/css/default.min.css');
-
-                        //$inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('object_type'=>'business_category','data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_category_obj->id_group,'page_size'=>$view_category_obj->parameter['page_size'],'page_number'=>$view_category_obj->parameter['page_number'],'page_count'=>$view_category_obj->parameter['page_count']))).'\')));});';
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
                             'build_from_content'=>array(
@@ -211,7 +217,6 @@ class content {
                                     'name'=>'Top4 Businesses Australian Local Listings',
                                     'description'=>'Find restaurants, hotels, plumbers, accountants and all kinds of local businesses with The New Australian Social Media Top4 Business and Brand Directory.',
                                     'meta_keywords'=>'business category, local services, social directory, top4',
-                                    //'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )
@@ -298,12 +303,18 @@ class content {
                         if (count($view_business_summary_obj->id_group) > 0)
                         {
                             $content = '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
-                            $inpage_script = '$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
+
+                            $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>array_values($view_business_summary_obj->id_group),'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
+                            if ($GLOBALS['global_preference']->ajax_data_encode == 'base64')
+                            {
+                                $inline_script = '$.parseJSON(atob(\'' . base64_encode($inline_script) . '\'))';
+                            }
+                            $this->content['script'][] = array('type'=>'text_content', 'content'=>'$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader('.$inline_script.');});');
+                            unset($inline_script);
                         }
                         else
                         {
                             $content = '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
-                            $inpage_script = '';
                         }
 
                         $category_row = $view_category_obj->fetch_value();
@@ -326,7 +337,6 @@ class content {
                                 array(
                                     'name'=>$long_title,
                                     'description'=>$long_title,
-                                    'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )
@@ -691,57 +701,225 @@ class content {
         {
             $this->build_content();
             $format = format::get_obj();
+
+            // Minify HTML
             if ($GLOBALS['global_preference']->minify_html)
             {
                 $this->content['html'] = $format->minify_html($this->content['html']);
             }
-            $page_script = '';
-            if ($GLOBALS['global_preference']->minify_js)
+
+            if (strpos($this->content['html'], '[[+script]]') !== false)
             {
-                foreach ($this->content['script'] as $script_index=>$script)
+                // Minify JS
+                $page_script = '';
+                if ($GLOBALS['global_preference']->minify_js)
                 {
-                    if (isset($script['src'])) $page_script .= $format->minify_js(file_get_contents(PATH_BASE.$script['src']));
-                    if (isset($script['content'])) $page_script .= $format->minify_js($script['content']);
+                    foreach ($this->content['script'] as $row_index=>$row)
+                    {
+                        if (isset($row['type']))
+                        {
+                            switch ($row['type'])
+                            {
+                                case 'local_file':
+                                    if (file_exists(PATH_CONTENT_JS.$row['file_name'].'.js'))
+                                    {
+                                        $file_version = strtolower(date('dMY', filemtime(PATH_CONTENT_JS.$row['file_name'].'.js')));
+                                        if (!file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
+                                        {
+                                            if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS);
+                                            exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_JS.$row['file_name'].'.js -o '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js', $result);
+                                            // further minify js, remove comments
+                                            $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
+                                            file_put_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js',$min_file);
+                                            unset($min_file);   // release memory from the temp file
+                                        }
+                                        // Double check if min.js is generated successfully
+                                        if (file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
+                                        {
+                                            $row['content'] = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
+                                        }
+                                        else
+                                        {
+                                            $row['src'] = URI_CONTENT_JS.$row['file_name'].'.js';
+                                            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): load minified js script ['.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js] failed';
+                                        }
+                                    }
+                                    else
+                                    {
+                                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): load source js script ['.PATH_CONTENT_JS.$row['file_name'].'.js] failed';
+                                    }
+                                    break;
+                                case 'remote_file':
+                                    // TODO: Cache remote js file?
+                                    break;
+                                case 'text_content':
+                                    $row['content'] = $format->minify_js($row['content']);
+                                    break;
+                                default:
+                            }
+                        }
+                        if (isset($row['src'])) $page_script .= '</script><script type="text/javascript" src="'.$row['src'].'">';
+                        if (isset($row['content'])) $page_script .= $row['content'];
+                    }
+                    if (!empty($page_script)) $page_script = '<script type="text/javascript">'.$page_script.'</script>';
                 }
-                if (!empty($page_script)) $page_script = '<script type="text/javascript">'.$page_script.'</script>';
-            }
-            else
-            {
-                foreach ($this->content['script'] as $script_index=>$script)
+                else
                 {
-                    if (isset($script['src']))
+                    foreach ($this->content['script'] as $row_index=>$row)
                     {
-                        $page_script .= '<script type="text/javascript" src="'.$script['src'].'">';
+                        if (isset($row['type']))
+                        {
+                            switch ($row['type'])
+                            {
+                                case 'local_file':
+                                    if (file_exists(PATH_CONTENT_JS.$row['file_name'].'.js'))
+                                    {
+                                        $file_version = strtolower(date('dMY', filemtime(PATH_CONTENT_JS.$row['file_name'].'.js')));
+                                        if (!file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
+                                        {
+                                            if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS);
+                                            exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_JS.$row['file_name'].'.js -o '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js', $result);
+                                            // further minify js, remove comments
+                                            $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
+                                            file_put_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js',$min_file);
+                                            unset($min_file);   // release memory from the temp file
+                                        }
+                                        $row['src'] = URI_CONTENT_JS.$row['file_name'].'.js';
+                                    }
+                                    else
+                                    {
+                                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): load source js script ['.PATH_CONTENT_JS.$row['file_name'].'.js] failed';
+                                    }
+                                    break;
+                                case 'remote_file':
+                                    break;
+                                case 'text_content':
+                                    break;
+                                default:
+                            }
+                        }
+                        if (isset($row['src']))
+                        {
+                            $page_script .= '
+<script type="text/javascript" src="'.$row['src'].'">';
+                        }
+                        else
+                        {
+                            $page_script .= '
+<script type="text/javascript">';
+                        }
+                        if (isset($row['content'])) $page_script .= $row['content'];
+                        $page_script .= '</script>';
                     }
-                    else
-                    {
-                        $page_script .= '<script type="text/javascript">';
-                    }
-                    if (isset($script['content'])) $page_script .= $script['content'];
-                    $page_script .= '</script>';
                 }
+                $this->content['html'] = str_replace('[[+script]]',$page_script,$this->content['html']);
+                unset($page_script);
             }
-            $this->content['html'] = str_replace('[[+script]]',$page_script,$this->content['html']);
-            unset($page_script);
 
             $page_style = '';
             if ($GLOBALS['global_preference']->minify_css)
             {
-                foreach ($this->content['style'] as $style_index=>$style)
+                foreach ($this->content['style'] as $row_index=>$row)
                 {
-                    if (isset($style['href'])) $page_style .= $format->minify_css(str_replace('../',URI_SITE_BASE.'content/',file_get_contents(PATH_BASE.$style['href'])));
-                    if (isset($style['content'])) $page_style .= $format->minify_css($style['content']);
+                    if (isset($row['type']))
+                    {
+                        switch ($row['type'])
+                        {
+                            case 'local_file':
+                                if (file_exists(PATH_CONTENT_CSS.$row['file_name'].'.css'))
+                                {
+                                    $file_version = strtolower(date('dMY', filemtime(PATH_CONTENT_CSS.$row['file_name'].'.css')));
+                                    if (!file_exists(PATH_CONTENT_CSS.$row['file_name'].'.'.$file_version.'.min.css'))
+                                    {
+                                        if (!file_exists(PATH_CACHE_CSS)) mkdir(PATH_CACHE_CSS);
+                                        exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_CSS.$row['file_name'].'.css -o '.PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css', $result);
+                                        // further minify css, remove comments
+                                        $min_file = $format->minify_css(file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'));
+                                        // replace all relative path to absolute path in css as file location changes
+                                        $min_file = str_replace('../',URI_CONTENT,$min_file);
+                                        // update min file
+                                        file_put_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css',$min_file);
+                                        // release memory from the temp file
+                                        unset($min_file);
+                                    }
+                                    // Double check if min.css is generated successfully
+                                    if (file_exists(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'))
+                                    {
+                                        $row['content'] = file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css');
+                                    }
+                                    else
+                                    {
+                                        $row['src'] = URI_CONTENT_CSS.$row['file_name'].'.css';
+                                        $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): load minified css script ['.PATH_CONTENT_CSS.$row['file_name'].'.'.$file_version.'.min.css] failed';
+                                    }
+                                }
+                                else
+                                {
+                                    $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): load source css script ['.PATH_CONTENT_CSS.$row['file_name'].'.css] failed';
+                                }
+                                break;
+                            case 'remote_file':
+                                // cross domain css is normally forbidden
+                                break;
+                            case 'text_content':
+                                $row['content'] = $format->minify_css($row['content']);
+                                break;
+                            default:
+                        }
+                    }
+                    if (isset($row['src'])) $page_style .= '<link href="'.$row['src'].'" rel="stylesheet" type="text/css">';
+                    if (isset($row['content'])) $page_style .= '<style>'.$format->minify_css($row['content']).'</style>';
                 }
-                if (!empty($page_style)) $page_style = '<style>'.$page_style.'</style>';
+                str_replace('</style><style>','',$page_style);
             }
             else
             {
-                foreach ($this->content['style'] as $style_index=>$style)
+                foreach ($this->content['style'] as $row_index=>$row)
                 {
-                    if (isset($style['href'])) $page_style .= '<link href="'.$style['href'].'" rel="stylesheet" type="text/css">';
-                    if (isset($style['content'])) $page_style .= '<style>'.$script['content'].'</style>';
+                    if (isset($row['type']))
+                    {
+                        switch ($row['type'])
+                        {
+                            case 'local_file':
+                                if (file_exists(PATH_CONTENT_CSS.$row['file_name'].'.css'))
+                                {
+                                    $file_version = strtolower(date('dMY', filemtime(PATH_CONTENT_CSS.$row['file_name'].'.css')));
+                                    if (!file_exists(PATH_CONTENT_CSS.$row['file_name'].'.'.$file_version.'.min.css'))
+                                    {
+                                        if (!file_exists(PATH_CACHE_CSS)) mkdir(PATH_CACHE_CSS);
+                                        exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_CSS.$row['file_name'].'.css -o '.PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css', $result);
+                                        // further minify css, remove comments
+                                        $min_file = $format->minify_css(file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'));
+                                        // replace all relative path to absolute path in css as file location changes
+                                        $min_file = str_replace('../',URI_CONTENT,$min_file);
+                                        // update min file
+                                        file_put_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css',$min_file);
+                                        // release memory from the temp file
+                                        unset($min_file);
+                                    }
+                                    $row['src'] = URI_CONTENT_CSS.$row['file_name'].'.css';
+                                }
+                                else
+                                {
+                                    $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): load source css script ['.PATH_CONTENT_CSS.$row['file_name'].'.css] failed';
+                                }
+                                break;
+                            case 'remote_file':
+                                // cross domain css is normally forbidden
+                                break;
+                            case 'text_content':
+                                $row['content'] = $format->minify_css($row['content']);
+                                break;
+                            default:
+                        }
+                    }
+                    if (isset($row['src'])) $page_style .= '
+<link href="'.$row['src'].'" rel="stylesheet" type="text/css">';
+                    if (isset($row['content'])) $page_style .= '
+<style>'.$row['content'].'</style>';
                 }
-
+                str_replace('</style>
+<style>','',$page_style);
             }
             $this->content['html'] = str_replace('[[+style]]',$page_style,$this->content['html']);
             unset($page_style);
