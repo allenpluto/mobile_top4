@@ -379,13 +379,18 @@ class content {
                         if (count($view_business_summary_obj->id_group) > 0)
                         {
                             $content = '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
-                            //$inpage_script = '$(document).ready(function(){$(\'.listing_block_wrapper\').data('.json_encode(array('id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count'])).');});';
-                            $inpage_script = '$(document).ready(function(){$(\'#search_result_listing_block_wrapper\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
+
+                            $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
+                            if ($GLOBALS['global_preference']->ajax_data_encode == 'base64')
+                            {
+                                $inline_script = '$.parseJSON(atob(\'' . base64_encode($inline_script) . '\'))';
+                            }
+                            $this->content['script'][] = array('type'=>'text_content', 'content'=>'$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader('.$inline_script.');});');
+                            unset($inline_script);
                         }
                         else
                         {
                             $content = '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
-                            $inpage_script = '';
                         }
 
 
@@ -408,7 +413,6 @@ class content {
                                 array(
                                     'name'=>$long_title,
                                     'description'=>$long_title,
-                                    'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )
@@ -429,7 +433,14 @@ class content {
                         $this->cache = 1;
                         $index_organization_obj = new index_organization();
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
-                        $inpage_script = '$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader($.parseJSON(atob(\''.base64_encode(json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']))).'\')));});';
+
+                        $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
+                        if ($GLOBALS['global_preference']->ajax_data_encode == 'base64')
+                        {
+                            $inline_script = '$.parseJSON(atob(\'' . base64_encode($inline_script) . '\'))';
+                        }
+                        $this->content['script'][] = array('type'=>'text_content', 'content'=>'$(document).ready(function(){$(\'.ajax_loader_container\').ajax_loader('.$inline_script.');});');
+                        unset($inline_script);
 
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
@@ -453,7 +464,6 @@ class content {
                                     'name'=>'Top4 - The New Australian Social Media Business and Brand Directory',
                                     'description'=>'Top4 is the new Australian Social Media Business and Brand Directory designed to help Australians find and connect with any business, product, brand, job or person nearest their location.',
                                     'meta_keywords'=>'social directory, australian business brand',
-                                    'inpage_script'=>$inpage_script,
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )
