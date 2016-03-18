@@ -236,6 +236,9 @@ class content {
                             $this->content['html'] = '';
                             break;
                         }
+                        $this->content['script'] = array();
+                        $this->content['style'] = array();
+
                         switch($_POST['object_type'])
                         {
                             case 'business_category':
@@ -251,27 +254,6 @@ class content {
                                 $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.$this->parameter['namespace'].' '.$this->parameter['instance'].' unknown type';
 
                         }
-
-                        if ($GLOBALS['global_preference']->minify_html)
-                        {
-                            $this->content['html'] = $format->minify_html($this->content['html']);
-                        }
-
-                        if (isset($_POST['data_encode_type']))
-                        {
-                            switch ($_POST['data_encode_type'])
-                            {
-                                case 'none':
-                                    break;
-                                case 'base64':
-                                default:
-                                    // unknown encode type default to base64
-                                    $this->content['html'] = base64_encode($this->content['html']);
-                                    break;
-
-                            }
-                        }
-                        $GLOBALS['global_preference']->minify_html = 0;
 
                         break;
                     case 'find':
@@ -380,7 +362,7 @@ class content {
                         {
                             $content = '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
 
-                            $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
+                            $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>array_values($view_business_summary_obj->id_group),'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
                             if ($GLOBALS['global_preference']->ajax_data_encode == 'base64')
                             {
                                 $inline_script = '$.parseJSON(atob(\'' . base64_encode($inline_script) . '\'))';
@@ -434,7 +416,7 @@ class content {
                         $index_organization_obj = new index_organization();
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
 
-                        $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>$view_business_summary_obj->id_group,'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
+                        $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>array_values($view_business_summary_obj->id_group),'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
                         if ($GLOBALS['global_preference']->ajax_data_encode == 'base64')
                         {
                             $inline_script = '$.parseJSON(atob(\'' . base64_encode($inline_script) . '\'))';
@@ -772,6 +754,7 @@ class content {
                         if (isset($row['content'])) $page_script .= $row['content'];
                     }
                     if (!empty($page_script)) $page_script = '<script type="text/javascript">'.$page_script.'</script>';
+                    $page_script = str_replace('<script type="text/javascript"></script>','',$page_script);
                 }
                 else
                 {
@@ -880,7 +863,7 @@ class content {
                     if (isset($row['src'])) $page_style .= '<link href="'.$row['src'].'" rel="stylesheet" type="text/css">';
                     if (isset($row['content'])) $page_style .= '<style>'.$format->minify_css($row['content']).'</style>';
                 }
-                str_replace('</style><style>','',$page_style);
+                $page_style = str_replace('</style><style>','',$page_style);
             }
             else
             {
@@ -928,7 +911,7 @@ class content {
                     if (isset($row['content'])) $page_style .= '
 <style>'.$row['content'].'</style>';
                 }
-                str_replace('</style>
+                $page_style = str_replace('</style>
 <style>','',$page_style);
             }
             $this->content['html'] = str_replace('[[+style]]',$page_style,$this->content['html']);
@@ -937,7 +920,23 @@ class content {
             $this->set_cache();
         }
 
-        print_r($this->content['html']);
-        return true;
+        if ($this->parameter['instance'] == 'ajax-load')
+        {
+            $ajax_result = json_encode($this->content);
+            if (isset($_POST['data_encode_type']))
+            {
+                if ($_POST['data_encode_type'] == 'base64')
+                {
+                    $ajax_result = base64_encode($ajax_result);
+                }
+            }
+            print_r($ajax_result);
+            return true;
+        }
+        else
+        {
+            print_r($this->content['html']);
+            return true;
+        }
     }
 }

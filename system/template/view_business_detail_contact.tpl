@@ -7,7 +7,7 @@
         <div class="container listing_detail_view_section_content_container expand_container">
             <div id="listing_detail_view_phone_container" class="listing_detail_view_contact_row font_icon font_icon_phone">[[*phone]]</div>
             <div id="listing_detail_view_website_container" class="listing_detail_view_contact_row font_icon font_icon_ie">[[*website]]</div>
-            <div id="listing_detail_view_address_container" class="listing_detail_view_contact_row font_icon font_icon_map"><p>[[*street_address]], <br>[[*suburb]]<br>[[*state]] [[*post]]</p><p class="general_style_colour_orange"></p></div>
+            <div id="listing_detail_view_address_container" class="listing_detail_view_contact_row font_icon font_icon_address"><p>[[*street_address]], <br>[[*suburb]]<br>[[*state]] [[*post]]</p><p class="general_style_colour_orange"></p></div>
         </div>
     </div>
 </div>

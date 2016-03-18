@@ -1,5 +1,5 @@
 [[-view_business_detail]]
-<div id="listing_detail_view_wrapper" class="wrapper[[*extra_classes]]" itemscope="" itemtype="[[*schema_itemtype]]" [[$banner]]>
+<div id="listing_detail_view_wrapper" class="wrapper[[*extra_classes]]" itemscope="" itemtype="[[*schema_itemtype]]">
     <div id="listing_detail_view_top_wrapper" class="wrapper">
         <div id="listing_detail_view_top_container" class="container column_container">
             [[$logo]]

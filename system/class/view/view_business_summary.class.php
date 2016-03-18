@@ -62,12 +62,12 @@ class view_business_summary extends view_organization
             if ($this->row[$row_index]['image']->_initialized === false)
             {
                 // For Listing without image, use default image
-                $this->row[$row_index]['image']->row[] = array('image_src'=>'./content/image/img_listing_default_280_280.jpg');
+                 $this->row[$row_index]['image']->row[] = array('image_src'=>'./content/image/img_listing_default_280_280.jpg');
+
             }
             else
             {
                 $this->row[$row_index]['image']->fetch_value();
-                $this->content['script'][] = array('type'=>'text_content', 'content'=>'');
                 $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_block_container_'.$row_value['id'].' .block_thumb_image_container {background-image: url('.URI_IMAGE.'s/'.$this->row[$row_index]['image']->row[0]['image_file'].');} @media only screen and (min-width:768px) {#listing_block_container_'.$row_value['id'].' .block_thumb_image_container {background-image: url('.URI_IMAGE.'m/'.$this->row[$row_index]['image']->row[0]['image_file'].');}}');
             }
         }

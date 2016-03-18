@@ -58,6 +58,17 @@ class view_category extends view
             $index_image_obj->get_gallery_images($row_value['id'],array('item_type'=>'listingcategory','order'=>'RAND()'));
             $view_image_obj = new view_category_image($index_image_obj->id_group,array('page_size'=>1));
             $this->row[$row_index]['image'] = $view_image_obj;
+            if ($this->row[$row_index]['image']->_initialized === false)
+            {
+                // For Listing without image, use default image
+                $this->row[$row_index]['image']->row[] = array('image_src'=>'./content/image/img_listing_default_280_280.jpg');
+            }
+            else
+            {
+                $this->row[$row_index]['image']->fetch_value();
+                $this->content['script'][] = array('type'=>'text_content', 'content'=>'');
+                $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#category_block_container_'.$row_value['id'].' .block_thumb_image_container {background-image: url('.URI_IMAGE.'m/'.$this->row[$row_index]['image']->row[0]['image_file'].');} @media only screen and (min-width:768px) and (max-width:991px) {#category_block_container_'.$row_value['id'].' .block_thumb_image_container {background-image: url('.URI_IMAGE.'l/'.$this->row[$row_index]['image']->row[0]['image_file'].');}}');
+            }
         }
 
         return parent::render($parameter);

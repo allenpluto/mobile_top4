@@ -78,6 +78,13 @@ class view_business_detail extends view_organization
                 // For Listing without banner, use default
                 // $this->row[$row_index]['banner']->rendered_html = '';
             }
+            else
+            {
+                $this->row[$row_index]['banner']->fetch_value();
+                $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'m/'.$this->row[$row_index]['banner']->row[0]['image_file'].');} @media only screen and (min-width:320px) and (max-width:479px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'l/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}} @media only screen and (min-width:480px) and (max-width:767px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'xl/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}} @media only screen and (min-width:768px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'xxl/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}}');
+
+            }
+
 
             $keyword_strip_tags = strip_tags($this->row[$row_index]['keywords']);
             if (!empty($keyword_strip_tags))
@@ -132,6 +139,7 @@ class view_business_detail extends view_organization
                         )
                     )
                 ));
+                $GLOBALS['page_content']->content['script'][] = array('type'=>'text_content', 'content'=>'$(document).ready(function(){$(\'#listing_detail_view_map_frame_container\').html(\'<iframe id="listing_detail_view_map_frame" src="http://maps.google.com/maps?q='.$this->row[$row_index]['geo_location_formatted'].'&z=15&output=embed"></iframe>\');});');
 
             }
         }
