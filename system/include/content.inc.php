@@ -718,7 +718,7 @@ class content {
                                         $file_version = strtolower(date('dMY', filemtime(PATH_CONTENT_JS.$row['file_name'].'.js')));
                                         if (!file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
                                         {
-                                            if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS);
+                                            if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS, 0755, true);
                                             exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_JS.$row['file_name'].'.js -o '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js', $result);
                                             // further minify js, remove comments
                                             $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
@@ -770,7 +770,7 @@ class content {
                                         $file_version = strtolower(date('dMY', filemtime(PATH_CONTENT_JS.$row['file_name'].'.js')));
                                         if (!file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
                                         {
-                                            if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS);
+                                            if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS, 0755, true);
                                             exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_JS.$row['file_name'].'.js -o '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js', $result);
                                             // further minify js, remove comments
                                             $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
@@ -824,7 +824,7 @@ class content {
                                     $file_version = strtolower(date('dMY', filemtime(PATH_CONTENT_CSS.$row['file_name'].'.css')));
                                     if (!file_exists(PATH_CONTENT_CSS.$row['file_name'].'.'.$file_version.'.min.css'))
                                     {
-                                        if (!file_exists(PATH_CACHE_CSS)) mkdir(PATH_CACHE_CSS);
+                                        if (!file_exists(PATH_CACHE_CSS)) mkdir(PATH_CACHE_CSS, 0755, true);
                                         exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_CSS.$row['file_name'].'.css -o '.PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css', $result);
                                         // further minify css, remove comments
                                         $min_file = $format->minify_css(file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'));
@@ -879,7 +879,7 @@ class content {
                                     $file_version = strtolower(date('dMY', filemtime(PATH_CONTENT_CSS.$row['file_name'].'.css')));
                                     if (!file_exists(PATH_CONTENT_CSS.$row['file_name'].'.'.$file_version.'.min.css'))
                                     {
-                                        if (!file_exists(PATH_CACHE_CSS)) mkdir(PATH_CACHE_CSS);
+                                        if (!file_exists(PATH_CACHE_CSS)) mkdir(PATH_CACHE_CSS, 0755, true);
                                         exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_CSS.$row['file_name'].'.css -o '.PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css', $result);
                                         // further minify css, remove comments
                                         $min_file = $format->minify_css(file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'));
