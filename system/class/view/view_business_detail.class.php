@@ -139,7 +139,7 @@ class view_business_detail extends view_organization
                         )
                     )
                 ));
-                $GLOBALS['page_content']->content['script'][] = array('type'=>'text_content', 'content'=>'$(document).ready(function(){$(\'#listing_detail_view_map_frame_container\').html(\'<iframe id="listing_detail_view_map_frame" src="http://maps.google.com/maps?q='.$this->row[$row_index]['geo_location_formatted'].'&z=15&output=embed"></iframe>\');});');
+                $GLOBALS['page_content']->content['script'][] = array('type'=>'text_content', 'content'=>'var load_google_map = function(){$(\'#listing_detail_view_map_frame_container\').html(\'<iframe id="listing_detail_view_map_frame" src="http://maps.google.com/maps?q='.$this->row[$row_index]['geo_location_formatted'].'&z=15&output=embed"></iframe>\');$(\'#listing_detail_view_map_wrapper .expand_trigger\').unbind(\'click\',load_google_map);};$(\'#listing_detail_view_map_wrapper .expand_trigger\').click(load_google_map);');
 
             }
         }
