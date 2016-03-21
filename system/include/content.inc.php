@@ -721,9 +721,13 @@ class content {
                                             if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS, 0755, true);
                                             exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_JS.$row['file_name'].'.js -o '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js', $result);
                                             // further minify js, remove comments
-                                            $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
-                                            file_put_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js',$min_file);
-                                            unset($min_file);   // release memory from the temp file
+                                            if (file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
+                                            {
+                                                $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
+                                                file_put_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js',$min_file);
+                                                // release memory from the temp file
+                                                unset($min_file);
+                                            }
                                         }
                                         // Double check if min.js is generated successfully
                                         if (file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
@@ -773,9 +777,12 @@ class content {
                                             if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS, 0755, true);
                                             exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_JS.$row['file_name'].'.js -o '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js', $result);
                                             // further minify js, remove comments
-                                            $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
-                                            file_put_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js',$min_file);
-                                            unset($min_file);   // release memory from the temp file
+                                            if (file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
+                                            {
+                                                $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS . $row['file_name'] . '.' . $file_version . '.min.js'));
+                                                file_put_contents(PATH_CACHE_JS . $row['file_name'] . '.' . $file_version . '.min.js', $min_file);
+                                                unset($min_file);   // release memory from the temp file
+                                            }
                                         }
                                         $row['src'] = URI_CONTENT_JS.$row['file_name'].'.js';
                                     }
@@ -827,13 +834,16 @@ class content {
                                         if (!file_exists(PATH_CACHE_CSS)) mkdir(PATH_CACHE_CSS, 0755, true);
                                         exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_CSS.$row['file_name'].'.css -o '.PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css', $result);
                                         // further minify css, remove comments
-                                        $min_file = $format->minify_css(file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'));
-                                        // replace all relative path to absolute path in css as file location changes
-                                        $min_file = str_replace('../',URI_CONTENT,$min_file);
-                                        // update min file
-                                        file_put_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css',$min_file);
-                                        // release memory from the temp file
-                                        unset($min_file);
+                                        if (file_exists(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'))
+                                        {
+                                            $min_file = $format->minify_css(file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'));
+                                            // replace all relative path to absolute path in css as file location changes
+                                            $min_file = str_replace('../',URI_CONTENT,$min_file);
+                                            // update min file
+                                            file_put_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css',$min_file);
+                                            // release memory from the temp file
+                                            unset($min_file);
+                                        }
                                     }
                                     // Double check if min.css is generated successfully
                                     if (file_exists(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'))
@@ -882,13 +892,16 @@ class content {
                                         if (!file_exists(PATH_CACHE_CSS)) mkdir(PATH_CACHE_CSS, 0755, true);
                                         exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CONTENT_CSS.$row['file_name'].'.css -o '.PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css', $result);
                                         // further minify css, remove comments
-                                        $min_file = $format->minify_css(file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'));
-                                        // replace all relative path to absolute path in css as file location changes
-                                        $min_file = str_replace('../',URI_CONTENT,$min_file);
-                                        // update min file
-                                        file_put_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css',$min_file);
-                                        // release memory from the temp file
-                                        unset($min_file);
+                                        if (file_exists(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'))
+                                        {
+                                            $min_file = $format->minify_css(file_get_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css'));
+                                            // replace all relative path to absolute path in css as file location changes
+                                            $min_file = str_replace('../',URI_CONTENT,$min_file);
+                                            // update min file
+                                            file_put_contents(PATH_CACHE_CSS.$row['file_name'].'.'.$file_version.'.min.css',$min_file);
+                                            // release memory from the temp file
+                                            unset($min_file);
+                                        }
                                     }
                                     $row['src'] = URI_CONTENT_CSS.$row['file_name'].'.css';
                                 }
