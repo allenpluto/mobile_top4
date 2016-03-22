@@ -17,3 +17,12 @@ define('URI_IMAGE_EXTERNAL', 'http://dev.top4.com.au/custom/domain_1/image_files
 define('PATH_BASE', '/wamp/www/allen_frame_trial/');
 
 include_once('config_constant.php');
+//$global_preference->ajax_data_encode = 'none';
+
+//$global_preference->page_cache = false;
+
+//$global_preference->minify_html = true;
+//$global_preference->minify_css = true;
+//$global_preference->minify_js = true;
+
+//$global_preference->ga_tracking_id = 'UA-71671221-3';

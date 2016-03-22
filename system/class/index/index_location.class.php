@@ -58,9 +58,9 @@ class index_location extends index
         {
             $value = explode('/',$value);
         }
+        $filter_parameter = array('where'=>array(),'bind_param'=>array());
         foreach($value as $location_index=>$location_value)
         {
-            $filter_parameter = array('where'=>array(),'bind_param'=>array());
             switch($location_index)
             {
                 case 'state':

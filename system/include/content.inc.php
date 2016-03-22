@@ -265,7 +265,6 @@ class content {
 
                         break;
                     case 'find':
-                        // TODO: find url with locations
                         $this->cache = 1;
                         $index_organization_obj = new index_organization();
                         if (empty($this->parameter['category']))
@@ -287,7 +286,7 @@ class content {
                             $index_location_obj = new index_location();
                             $index_location_obj->filter_by_location_parameter($this->parameter);
 
-                            $index_organization_obj->filter_by_location($index_location_obj->id_group);
+                            $index_organization_obj->filter_by_suburb($index_location_obj->id_group);
                         }
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
                         if (count($view_business_summary_obj->id_group) > 0)
@@ -501,7 +500,6 @@ class content {
         $result = array();
         if (is_string($value))
         {
-            // TODO: if URI is string and has query (?xxx=xxxxx&xxx=xxxxxx) in it, need to be decoded as well
             $uri_part = parse_url($value);
             if (!isset($uri_part['path'])) return false;
             $uri_path_part = $format->split_uri($uri_part['path']);
@@ -509,10 +507,12 @@ class content {
             $result['instance'] = isset($uri_path_part[1])?$uri_path_part[1]:'home';
             $sub_uri = array_slice($uri_path_part, 2);
 
+            $uri_query_part = array();
             if (isset($uri_part['query']))
             {
                 parse_str($uri_part['query'],$uri_query_part);
             }
+            $sub_uri = array_merge($uri_query_part, $sub_uri);
         }
         else
         {
@@ -566,7 +566,7 @@ class content {
                     case 'find':
                         if (!empty($sub_uri[0])) $result['category'] = $sub_uri[0];
                         else return false;
-                        if (!empty($sub_uri[1])) $result['state'] = $sub_uri[1];
+                        if (!empty($sub_uri[1])) $result['state'] = strtolower($sub_uri[1]);
                         if (!empty($sub_uri[2])) $result['region'] = str_replace('-',' ',$sub_uri[2]);
                         if (!empty($sub_uri[3])) $result['suburb'] = str_replace('-',' ',$sub_uri[3]);
                         break;
