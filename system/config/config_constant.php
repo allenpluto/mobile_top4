@@ -86,5 +86,8 @@ spl_autoload_register();
 
 // Load System Functions (Functions that may call Classes)
 include_once(PATH_INCLUDE.'content'.FILE_EXTENSION_INCLUDE);
-//$content = new content($_GET);
+
+// Other configurations
+// Google Analytic Tracking ID, set as '' to disable
+$global_preference->ga_tracking_id = '';
 ?>

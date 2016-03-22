@@ -29,12 +29,20 @@ class content {
         $format = format::get_obj();
         $this->content['script'][] = array('type'=>'local_file', 'file_name'=>'jquery-1.11.3');
         $this->content['script'][] = array('type'=>'local_file', 'file_name'=>'default');
+        // Google Analytics Tracking
+        if ($GLOBALS['global_preference']->ga_tracking_id)
+        {
+            $this->content['script'][] = array('type'=>'remote_file', 'file_path'=>'http://www.google-analytics.com/','file_name'=>'analytics');
+            $this->content['script'][] = array('type'=>'text_content', 'content'=>'window[\'GoogleAnalyticsObject\'] = \'ga\';window[\'ga\'] = window[\'ga\'] || function() {(window[\'ga\'].q = window[\'ga\'].q || []).push(arguments)}, window[\'ga\'].l = 1 * new Date();ga(\'create\', \''.$GLOBALS['global_preference']->ga_tracking_id.'\', \'auto\');ga(\'send\', \'pageview\');');
+        }
 
         $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'default');
 
         switch ($this->parameter['namespace'])
         {
             case 'asset':
+                $this->content['script'] = array();
+                $this->content['style'] = array();
                 switch ($this->parameter['instance'])
                 {
                     case 'image':
@@ -227,6 +235,8 @@ class content {
 
                         break;
                     case 'ajax-load':
+                        $this->content['script'] = array();
+                        $this->content['style'] = array();
                         if (!isset($_POST['object_type']))
                         {
                             $_POST['object_type'] = 'business';
@@ -236,8 +246,6 @@ class content {
                             $this->content['html'] = '';
                             break;
                         }
-                        $this->content['script'] = array();
-                        $this->content['style'] = array();
 
                         switch($_POST['object_type'])
                         {
@@ -746,7 +754,64 @@ class content {
                                     }
                                     break;
                                 case 'remote_file':
-                                    // TODO: Cache remote js file?
+                                    $file_header = @get_headers($row['file_path'].$row['file_name'].'.js');
+                                    if (strpos( $file_header[0], '200 OK' ) !== false)
+                                    {
+                                        $file_header_array = array();
+                                        foreach($file_header as $file_header_index=>$file_header_item)
+                                        {
+                                            preg_match('/^(?:\s)*(.+?):(?:\s)*(.+)(?:\s)*$/', $file_header_item, $matches);
+                                            if (count($matches) >= 3)
+                                            {
+                                                $file_header_array[trim($matches[1])] = trim($matches[2]);
+                                            }
+                                        }
+                                        unset($file_header);
+                                        if (isset($file_header_array['Last-Modified']))
+                                        {
+                                            $file_version = strtolower(date('dMY', strtotime($file_header_array['Last-Modified'])));
+                                        }
+                                        else
+                                        {
+                                            if (isset($file_header_array['Expires']))
+                                            {
+                                                $file_version = strtolower(date('dMY', strtotime($file_header_array['Expires'])));
+                                            }
+                                            else
+                                            {
+                                                if (isset($file_header_array['Date'])) $file_version = strtolower(date('dMY', strtotime($file_header_array['Date'])));
+                                                else $file_version  = strtolower(date('dMY'), strtotime('+1 day'));
+                                            }
+
+                                        }
+                                        unset($file_header_array);
+                                        if (!file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.js'))
+                                        {
+                                            if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS, 0755, true);
+
+                                            copy($row['file_path'].$row['file_name'].'.js', PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.js');
+
+                                            exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.js -o '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js', $result);
+                                            // further minify js, remove comments
+                                            if (file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
+                                            {
+                                                $min_file = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
+                                                file_put_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js',$min_file);
+                                                // release memory from the temp file
+                                                unset($min_file);
+                                            }
+                                        }
+                                        // Double check if min.js is generated successfully
+                                        if (file_exists(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'))
+                                        {
+                                            $row['content'] = $format->minify_js(file_get_contents(PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js'));
+                                        }
+                                        else
+                                        {
+                                            $row['src'] = $row['file_path'].$row['file_name'].'.js';
+                                            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): load minified js script ['.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js] failed';
+                                        }
+                                    }
                                     break;
                                 case 'text_content':
                                     $row['content'] = $format->minify_js($row['content']);
@@ -792,6 +857,12 @@ class content {
                                     }
                                     break;
                                 case 'remote_file':
+                                    $file_header = @get_headers($row['file_path'].$row['file_name'].'.js');
+                                    if (strpos( $file_header[0], '200 OK' ) !== false)
+                                    {
+                                        $row['src'] = $row['file_path'].$row['file_name'].'.js';
+                                        unset($file_header);
+                                    }
                                     break;
                                 case 'text_content':
                                     break;
@@ -811,6 +882,7 @@ class content {
                         if (isset($row['content'])) $page_script .= $row['content'];
                         $page_script .= '</script>';
                     }
+                    $page_script = str_replace('<script type="text/javascript"></script>','',$page_script);
                 }
                 $this->content['html'] = str_replace('[[+script]]',$page_script,$this->content['html']);
                 unset($page_script);
