@@ -5,10 +5,6 @@
 
 class index_organization extends index
 {
-    var $parameter = array(
-        'table' => 'Listing'
-    );
-
     function __construct($value = Null, $parameter = array())
     {
         parent::__construct($value, $parameter);
@@ -84,6 +80,23 @@ class index_organization extends index
     // Fuzzy Search
     function filter_by_keyword($value, $parameter = array())
     {
+        $original_id_group = $this->id_group;
+        $original_initialized = $this->_initialized;
+        $filter_parameter = array(
+            'value'=> $value,
+            'special_pattern'=>'',
+            'fulltext_index_key'=>'fulltext_category'
+        );
+        $filter_parameter = array_merge($filter_parameter,$parameter);
+        if (count($this->id_group) > 0)
+        {
+            return $this->full_text_search($filter_parameter);
+        }
+        else
+        {
+            $this->id_group = $original_id_group;
+            $this->_initialized = $original_initialized;
+        }
         $filter_parameter = array(
             'value'=> $value,
             'special_pattern'=>'\&\'',
@@ -103,6 +116,7 @@ class index_organization extends index
         $filter_parameter = array_merge($filter_parameter,$parameter);
         return $this->full_text_search($filter_parameter);
     }
+
 
 }
 

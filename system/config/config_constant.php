@@ -19,10 +19,10 @@ define('PATH_TEMPLATE', PATH_SYSTEM . 'template/');
 define('PATH_ASSET', PATH_BASE . 'asset/');
 define('PATH_IMAGE', PATH_ASSET . 'image/');
 define('PATH_CACHE', PATH_ASSET . 'cache/');
-define('PATH_CACHE_PAGE', PATH_CACHE . 'page/');
-define('PATH_CACHE_FORMAT', PATH_CACHE . 'format/');
 define('PATH_CACHE_CSS', PATH_CACHE . 'css/');
+define('PATH_CACHE_FORMAT', PATH_CACHE . 'format/');
 define('PATH_CACHE_JS', PATH_CACHE . 'js/');
+define('PATH_CACHE_PAGE', PATH_CACHE . 'page/');
 
 define('PATH_CONTENT', PATH_BASE . 'content/');
 define('PATH_CONTENT_CSS', PATH_CONTENT . 'css/');

@@ -353,16 +353,30 @@ class content {
                         }
                         $what =  trim(html_entity_decode(strtolower($ulr_part[0])));
                         $score = $index_organization_obj->filter_by_keyword($ulr_part[0]);
-
                         $where = '';
                         if (isset($ulr_part[2]))
                         {
                             $where = trim(html_entity_decode(strtolower($ulr_part[2])));
                             if (strtolower($ulr_part[1]) == 'where' AND $where != 'empty')
                             {
-                                $score = $index_organization_obj->filter_by_location($ulr_part[2],array('preset_score'=>$score));
+                                $index_location_obj = new index_location();
+                                $index_location_obj->filter_by_location_text($where);
+                                if (count($index_location_obj->id_group) > 0)
+                                {
+                                    $index_organization_obj->filter_by_suburb($index_location_obj->id_group);
+                                    $new_score = array();
+                                    foreach($index_organization_obj->id_group as $key=>$value)
+                                    {
+                                        $new_score[$value] = $score[$value];
+                                    }
+                                    $score = $new_score;
+                                    unset($new_score);
+                                }
+                                else
+                                {
+                                    $score = $index_organization_obj->filter_by_location($ulr_part[2],array('preset_score'=>$score));
+                                }
                             }
-
                         }
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
                         if (count($view_business_summary_obj->id_group) > 0)
