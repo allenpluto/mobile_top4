@@ -26,30 +26,8 @@ class view_business_summary extends view_organization
         parent::get($parameter);
     }
 
-    function render($parameter = array())
+    function pre_render($parameter = array())
     {
-        if (isset($this->rendered_html) AND !isset($parameter['template']))
-        {
-            return $this->rendered_html;
-        }
-
-        if (!isset($this->row))
-        {
-            $result = $this->fetch_value($parameter);
-
-            if ($result === false)
-            {
-                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot render object due to fetch value failed';
-                return false;
-            }
-        }
-
-        if (empty($this->row))
-        {
-            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' rendering empty array';
-            return '';
-        }
-
         foreach ($this->row as $row_index=>$row_value)
         {
             $this->row[$row_index]['logo'] = new view_business_summary_logo($row_value['logo_id']);
@@ -71,10 +49,6 @@ class view_business_summary extends view_organization
                 $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_block_container_'.$row_value['id'].' .block_thumb_image_container {background-image: url('.URI_IMAGE.'s/'.$this->row[$row_index]['image']->row[0]['image_file'].');} @media only screen and (min-width:768px) {#listing_block_container_'.$row_value['id'].' .block_thumb_image_container {background-image: url('.URI_IMAGE.'m/'.$this->row[$row_index]['image']->row[0]['image_file'].');}}');
             }
         }
-
-
-
-        return parent::render($parameter);
     }
 }
     

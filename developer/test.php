@@ -105,7 +105,7 @@ $index_postcode_obj->filter_by_parameter('nsw/sydney')*/
 //print_r(count($index_location_obj->id_group));
 //print_r($global_message);
 
-print_r(parse_url('/listing/find/restaurant/?nocache=true'));
+/*print_r(parse_url('/listing/find/restaurant/?nocache=true'));
 echo '<br>';
 print_r(parse_url('/listing/find/restaurant/?nocache=true',PHP_URL_PATH));
 echo '<br>';
@@ -113,4 +113,12 @@ $query_string = parse_url('/listing/find/restaurant/?nocache=true&test1=test+1&t
 print_r($query_string);
 echo '<br>';
 parse_str($query_string, $result);
-print_r($result);
+print_r($result);*/
+
+$view_business_detail_gallery_obj = new view_business_detail_gallery();
+$view_business_detail_gallery_obj->get_business_gallery([12026]);
+print_r($view_business_detail_gallery_obj);
+$view_business_detail_gallery_image_obj = new view_business_detail_gallery_image();
+$view_business_detail_gallery_image_obj->get_by_gallery([1690]);
+print_r($view_business_detail_gallery_image_obj);
+print_r($GLOBALS['global_message']);

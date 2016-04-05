@@ -55,4 +55,5 @@
     [[$overview_section]]
     [[$contact_section]]
     [[$map_section]]
+    [[$gallery_section]]
 </div>

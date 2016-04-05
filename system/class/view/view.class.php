@@ -210,7 +210,7 @@ class view
             $parameter['bind_param'] = array();
         }
 
-        $sql = 'SELECT '.$this->parameter['primary_key'].' FROM '.$this->parameter['table'];
+        $sql = 'SELECT '.$parameter['primary_key'].' FROM '.$parameter['table'];
         $where = array();
         if (!empty($parameter['where']))
         {
@@ -264,7 +264,7 @@ class view
             $new_id_group = array();
             foreach ($result as $row_index=>$row_value)
             {
-                $new_id_group[] = $row_value[$this->parameter['primary_key']];
+                $new_id_group[] = $row_value[$parameter['primary_key']];
             }
             // Keep the original id order if no specific "order by" is set
             if ($this->_initialized AND empty($parameter['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
@@ -326,6 +326,8 @@ class view
         return $this->row;
     }
 
+    function pre_render($parameter = array()) {}    // dummy method, for sub class to overwrite
+
     function render($parameter = array())
     {
         if (isset($this->rendered_html) AND !isset($parameter['template']))
@@ -351,6 +353,8 @@ class view
         }
 
         $parameter = array_merge($this->parameter,$parameter);
+
+        $this->pre_render($parameter);
 
         $template = PATH_TEMPLATE.$parameter['template'].FILE_EXTENSION_TEMPLATE;
         if (!file_exists($template)) $template = '';

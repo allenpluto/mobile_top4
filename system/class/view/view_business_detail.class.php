@@ -85,7 +85,6 @@ class view_business_detail extends view_organization
 
             }
 
-
             $keyword_strip_tags = strip_tags($this->row[$row_index]['keywords']);
             if (!empty($keyword_strip_tags))
             {
@@ -141,6 +140,25 @@ class view_business_detail extends view_organization
                 ));
                 $GLOBALS['page_content']->content['script'][] = array('type'=>'text_content', 'content'=>'var load_google_map = function(){$(\'#listing_detail_view_map_frame_container\').html(\'<iframe id="listing_detail_view_map_frame" src="http://maps.google.com/maps?q='.$this->row[$row_index]['geo_location_formatted'].'&z=15&output=embed"></iframe>\');$(\'#listing_detail_view_map_wrapper .expand_trigger\').unbind(\'click\',load_google_map);};$(\'#listing_detail_view_map_wrapper .expand_trigger\').click(load_google_map);');
 
+            }
+
+            $this->row[$row_index]['gallery'] = new view_business_detail_gallery();
+            $this->row[$row_index]['gallery']->get_business_gallery($this->id_group);
+            if ($this->row[$row_index]['gallery']->_initialized === false)
+            {
+                // For listing without gallery, hide the gallery section
+                $this->row[$row_index]['gallery_section']->rendered_html = '';
+            }
+            else
+            {
+                $this->row[$row_index]['gallery_section'] = new view_web_page_element(null, array(
+                    'template'=>'view_business_detail_gallery_section',
+                    'build_from_content'=>array(
+                        array(
+                            'gallery'=>$this->row[$row_index]['gallery']
+                        )
+                    )
+                ));
             }
         }
 
