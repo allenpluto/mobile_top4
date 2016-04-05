@@ -1268,53 +1268,52 @@ $.fn.touch_slider = function(user_option){
                 {
                     if (touch_offset_x > 0)
                     {
-                        touch_offset_x = touch_offset_x - slider_container.width();
-                    }
-                    else touch_offset_x = touch_offset_x + slider_container.width();
-                }
-                slider_container.data('touch_offset_x',parseInt(touchobj.clientX) - slider_container.data('touch_start_x'));
-                slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
-            });
-            slider_container.bind('touchend',function(event){
-                event.preventDefault();
-                console.log(slider_container.data('touch_offset_x'));
-
-                if (slider_container.data('touch_offset_x') / slider_container.width() < -1.0*slider_container.data('option').min_trigger_offset)
-                {
-                    var count_current = slider_container.data('count_current') + 1;
-                    if (count_current > slider_container.data('count_total'))
-                    {
-                        slider_container.data('count_current', 1);
+                        slider_container.set_current(slider_container.data('count_current')-1);
                     }
                     else
                     {
-                        slider_container.data('count_current', count_current);
+                        slider_container.set_current(slider_container.data('count_current')+1);
                     }
-                    slider_container.css('text-indent',-100*slider_container.data('count_current')+'%');
-                    slider_item = $(this).find('.touch_slider_item:first').attr('style','');
                 }
+                slider_container.data('touch_offset_x',parseInt(touchobj.clientX) - slider_container.data('touch_start_x'));
+                slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
+
+            });
+            slider_container.bind('touchend',function(event){
+                event.preventDefault();
+
+                if (Math.abs(slider_container.data('touch_offset_x')/slider_container.width()) > slider_container.data('option').min_trigger_offset)
+                {
+                    if (slider_container.data('touch_offset_x') > 0)
+                    {
+                        slider_container.set_current(slider_container.data('count_current')-1);
+                    }
+                    else
+                    {
+                        slider_container.set_current(slider_container.data('count_current')+1);
+                    }
+                }
+                slider_item = $(this).find('.touch_slider_item:first').attr('style','');
             });
 
-            $.fn.touch_slider.set_current = function(new_count_current)
+            slider_container.set_current = function(new_count_current)
             {
+                slider_container.data('touch_start_x', slider_container.data('touch_start_x') - slider_container.width()*(new_count_current - slider_container.data('count_current')));
+                slider_container.data('touch_offset_x', slider_container.data('touch_offset_x') + slider_container.width()*(new_count_current - slider_container.data('count_current')));
+
                 if (new_count_current > slider_container.data('count_total'))
                 {
-                    new_count_current = 1;
+                    new_count_current -= slider_container.data('count_total');
                 }
                 if (new_count_current < 1)
                 {
-                    new_count_current = slider_container.data('count_total');
+                    new_count_current += slider_container.data('count_total');
                 }
-                slider_container.data('touch_offset_x', slider_container.data('touch_offset_x') + slider_container.width()*(new_count_current - slider_container.data('count_current')));
                 slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
                 slider_container.data('count_current', new_count_current);
                 slider_container.css('text-indent',-100*slider_container.data('count_current')+'%');
             }
         }
-
-
-
-
     });
 };
 
