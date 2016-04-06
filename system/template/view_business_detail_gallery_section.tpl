@@ -4,7 +4,7 @@
         <div class="container listing_detail_view_section_title_container"><h3>Gallery</h3></div>
     </div>
     <div class="wrapper listing_detail_view_section_content_wrapper expand_wrapper">
-        <div class="container listing_detail_view_section_content_container expand_container">
+        <div class="listing_detail_view_section_content_container expand_container">
             [[$gallery]]
         </div>
     </div>

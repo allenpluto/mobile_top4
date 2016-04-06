@@ -38,14 +38,14 @@ class view_business_detail_gallery_image extends view_image
             if ($row_index == 0 OR $row_index == count($this->row)-1)
             {
                 $css_style['default'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].'_clone {background-image: url('.$row_value['image_src_m'].');}';
-                $css_style['s'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].'_clone {background-image: url('.$row_value['image_src_l'].');}';
-                $css_style['m'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].'_clone {background-image: url('.$row_value['image_src_xl'].');}';
+                $css_style['xs'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].'_clone {background-image: url('.$row_value['image_src_l'].');}';
+                $css_style['s'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].'_clone {background-image: url('.$row_value['image_src_xl'].');}';
             }
             $css_style['default'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].' {background-image: url('.$row_value['image_src_m'].');}';
-            $css_style['s'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].' {background-image: url('.$row_value['image_src_l'].');}';
-            $css_style['m'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].' {background-image: url('.$row_value['image_src_xl'].');}';
+            $css_style['xs'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].' {background-image: url('.$row_value['image_src_l'].');}';
+            $css_style['s'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].' {background-image: url('.$row_value['image_src_xl'].');}';
         }
-        $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>implode('',$css_style['default']).'@media only screen and (min-width:480px) and (max-width:767px) {'.implode('',$css_style['s']).'} @media only screen and (min-width:768px) and (max-width:991px) {'.implode('',$css_style['m']).'}');
+        $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>implode('',$css_style['default']).'@media only screen and (min-width:320px) and (max-width:479px) {'.implode('',$css_style['xs']).'} @media only screen and (min-width:480px) and (max-width:991px) {'.implode('',$css_style['s']).'}');
         unset($css_style);
     }
 }

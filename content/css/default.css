@@ -1477,7 +1477,10 @@ img {display:block;max-width:100%;}
 {
     display: block;
     width: 100%;
+    position: relative;
+
     white-space: nowrap;
+    overflow: hidden;
 }
 
 .listing_detail_view_gallery_image_container
@@ -1494,6 +1497,33 @@ img {display:block;max-width:100%;}
 {
     display: none;
 }
+.touch_slider_navigation_button:before
+{
+    display: block;
+    width: 2em;
+    position: absolute;
+    padding: 0.5em 0;
+    margin-top: -1.1em;
+    top:50%;
+
+    background: rgba(0,0,0,0.3);
+    border-radius: 5px;
+
+    color: #ffffff;
+    font-family: FontAwesome;
+    font-size: 2em;
+    line-height: 1.2;
+    text-align: center;
+    text-indent: 0;
+
+    opacity: 0.8;
+
+    z-index: 150;
+}
+.touch_slider_navigation_button_pressed:before {opacity: 1;}
+.touch_slider_navigation_button_previous:before {left:0;content: '\f053';}
+.touch_slider_navigation_button_next:before {right:0;content: '\f054';}
+
 
 /*# Responsive #*/
 /*# Responsive/XXS #*/
