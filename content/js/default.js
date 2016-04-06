@@ -1340,6 +1340,8 @@ $.fn.touch_slider = function(user_option){
                     event.preventDefault();
                     $(this).removeClass('touch_slider_navigation_button_pressed');
                     var slider_container = $(this).closest('.touch_slider_container');
+                    slider_container.data('touch_start_x', 0);
+                    slider_container.data('touch_offset_x', 0);
                     slider_container.trigger('set_current',[slider_container.data('count_current')-1]);
                 });
 
@@ -1352,6 +1354,8 @@ $.fn.touch_slider = function(user_option){
                     event.preventDefault();
                     $(this).removeClass('touch_slider_navigation_button_pressed');
                     var slider_container = $(this).closest('.touch_slider_container');
+                    slider_container.data('touch_start_x', 0);
+                    slider_container.data('touch_offset_x', 0);
                     slider_container.trigger('set_current',[slider_container.data('count_current')+1]);
                 });
             }
