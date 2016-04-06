@@ -1521,8 +1521,8 @@ img {display:block;max-width:100%;}
     z-index: 150;
 }
 .touch_slider_navigation_button_pressed:before {opacity: 1;}
-.touch_slider_navigation_button_previous:before {left:0;content: '\f053';}
-.touch_slider_navigation_button_next:before {right:0;content: '\f054';}
+.touch_slider_navigation_button_previous:before {left:0.2em;content: '\f053';}
+.touch_slider_navigation_button_next:before {right:0.2em;content: '\f054';}
 
 
 /*# Responsive #*/

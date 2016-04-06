@@ -1320,6 +1320,8 @@ $.fn.touch_slider = function(user_option){
                     }
                 }
                 slider_item = $(this).find('.touch_slider_item:first').attr('style','');
+                slider_container.data('touch_start_x', 0);
+                slider_container.data('touch_offset_x', 0);
             });
 
             if (slider_container.data('option').navigation_arrow === true)
