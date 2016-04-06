@@ -1256,14 +1256,19 @@ $.fn.touch_slider = function(user_option){
             slider_container.data('touch_offset_x',0);
 
             slider_container.bind('touchstart',function(event){
-                event.preventDefault();
+                //event.preventDefault();
                 var touchobj = event.originalEvent.changedTouches[0];
                 slider_container.data('touch_start_x',parseInt(touchobj.clientX));
+                slider_container.data('touch_start_y',parseInt(touchobj.clientY));
             });
             slider_container.bind('touchmove',function(event){
-                event.preventDefault();
                 var touchobj = event.originalEvent.changedTouches[0];
                 var touch_offset_x = parseInt(touchobj.clientX) - slider_container.data('touch_start_x');
+                var touch_offset_y = parseInt(touchobj.clientY) - slider_container.data('touch_start_y');
+                if (touch_offset_y == 0 || touch_offset_x / touch_offset_y >= 1)
+                {
+                    event.preventDefault();
+                }
                 if (Math.abs(touch_offset_x/slider_container.width()) > 1)
                 {
                     if (touch_offset_x > 0)
@@ -1277,10 +1282,9 @@ $.fn.touch_slider = function(user_option){
                 }
                 slider_container.data('touch_offset_x',parseInt(touchobj.clientX) - slider_container.data('touch_start_x'));
                 slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
-
             });
             slider_container.bind('touchend',function(event){
-                event.preventDefault();
+                //event.preventDefault();
 
                 if (Math.abs(slider_container.data('touch_offset_x')/slider_container.width()) > slider_container.data('option').min_trigger_offset)
                 {

@@ -1488,7 +1488,7 @@ img {display:block;max-width:100%;}
     padding-bottom: 75%;
 
     background: rgba(0,0,0,0.1) center center no-repeat;
-    background-size: contain;
+    background-size: cover;
 }
 .listing_detail_view_gallery_image_container > img
 {
