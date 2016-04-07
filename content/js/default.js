@@ -1255,6 +1255,7 @@ $.fn.touch_slider = function(user_option){
             slider_container.css('text-indent','-100%');
             slider_container.data('touch_start_x',0);
             slider_container.data('touch_offset_x',0);
+            slider_container.data('current_event','');
 
             slider_container.on('set_current',function(event,new_count_current) {
                 var slider_container = $(this);
@@ -1272,56 +1273,68 @@ $.fn.touch_slider = function(user_option){
             });
 
             slider_container.bind('touchstart',function(event){
-                event.preventDefault();
-                var touchobj = event.originalEvent.changedTouches[0];
-                slider_container.data('touch_start_x',parseInt(touchobj.clientX));
-                slider_container.data('touch_start_y',parseInt(touchobj.clientY));
-            });
-            slider_container.bind('touchmove',function(event){
-                var touchobj = event.originalEvent.changedTouches[0];
-                var touch_offset_x = parseInt(touchobj.clientX) - slider_container.data('touch_start_x');
-                var touch_offset_y = parseInt(touchobj.clientY) - slider_container.data('touch_start_y');
-                if (!(touch_offset_x == 0))
+                if (!slider_container.data('current_event'))
                 {
                     event.preventDefault();
+                    var touchobj = event.originalEvent.changedTouches[0];
+                    slider_container.data('touch_start_x',parseInt(touchobj.clientX));
+                    slider_container.data('touch_start_y',parseInt(touchobj.clientY));
+                    slider_container.data('current_event','touch_slider');
                 }
-                if (Math.abs(touch_offset_x/slider_container.width()) > 1)
+            });
+            slider_container.bind('touchmove',function(event){
+                if (slider_container.data('current_event') == 'touch_slider')
                 {
-                    if (touch_offset_x > 0)
+                    var touchobj = event.originalEvent.changedTouches[0];
+                    var touch_offset_x = parseInt(touchobj.clientX) - slider_container.data('touch_start_x');
+                    var touch_offset_y = parseInt(touchobj.clientY) - slider_container.data('touch_start_y');
+                    if (!(touch_offset_x == 0))
                     {
-                        slider_container.data('touch_start_x', slider_container.data('touch_start_x') + slider_container.width());
-                        slider_container.data('touch_offset_x', slider_container.data('touch_offset_x') - slider_container.width());
-                        slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
-                        slider_container.trigger('set_current',[slider_container.data('count_current')-1]);
+                        event.preventDefault();
                     }
-                    else
+                    if (Math.abs(touch_offset_x/slider_container.width()) > 1)
                     {
-                        slider_container.data('touch_start_x', slider_container.data('touch_start_x') - slider_container.width());
-                        slider_container.data('touch_offset_x', slider_container.data('touch_offset_x') + slider_container.width());
-                        slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
-                        slider_container.trigger('set_current',[slider_container.data('count_current')+1]);
+                        if (touch_offset_x > 0)
+                        {
+                            slider_container.data('touch_start_x', slider_container.data('touch_start_x') + slider_container.width());
+                            slider_container.data('touch_offset_x', slider_container.data('touch_offset_x') - slider_container.width());
+                            slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
+                            slider_container.trigger('set_current',[slider_container.data('count_current')-1]);
+                        }
+                        else
+                        {
+                            slider_container.data('touch_start_x', slider_container.data('touch_start_x') - slider_container.width());
+                            slider_container.data('touch_offset_x', slider_container.data('touch_offset_x') + slider_container.width());
+                            slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
+                            slider_container.trigger('set_current',[slider_container.data('count_current')+1]);
+                        }
                     }
+                    slider_container.data('touch_offset_x',parseInt(touchobj.clientX) - slider_container.data('touch_start_x'));
+                    slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
+
                 }
-                slider_container.data('touch_offset_x',parseInt(touchobj.clientX) - slider_container.data('touch_start_x'));
-                slider_container.find('.touch_slider_item:first').css('marginLeft',slider_container.data('touch_offset_x')+'px');
             });
             slider_container.bind('touchend',function(event){
-                event.preventDefault();
-
-                if (Math.abs(slider_container.data('touch_offset_x')/slider_container.width()) > slider_container.data('option').min_trigger_offset)
+                if (slider_container.data('current_event') == 'touch_slider')
                 {
-                    if (slider_container.data('touch_offset_x') > 0)
+                    event.preventDefault();
+
+                    if (Math.abs(slider_container.data('touch_offset_x')/slider_container.width()) > slider_container.data('option').min_trigger_offset)
                     {
-                        slider_container.trigger('set_current',[slider_container.data('count_current')-1]);
+                        if (slider_container.data('touch_offset_x') > 0)
+                        {
+                            slider_container.trigger('set_current',[slider_container.data('count_current')-1]);
+                        }
+                        else
+                        {
+                            slider_container.trigger('set_current',[slider_container.data('count_current')+1]);
+                        }
                     }
-                    else
-                    {
-                        slider_container.trigger('set_current',[slider_container.data('count_current')+1]);
-                    }
+                    slider_item = $(this).find('.touch_slider_item:first').attr('style','');
+                    slider_container.data('touch_start_x', 0);
+                    slider_container.data('touch_offset_x', 0);
+                    slider_container.data('current_event','');
                 }
-                slider_item = $(this).find('.touch_slider_item:first').attr('style','');
-                slider_container.data('touch_start_x', 0);
-                slider_container.data('touch_offset_x', 0);
             });
 
             if (slider_container.data('option').navigation_arrow === true)
@@ -1334,31 +1347,49 @@ $.fn.touch_slider = function(user_option){
                 });
 
                 navigation_previous.appendTo(slider_container);
-                navigation_previous.bind('touchstart',function(event){
+                navigation_previous.bind('touchstart mousedown',function(event){
                     event.preventDefault();
-                    $(this).addClass('touch_slider_navigation_button_pressed');
-                });
-                navigation_previous.bind('touchend',function(event){
-                    event.preventDefault();
-                    $(this).removeClass('touch_slider_navigation_button_pressed');
                     var slider_container = $(this).closest('.touch_slider_container');
-                    slider_container.data('touch_start_x', 0);
-                    slider_container.data('touch_offset_x', 0);
-                    slider_container.trigger('set_current',[slider_container.data('count_current')-1]);
+                    if (!slider_container.data('current_event'))
+                    {
+                        slider_container.data('current_event','navigation_previous_touch');
+                        $(this).addClass('touch_slider_navigation_button_pressed');
+                    }
+                });
+                navigation_previous.bind('touchend mouseup',function(event){
+                    event.preventDefault();
+                    var slider_container = $(this).closest('.touch_slider_container');
+                    if (slider_container.data('current_event') == 'navigation_previous_touch')
+                    {
+                        $(this).removeClass('touch_slider_navigation_button_pressed');
+                        slider_container.data('touch_start_x', 0);
+                        slider_container.data('touch_offset_x', 0);
+                        slider_container.trigger('set_current',[slider_container.data('count_current')-1]);
+                        slider_container.data('current_event','');
+                    }
                 });
 
                 navigation_next.appendTo(slider_container);
-                navigation_next.bind('touchstart',function(event){
+                navigation_next.bind('touchstart mousedown',function(event){
                     event.preventDefault();
-                    $(this).addClass('touch_slider_navigation_button_pressed');
-                });
-                navigation_next.bind('touchend',function(event){
-                    event.preventDefault();
-                    $(this).removeClass('touch_slider_navigation_button_pressed');
                     var slider_container = $(this).closest('.touch_slider_container');
-                    slider_container.data('touch_start_x', 0);
-                    slider_container.data('touch_offset_x', 0);
-                    slider_container.trigger('set_current',[slider_container.data('count_current')+1]);
+                    if (!slider_container.data('current_event'))
+                    {
+                        slider_container.data('current_event', 'navigation_next_touch');
+                        $(this).addClass('touch_slider_navigation_button_pressed');
+                    }
+                });
+                navigation_next.bind('touchend mouseup',function(event){
+                    event.preventDefault();
+                    var slider_container = $(this).closest('.touch_slider_container');
+                    if (slider_container.data('current_event') == 'navigation_next_touch')
+                    {
+                        $(this).removeClass('touch_slider_navigation_button_pressed');
+                        slider_container.data('touch_start_x', 0);
+                        slider_container.data('touch_offset_x', 0);
+                        slider_container.trigger('set_current',[slider_container.data('count_current')+1]);
+                        slider_container.data('current_event','');
+                    }
                 });
             }
 

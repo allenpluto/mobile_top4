@@ -1516,6 +1516,8 @@ img {display:block;max-width:100%;}
     text-align: center;
     text-indent: 0;
 
+    cursor: pointer;
+
     opacity: 0.8;
 
     z-index: 150;
