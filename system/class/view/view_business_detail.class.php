@@ -144,7 +144,7 @@ class view_business_detail extends view_organization
 
             $this->row[$row_index]['gallery'] = new view_business_detail_gallery();
             $this->row[$row_index]['gallery']->get_business_gallery($this->id_group);
-            if ($this->row[$row_index]['gallery']->_initialized === false)
+            if (count($this->row[$row_index]['gallery']->id_group) == 0)
             {
                 // For listing without gallery, hide the gallery section
                 $this->row[$row_index]['gallery_section']->rendered_html = '';

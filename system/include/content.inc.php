@@ -188,6 +188,30 @@ class content {
                 $view_web_page_obj = new view_web_page(null, $render_parameter);
                 $this->content['html'] = $view_web_page_obj->render();
                 break;
+            case 'business-amp':
+                $this->cache = 3;
+
+                $this->content['script'] = [];
+
+                $this->content['style'] = [];
+                $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'amp');
+
+                $view_business_detail_obj = new view_business_detail($this->parameter['instance']);
+                $view_business_detail_value = $view_business_detail_obj->fetch_value();
+
+                $render_parameter = array(
+                    'build_from_content'=>array(
+                        array(
+                            'name'=>$view_business_detail_value[0]['name'],
+                            'description'=>$view_business_detail_value[0]['description'],
+                            'body'=>$view_business_detail_obj
+                        )
+                    )
+                );
+                $render_parameter = array_merge($this->parameter, $render_parameter);
+                $view_web_page_obj = new view_web_page(null, $render_parameter);
+                $this->content['html'] = $view_web_page_obj->render();
+                break;
             case 'listing':
                 $page_parameter = $format->pagination_param($this->parameter);
                 if ($page_parameter === false) $page_parameter = array();
