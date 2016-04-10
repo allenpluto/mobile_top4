@@ -45,7 +45,7 @@ class view_business_detail_gallery_image extends view_image
             $css_style['xs'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].' {background-image: url('.$row_value['image_src_l'].');}';
             $css_style['s'][] = '#listing_detail_view_gallery_image_container_'.$row_value['id'].' {background-image: url('.$row_value['image_src_xl'].');}';
         }
-        $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>implode('',$css_style['default']).'@media only screen and (min-width:320px) and (max-width:479px) {'.implode('',$css_style['xs']).'} @media only screen and (min-width:480px) and (max-width:991px) {'.implode('',$css_style['s']).'}');
+        $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>implode('',$css_style['default']).'@media only screen and (min-width:320px) and (max-width:479px) {'.implode('',$css_style['xs']).'} @media only screen and (min-width:480px) {'.implode('',$css_style['s']).'}');
         unset($css_style);
     }
 }

@@ -191,12 +191,10 @@ class content {
             case 'business-amp':
                 $this->cache = 3;
 
-                $this->content['script'] = [];
-
                 $this->content['style'] = [];
                 $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'amp');
 
-                $view_business_detail_obj = new view_business_detail($this->parameter['instance']);
+                $view_business_detail_obj = new view_business_detail($this->parameter['instance'], ['template'=>'view_business_amp_detail']);
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
 
                 $render_parameter = array(
@@ -211,6 +209,7 @@ class content {
                 $render_parameter = array_merge($this->parameter, $render_parameter);
                 $view_web_page_obj = new view_web_page(null, $render_parameter);
                 $this->content['html'] = $view_web_page_obj->render();
+                //$this->content['script'] = [];
                 break;
             case 'listing':
                 $page_parameter = $format->pagination_param($this->parameter);

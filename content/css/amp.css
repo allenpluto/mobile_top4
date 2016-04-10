@@ -547,7 +547,7 @@ img {display:block;max-width:100%;}
     content: '\f078';
 }
 
-.expand_parent_expanded .expand_trigger > .listing_detail_view_section_title_container:after
+.listing_detail_view_section_wrapper:hover .expand_trigger > .listing_detail_view_section_title_container:after
 {
     -moz-transform: translate(0, 0.4em) scaleY(-1);
     -o-transform: translate(0, 0.4em) scaleY(-1);
@@ -562,8 +562,9 @@ img {display:block;max-width:100%;}
     font-size: 1.4em;
 }
 
-.listing_detail_view_section_content_wrapper
+.listing_detail_view_section_wrapper:hover .listing_detail_view_section_content_wrapper
 {
+    height: auto;
 }
 
 .listing_detail_view_section_content_container
