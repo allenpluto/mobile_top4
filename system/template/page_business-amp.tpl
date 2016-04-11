@@ -17,31 +17,31 @@
         <div id="off_canvas_menu">
             <div class="off_canvas_menu_section">
                 <div id="off_canvas_menu_section_nav_item_1" class="off_canvas_menu_item">
-                    <a href=""><span>Home</span></a>
+                    <a href="[[*base]]"><span>Home</span></a>
                 </div>
                 <div id="off_canvas_menu_section_business_item_1" class="off_canvas_menu_item">
-                    <a href="listing/">Popular Categories</a>
+                    <a href="[[*base]]listing/">Popular Categories</a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_2" class="off_canvas_menu_item">
-                    <a href="about-us"><span>About Us</span></a>
+                    <a href="[[*base]]about-us"><span>About Us</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_3" class="off_canvas_menu_item">
-                    <a href="advertise-with-us"><span>Advertise with Us</span></a>
+                    <a href="[[*base]]advertise-with-us"><span>Advertise with Us</span></a>
                 </div>
             </div><!-- #off_canvas_menu_section_main_menu -->
             <div id="" class="off_canvas_menu_section">
                 <div id="off_canvas_menu_section_nav_item_4" class="off_canvas_menu_item">
-                    <a href="privacy-policy"><span>Privacy Policy</span></a>
+                    <a href="[[*base]]privacy-policy"><span>Privacy Policy</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_5" class="off_canvas_menu_item">
-                    <a href="terms-conditions"><span>Terms & Conditions</span></a>
+                    <a href="[[*base]]terms-conditions"><span>Terms & Conditions</span></a>
                 </div>
             </div>
             <div id="top_wrapper_off_canvas_trigger" class="off_canvas_trigger"></div>
         </div><!-- #off_canvas_menu -->
         <div id="header_wrapper" class="wrapper">
             <div id="top_wrapper" class="wrapper">
-                <div id="top_wrapper_logo"><a href="/allen_frame_trial/" target="_blank"><amp-img width="80" height="40" src="/allen_frame_trial/content/image/the-new-australian-social-business-directory_logo.svg"></amp-img></a></div>
+                <div id="top_wrapper_logo"><a href="[[*base]]" target="_blank"><amp-img width="80" height="40" src="[[*base]]/content/image/the-new-australian-social-business-directory_logo.svg"></amp-img></a></div>
             </div><!-- #top_wrapper -->
             <div id="search_wrapper" class="wrapper">
                 <div id="search_container" class="container">

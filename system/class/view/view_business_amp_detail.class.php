@@ -114,6 +114,15 @@ class view_business_amp_detail extends view_organization
             }
             unset($overview_strip_tags);
 
+            if (isset($this->row[$row_index]['geo_location_formatted']))
+            {
+                $map_uri = 'http://maps.google.com/maps?q='.$this->row[$row_index]['geo_location_formatted'].'&z=16';
+            }
+            else
+            {
+                $map_uri = 'http://maps.google.com/maps?q='.urlencode($this->row[$row_index]['street_address'].', '.$this->row[$row_index]['suburb'].' '.$this->row[$row_index]['state'].' '.$this->row[$row_index]['post'].', Australia').'&z=16';
+            }
+
             $this->row[$row_index]['contact_section'] = new view_web_page_element(null, array(
                 'template'=>'view_business_amp_detail_contact',
                 'build_from_content'=>array(
@@ -123,26 +132,13 @@ class view_business_amp_detail extends view_organization
                         'street_address'=>$this->row[$row_index]['street_address'],
                         'suburb'=>$this->row[$row_index]['suburb'],
                         'state'=>$this->row[$row_index]['state'],
-                        'post'=>$this->row[$row_index]['post']
+                        'post'=>$this->row[$row_index]['post'],
+                        'map_uri'=>$map_uri
                     )
                 )
             ));
 
-            if (isset($this->row[$row_index]['geo_location_formatted']))
-            {
-                $this->row[$row_index]['map_section'] = new view_web_page_element(null, array(
-                    'template'=>'view_business_detail_map',
-                    'build_from_content'=>array(
-                        array(
-                            'geo_location_formatted'=>$this->row[$row_index]['geo_location_formatted']
-                        )
-                    )
-                ));
-                $GLOBALS['page_content']->content['script'][] = array('type'=>'text_content', 'content'=>'var load_google_map = function(){$(\'#listing_detail_view_map_frame_container\').html(\'<iframe id="listing_detail_view_map_frame" src="http://maps.google.com/maps?q='.$this->row[$row_index]['geo_location_formatted'].'&z=15&output=embed"></iframe>\');$(\'#listing_detail_view_map_wrapper .expand_trigger\').unbind(\'click\',load_google_map);};$(\'#listing_detail_view_map_wrapper .expand_trigger\').click(load_google_map);');
-
-            }
-
-            $this->row[$row_index]['gallery'] = new view_business_detail_gallery();
+            $this->row[$row_index]['gallery'] = new view_business_amp_detail_gallery();
             $this->row[$row_index]['gallery']->get_business_gallery($this->id_group);
             if (count($this->row[$row_index]['gallery']->id_group) == 0)
             {

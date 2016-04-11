@@ -28,7 +28,8 @@ class view_gallery extends view
         {
             foreach ($this->row as $row_index=>$row_value)
             {
-                $this->row[$row_index]['gallery_image'] = new view_business_detail_gallery_image();
+                $gallery_image_object_type = get_class($this).'_image';
+                $this->row[$row_index]['gallery_image'] = new $gallery_image_object_type();
                 $this->row[$row_index]['gallery_image']->get_by_gallery($row_value['id']);
             }
             $result = $this->row;

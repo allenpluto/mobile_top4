@@ -3,16 +3,8 @@
 // Name: view_business_detail_gallery_image
 // Description: listing detail gallery image
 
-class view_business_detail_gallery_image extends view_image
+class view_business_detail_gallery_image extends view_gallery_image
 {
-    function __construct($value = Null, $parameter = array())
-    {
-        parent::__construct($value, $parameter);
-        $this->set_parameter(['page_size'=>10]);
-
-        return $this;
-    }
-
     function fetch_value($parameter = array())
     {
         if (!isset($parameter['image_size'])) $parameter['image_size'] = 'm';

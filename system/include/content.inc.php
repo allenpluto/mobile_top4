@@ -180,6 +180,7 @@ class content {
                         array(
                             'name'=>$view_business_detail_value[0]['name'],
                             'description'=>$view_business_detail_value[0]['description'],
+                            'amp_uri'=>URI_SITE_BASE.'business-amp/'.$this->parameter['instance'],
                             'body'=>$view_business_detail_obj
                         )
                     )
@@ -194,15 +195,14 @@ class content {
                 $this->content['style'] = [];
                 $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'amp');
 
-                $view_business_detail_obj = new view_business_detail($this->parameter['instance'], ['template'=>'view_business_amp_detail']);
+                $view_business_detail_obj = new view_business_amp_detail($this->parameter['instance'], ['template'=>'view_business_amp_detail']);
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
 
                 $render_parameter = array(
                     'build_from_content'=>array(
                         array(
                             'name'=>$view_business_detail_value[0]['name'],
-                            'description'=>$view_business_detail_value[0]['description'],
-                            'body'=>$view_business_detail_obj
+                            'default_uri'=>URI_SITE_BASE.'business/'.$this->parameter['instance'],
                         )
                     )
                 );
