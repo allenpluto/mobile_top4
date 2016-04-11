@@ -245,30 +245,6 @@ img {display:block;max-width:100%;}
     pointer-events: none;
 }
 
-/*# Expandable Elements #*/
-.expand_trigger
-{
-    cursor:pointer;
-}
-
-.expand_wrapper
-{
-    display:block;
-    height:0;
-
-    overflow:hidden;
-}
-
-.expand_parent:hover > .expand_wrapper
-{
-    height:auto;
-}
-
-.expand_container
-{
-    display:block;
-}
-
 /*# Search #*/
 /* Base Z-INDEX 900 */
 .search_trigger
@@ -567,49 +543,9 @@ img {display:block;max-width:100%;}
     padding: 1em 0;
 }
 
-.expand_trigger > .listing_detail_view_section_title_container
-{
-    position: relative;
-    padding-right: 2em;
-}
-
-.expand_trigger > .listing_detail_view_section_title_container:after
-{
-    display: block;
-    width: 1.2em;
-    height: 1.2em;
-    position: absolute;
-    top:50%;
-    right:0.2em;
-    margin-top: -0.7em;
-
-    font-size: 1.5em;
-    font-family: 'FontAwesome';
-
-    -webkit-transition: width 2s, height 2s, -webkit-transform 0.5s; /* Safari */
-    transition: width 2s, height 2s, transform 0.5s;
-
-    content: '\f078';
-}
-
-.listing_detail_view_section_wrapper:hover .expand_trigger > .listing_detail_view_section_title_container:after
-{
-    -moz-transform: translate(0, 0.4em) scaleY(-1);
-    -o-transform: translate(0, 0.4em) scaleY(-1);
-    -webkit-transform: translate(0, 0.4em) scaleY(-1);
-    transform: translate(0, 0.4em) scaleY(-1);
-    filter: FlipV;
-    -ms-filter: 'FlipV';
-}
-
 .listing_detail_view_section_title_container > *
 {
     font-size: 1.4em;
-}
-
-.listing_detail_view_section_wrapper:hover .listing_detail_view_section_content_wrapper
-{
-    height: auto;
 }
 
 .listing_detail_view_section_content_container
@@ -743,34 +679,6 @@ img {display:block;max-width:100%;}
 {
     position: relative;
     padding: 0.5em 2em 0.5em 0;
-}
-
-.listing_detail_view_gallery_title:after
-{
-    display: block;
-    width: 1.2em;
-    height: 1.2em;
-    position: absolute;
-    top:50%;
-    right:0.2em;
-    margin-top: -0.7em;
-
-    font-size: 1.2em;
-    font-family: 'FontAwesome';
-
-    -webkit-transition: width 2s, height 2s, -webkit-transform 0.5s; /* Safari */
-    transition: width 2s, height 2s, transform 0.5s;
-
-    content: '\f078';
-}
-.listing_detail_view_gallery_container:hover > .listing_detail_view_gallery_title:after
-{
-    -moz-transform: translate(0, 0.4em) scaleY(-1);
-    -o-transform: translate(0, 0.4em) scaleY(-1);
-    -webkit-transform: translate(0, 0.4em) scaleY(-1);
-    transform: translate(0, 0.4em) scaleY(-1);
-    filter: FlipV;
-    -ms-filter: 'FlipV';
 }
 
 .listing_detail_view_gallery_image_wrapper

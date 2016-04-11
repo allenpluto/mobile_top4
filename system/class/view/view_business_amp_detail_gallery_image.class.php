@@ -7,7 +7,7 @@ class view_business_amp_detail_gallery_image extends view_gallery_image
 {
     function fetch_value($parameter = array())
     {
-        if (!isset($parameter['image_size'])) $parameter['image_size'] = 'l';
+        if (!isset($parameter['image_size'])) $parameter['image_size'] = 'm';
         $result = parent::fetch_value($parameter);
         if ($result !== false AND is_array($this->row))
         {
@@ -22,6 +22,20 @@ class view_business_amp_detail_gallery_image extends view_gallery_image
 
                     $this->row[$row_index]['width'] = $info[0];
                     $this->row[$row_index]['height'] = $info[1];
+                }
+                else
+                {
+                    // try to generate image if not exists
+                    if (file_get_contents(URI_IMAGE . $parameter['image_size'] . '/' . $row_value['image_file']) !== FALSE)
+                    {
+                        if (file_exists(PATH_IMAGE . $parameter['image_size'] . '/' . $row_value['image_file']))
+                        {
+                            $info = getimagesize(PATH_IMAGE . $parameter['image_size'] . '/' . $row_value['image_file']);
+
+                            $this->row[$row_index]['width'] = $info[0];
+                            $this->row[$row_index]['height'] = $info[1];
+                        }
+                    }
                 }
             }
 
