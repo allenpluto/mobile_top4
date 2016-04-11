@@ -195,21 +195,23 @@ class content {
                 $this->content['style'] = [];
                 $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'amp');
 
-                $view_business_detail_obj = new view_business_amp_detail($this->parameter['instance'], ['template'=>'view_business_amp_detail']);
+                $view_business_detail_obj = new view_business_amp_detail($this->parameter['instance']);
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
 
                 $render_parameter = array(
                     'build_from_content'=>array(
                         array(
                             'name'=>$view_business_detail_value[0]['name'],
+                            'description'=>$view_business_detail_value[0]['description'],
                             'default_uri'=>URI_SITE_BASE.'business/'.$this->parameter['instance'],
+                            'body'=>$view_business_detail_obj
                         )
                     )
                 );
                 $render_parameter = array_merge($this->parameter, $render_parameter);
                 $view_web_page_obj = new view_web_page(null, $render_parameter);
                 $this->content['html'] = $view_web_page_obj->render();
-                //$this->content['script'] = [];
+                $this->content['script'] = [];
                 break;
             case 'listing':
                 $page_parameter = $format->pagination_param($this->parameter);
@@ -921,6 +923,10 @@ class content {
                     }
                     $page_script = str_replace('<script type="text/javascript"></script>','',$page_script);
                 }
+                if (substr($this->parameter['namespace'], strlen($this->parameter['namespace'])-4) == '-amp')
+                {
+                    $page_script = str_replace('<script type="text/javascript">','<script type="application/ld+json">',$page_script);
+                }
                 $this->content['html'] = str_replace('[[+script]]',$page_script,$this->content['html']);
                 unset($page_script);
             }
@@ -1035,6 +1041,10 @@ class content {
                 }
                 $page_style = str_replace('</style>
 <style>','',$page_style);
+            }
+            if (substr($this->parameter['namespace'], strlen($this->parameter['namespace'])-4) == '-amp')
+            {
+                $page_style = str_replace('<style>','<style amp-custom>',$page_style);
             }
             $this->content['html'] = str_replace('[[+style]]',$page_style,$this->content['html']);
             unset($page_style);

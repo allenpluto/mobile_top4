@@ -1,5 +1,4 @@
-@charset "utf-8";
-/* CSS Document */
+/* CSS Document For AMP */
 
 /*# Web Fonts #*/
 /*# Web Fonts/Font Awesome Icons #*/
@@ -493,6 +492,51 @@ img {display:block;max-width:100%;}
 }
 
 /*# Body/Listing #*/
+/*# Body/Listing/Rating #*/
+.rating_star_wrapper
+{
+    display:inline-block;
+    position:relative;
+}
+
+.rating_star_container
+{
+    display:block;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+.rating_star_front_container
+{
+    position:absolute;
+    top:0;
+    left:0;
+
+    z-index:140;
+}
+
+.rating_star
+{
+    display:inline-block;
+    position:relative;
+}
+
+.rating_star:before
+{
+    font-family:'FontAwesome';
+    content:"\f005";
+}
+
+.rating_star_bg_container .rating_star:before
+{
+    color:#dddddd;
+}
+
+.rating_star_front_container .rating_star:before
+{
+    color:#ffb303;
+}
+
 /*# Body/Listing/Detail #*/
 #listing_detail_view_wrapper
 {
@@ -697,7 +741,36 @@ img {display:block;max-width:100%;}
 /*# Body/Listing/Detail/Gallery Section #*/
 .listing_detail_view_gallery_title
 {
-    padding: 0.5em 0;
+    position: relative;
+    padding: 0.5em 2em 0.5em 0;
+}
+
+.listing_detail_view_gallery_title:after
+{
+    display: block;
+    width: 1.2em;
+    height: 1.2em;
+    position: absolute;
+    top:50%;
+    right:0.2em;
+    margin-top: -0.7em;
+
+    font-size: 1.2em;
+    font-family: 'FontAwesome';
+
+    -webkit-transition: width 2s, height 2s, -webkit-transform 0.5s; /* Safari */
+    transition: width 2s, height 2s, transform 0.5s;
+
+    content: '\f078';
+}
+.listing_detail_view_gallery_container:hover > .listing_detail_view_gallery_title:after
+{
+    -moz-transform: translate(0, 0.4em) scaleY(-1);
+    -o-transform: translate(0, 0.4em) scaleY(-1);
+    -webkit-transform: translate(0, 0.4em) scaleY(-1);
+    transform: translate(0, 0.4em) scaleY(-1);
+    filter: FlipV;
+    -ms-filter: 'FlipV';
 }
 
 .listing_detail_view_gallery_image_wrapper
@@ -1079,12 +1152,12 @@ img {display:block;max-width:100%;}
 .system_debug,
 .system_debug .container
 {
-    background:#ffffff !important;
+    background:#ffffff;
     
     border:2px solid red;
 }
 
 .system_debug.wrapper
 {
-    background:#ffeeee !important;
+    background:#ffeeee;
 }
