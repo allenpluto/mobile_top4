@@ -677,7 +677,7 @@ a, a:hover, a:visited {
 .listing_detail_view_gallery_image_container
 {
     display: block;
-    margin: 0 auto;
+    margin: 0 10%;
 }
 
 /*# Responsive #*/
@@ -882,6 +882,7 @@ a, a:hover, a:visited {
     }
 
     .article_container {font-size:1.4em;}
+    .listing_detail_view_gallery_image_wrapper {padding:0 2.38%;}
     .listing_detail_view_gallery_image_container {float:left;margin:0 2.5% 5% 2.5%;}
     .listing_detail_view_gallery_image_container:nth-child(2n+1) {clear:left;}
 }

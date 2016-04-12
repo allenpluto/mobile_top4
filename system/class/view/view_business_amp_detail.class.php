@@ -148,7 +148,7 @@ class view_business_amp_detail extends view_organization
             else
             {
                 $this->row[$row_index]['gallery_section'] = new view_web_page_element(null, array(
-                    'template'=>'view_business_detail_gallery_section',
+                    'template'=>'view_business_amp_detail_gallery_section',
                     'build_from_content'=>array(
                         array(
                             'gallery'=>$this->row[$row_index]['gallery']
