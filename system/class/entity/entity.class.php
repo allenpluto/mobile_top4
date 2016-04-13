@@ -261,7 +261,6 @@ class entity
                 $value = $this->row;
             }
         }
-
         $parameter = array_merge($this->parameter,$parameter);
 
         if (empty($parameter['bind_param']))
@@ -272,69 +271,73 @@ class entity
         if (!isset($parameter['set_type']))
         {
             $field_index = array_search($parameter['primary_key'], $parameter['table_fields']);
-            if ($field_index !== false)     // If primary key in field list, treat with INSERT ON DUPLICATE UPDATE
+            if ($field_index !== false)
             {
+                // If primary key in field list, treat with INSERT ON DUPLICATE UPDATE
                 $parameter['set_type'] = 'insert_update';
             }
-            else    // If primary key not provided, can only be insert
+            else
             {
+                // If primary key not provided, INSERT only
                 $parameter['set_type'] = 'insert';
-
             }
+        }
+
+        $id_group = array();
+
+        switch($parameter['set_type'])
+        {
+            case 'insert':
+                $sql = 'INSERT INTO '.$parameter['table'].' (`'.implode('`,`',$parameter['table_fields']).'`) VALUES (:'.implode(',:',$parameter['table_fields']).')';
+                $query = $this->_conn->prepare($sql);
+                foreach ($value as $index=>$row)
+                {
+                    $bind_value = array();
+                    foreach ($parameter['table_fields'] as $field_index=>$field_name)
+                    {
+                        if (isset($row[$field_name]))
+                        {
+                            $bind_value[':'.$field_name] = $row[$field_name];
+                        }
+                        else
+                        {
+                            $bind_value[':'.$field_name] = $row[$field_index];
+                        }
+                    }
+                    $bind_value = array_merge($parameter['bind_param'],$bind_value);
+
+                    if (count($bind_value) != count($parameter['table_fields']))
+                    {
+                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE fields count('.count($parameter['table_fields']).') is not consistent to value count('.count($bind_value).') - '.print_r($bind_value,true);
+                    }
+                    else
+                    {
+                        $query->execute($bind_value);
+                        if ($query->errorCode() == '00000')
+                        {
+                            $query2 = $this->_conn->query('SELECT LAST_INSERT_ID() AS new_id;');
+                            $result = $query2->fetch(PDO::FETCH_ASSOC);
+                            $id_group[] = $result['new_id'];
+                        }
+                        else
+                        {
+                            $query_errorInfo = $query->errorInfo();
+                            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+                        }
+                    }
+                }
+                print_r($id_group);
+                exit();
+                break;
+            case 'insert_update':
+                break;
+            case 'update':
+                break;
         }
 
         //INSERT INTO `tbl_entity`(`id`, `friendly_url`, `name`) VALUES ('', 'test4', 'Test Name 4') ON DUPLICATE KEY UPDATE `friendly_url` = VALUES(`friendly_url`), `name` = VALUES(`name`);
 //SELECT LAST_INSERT_ID() AS new_id;
 
-        // If columns not set, use default
-        if (!isset($parameter['insert_fields']))
-        {
-            if (!empty($this->parameter['insert_fields']))
-            {
-                $parameter['insert_fields'] = array_unique(array_merge($parameter['primary_key'],$this->parameter['insert_fields']));
-            }
-            else
-            {
-                $parameter['insert_fields'] = array();
-                foreach ($this->parameter['table_fields'] as $column_index=>$column_value)
-                {
-                    $parameter['insert_fields'][] = $column_value;
-                }
-            }
-        }
-        if (!isset($parameter['update_fields']))
-        {
-            if (!empty($this->parameter['update_fields']))
-            {
-                $parameter['update_fields'] = $this->parameter['update_fields'];
-            }
-            else
-            {
-                $parameter['update_fields'] = array();
-                foreach ($this->parameter['table_fields'] as $column_index=>$column_value)
-                {
-                    if ($column_value != $parameter['primary_key'] AND $column_value != 'enter_date')
-                    {
-                        $parameter['update_fields'][] = $column_value;
-                    }
-                }
-            }
-        }
-
-        foreach ($parameter['insert_fields'] as $column_index=>$column_value)
-        {
-            if (!in_array($column_value, $this->parameter['table_fields']))
-            {
-                unset($parameter['insert_fields'][$column_index]);
-            }
-        }
-        foreach ($parameter['update_fields'] as $column_index=>$column_value)
-        {
-            if (!in_array($column_value, $this->parameter['table_fields']))
-            {
-                unset($parameter['update_fields'][$column_index]);
-            }
-        }
 
         foreach ($this->row as $row_index=>$row_value)
         {

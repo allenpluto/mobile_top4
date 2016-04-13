@@ -113,7 +113,7 @@ $query_string = parse_url('/listing/find/restaurant/?nocache=true&test1=test+1&t
 print_r($query_string);
 echo '<br>';
 parse_str($query_string, $result);
-print_r($result);*/
+print_r($result);
 
 $view_business_detail_gallery_obj = new view_business_detail_gallery();
 $view_business_detail_gallery_obj->get_business_gallery([12026]);
@@ -121,4 +121,9 @@ print_r($view_business_detail_gallery_obj);
 $view_business_detail_gallery_image_obj = new view_business_detail_gallery_image();
 $view_business_detail_gallery_image_obj->get_by_gallery([1690]);
 print_r($view_business_detail_gallery_image_obj);
-print_r($GLOBALS['global_message']);
+print_r($GLOBALS['global_message']);*/
+
+$entity = new entity();
+$param = ['table_fields'=>['friendly_url','name']];
+$value = [['test1','Test Name 1'],['test2','Test Name 2']];
+$entity->set($value,$param);
