@@ -138,4 +138,8 @@ $value = [
     ['name'=>'New List 24','id'=>24],
     ['friendly_url'=>'new-test-url']
 ];
-print_r($entity->set($value,$param));
+//print_r($entity->set($value,$param));
+$entity->get(['where'=>'`friendly_url` LIKE :friendly_url','bind_param'=>[':friendly_url'=>'list_%']]);
+print_r($entity->id_group);
+print_r($entity->update(['friendly_url'=>'listing_test']));
+print_r($global_message);

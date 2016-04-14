@@ -102,6 +102,8 @@ class entity
 
     function query($sql, $parameter=array())
     {
+print_r($sql);
+print_r($parameter);
         $query = $this->_conn->prepare($sql);
         $query->execute($parameter);
 
@@ -122,24 +124,17 @@ class entity
         $this->parameter = array_merge($this->parameter, $parameter);
     }
 
+    // Select id_group by conditions
     function get($parameter = array())
     {
-        if (count($this->row) > 0)
+        // When id_group changes, reset the stored row value and rendered html
+        $this->row = null;
+
+        $parameter = array_merge($this->parameter,$parameter);
+
+        if (count($this->id_group) > 0)
         {
-            $this->_initialized = true;        // In case initialize process is done out of class functions
-        }
-        
-        // If columns not set, use default
-        if (!isset($parameter['columns']))
-        {
-            if (!empty($this->parameter['select_fields']))
-            {
-                $parameter['columns'] = $this->parameter['select_fields'];
-            }
-            else
-            {
-                $parameter['columns'] = array('*');
-            }
+            $this->_initialized = true;
         }
 
         if (empty($parameter['bind_param']))
@@ -147,106 +142,83 @@ class entity
             $parameter['bind_param'] = array();
         }
 
-        $sql = 'SELECT '.implode(',',$parameter['columns']).' FROM '.DATABASE_TABLE_PREFIX.get_class($this);
+        $sql = 'SELECT '.$parameter['primary_key'].' FROM '.$parameter['table'];
+        $where = array();
         if (!empty($parameter['where']))
         {
             if (is_array($parameter['where']))
             {
-                $parameter['where'] = implode(' AND ', $parameter['where']);
-            }
-            $sql .= ' WHERE '.$parameter['where'];
-        }
-        else
-        {
-            if ($this->_initialized)
-            {
-                $row_ids = array();
-                foreach ($this->row as $row_index=>$row_value)
-                {
-
-                    if (!empty($row_value[$this->parameter['primary_key']]))
-                    {
-                        $row_ids[] = $row_value[$this->parameter['primary_key']];
-                    }
-                }
-                if (!empty($row_ids))
-                {
-                    $where = '`'.$this->parameter['primary_key'].'` IN (-1';
-
-                    foreach ($row_ids as $row_id_index=>$row_id_value)
-                    {
-                        $where .= ',:id_'.$row_id_index;
-                        $parameter['bind_param'][':id_'.$row_id_index] = $row_id_value;
-                    }
-                    $where .= ')'; 
-                    $sql .= ' WHERE '.$where;
-                }
+                $where = $parameter['where'];
             }
             else
             {
-                $this->message[] = 'Error: Cannot retrieve records without specific where conditions and rows with primary keys.';
-                return false;
+                $where[] = $parameter['where'];
             }
         }
-        if (!empty($parameter['order']))
+        if ($this->_initialized)
         {
-            $sql .= ' ORDER BY '.$parameter['order'];
+            if (!empty($this->id_group))
+            {
+                $where[] = $parameter['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
+                $parameter['bind_param'] = array_merge($parameter['bind_param'],$this->id_group);
+            }
+        }
+
+        if (!empty($where))
+        {
+            $sql .= ' WHERE '.implode(' AND ', $where);
         }
         else
         {
-            if ($this->_initialized)
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot retrieve records with none specific where conditions and empty id_group in view.';
+            return false;
+        }
+
+        if (!empty($parameter['order']))
+        {
+            if (is_array($parameter['order']))
             {
-                $row_ids = array();
-                foreach ($this->row as $row_index=>$row_value)
-                {
-
-                    if (!empty($row_value[$this->parameter['primary_key']]))
-                    {
-                        $row_ids[] = $row_value[$this->parameter['primary_key']];
-                    }
-                }
-                if (!empty($row_ids))
-                {
-                    $order = 'FIELD(`'.$this->parameter['primary_key'].'`';
-
-                    foreach ($row_ids as $row_id_index=>$row_id_value)
-                    {
-                        $order .= ',:id_'.$row_id_index;
-                        $parameter['bind_param'][':id_'.$row_id_index] = $row_id_value;
-                    }
-                    $order .= ')'; 
-                    $sql .= ' ORDER BY '.$order;
-                }
+                $parameter['order'] = implode(', ', $parameter['order']);
             }
+            $sql .= ' ORDER BY '.$parameter['order'];
         }
         if (!empty($parameter['limit']))
         {
             $sql .= ' LIMIT '.$parameter['limit'];
-        }
-        else
-        {
-            $sql .= ' LIMIT '.$GLOBALS['global_preference']->default_entity_row_max;
         }
         if (!empty($parameter['offset']))
         {
             $sql .= ' OFFSET '.$parameter['offset'];
         }
         $query = $this->query($sql,$parameter['bind_param']);
-        if ($query->errorCode() == '00000')
+        if ($query !== false)
         {
             $result = $query->fetchAll(PDO::FETCH_ASSOC);
-            $this->row = $result;
+print_r($result);
+            $new_id_group = array();
+            foreach ($result as $row_index=>$row_value)
+            {
+                $new_id_group[] = $row_value[$parameter['primary_key']];
+            }
+            // Keep the original id order if no specific "order by" is set
+            if ($this->_initialized AND empty($parameter['order'])) $this->id_group = array_intersect($this->id_group, $new_id_group);
+            else
+            {
+                $format = format::get_obj();
+                $new_id_group = $format->id_group($new_id_group);
+                $this->id_group = $new_id_group;
+            }
+
             $this->_initialized = true;
-            return $result;
+            return $this->id_group;
         }
         else
         {
-            $query_errorInfo = $query->errorInfo();
-            $this->message[] = 'SQL Error: '.$query_errorInfo[2];
             return false;
         }
     }
 
+    // INSERT/UPDATE multiple rows of data, return id_group of inserted/updated rows
     function set($value = array(), $parameter = array())
     {
         if (empty($value))
@@ -259,6 +231,7 @@ class entity
             else
             {
                 $value = $this->row;
+                $this->row = null;
             }
         }
         $parameter = array_merge($this->parameter,$parameter);
@@ -309,7 +282,7 @@ class entity
 
                     if (count($bind_value) != count($parameter['table_fields']))
                     {
-                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE fields count('.count($parameter['table_fields']).') is not consistent to value count('.count($bind_value).') - '.print_r($bind_value,true);
+                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE number of tokens ('.count($parameter['table_fields']).') does not match number of bound variables('.count($bind_value).') - '.print_r($bind_value,true);
                     }
                     else
                     {
@@ -369,7 +342,7 @@ class entity
 
                     if (count($bind_value) != count($parameter['table_fields']))
                     {
-                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE fields count('.count($parameter['table_fields']).') is not consistent to value count('.count($bind_value).') - '.print_r($bind_value,true);
+                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE number of tokens ('.count($parameter['table_fields']).') does not match number of bound variables('.count($bind_value).') - '.print_r($bind_value,true);
                     }
                     else
                     {
@@ -440,7 +413,7 @@ class entity
 
                     if (count($bind_value) != count($parameter['table_fields']))
                     {
-                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE fields count('.count($parameter['table_fields']).') is not consistent to value count('.count($bind_value).') - '.print_r($bind_value,true);
+                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE number of tokens ('.count($parameter['table_fields']).') does not match number of bound variables('.count($bind_value).') - '.print_r($bind_value,true);
                     }
                     else
                     {
@@ -466,11 +439,156 @@ class entity
                 break;
         }
 
-        //INSERT INTO `tbl_entity`(`id`, `friendly_url`, `name`) VALUES ('', 'test4', 'Test Name 4') ON DUPLICATE KEY UPDATE `friendly_url` = VALUES(`friendly_url`), `name` = VALUES(`name`);
-//SELECT LAST_INSERT_ID() AS new_id;
-
         $this->id_group = $format->id_group($id_group);
+        $this->_initialized = true;
         return $this->id_group;
+    }
+
+    function delete($parameter = array())
+    {
+        if (!$this->_initialized)
+        {
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot perform delete before it is initialized with get() or set() function';
+            return false;
+        }
+        if (empty($this->id_group))
+        {
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot perform delete with empty id_group';
+            return array();
+        }
+        $parameter = array_merge($this->parameter,$parameter);
+        $format = format::get_obj();
+
+        if (empty($parameter['bind_param']))
+        {
+            $parameter['bind_param'] = array();
+        }
+
+        $sql = 'DELETE FROM '.$parameter['table'];
+
+        $where = array();
+        if (!empty($parameter['where']))
+        {
+            if (is_array($parameter['where']))
+            {
+                $where = $parameter['where'];
+            }
+            else
+            {
+                $where[] = $parameter['where'];
+            }
+        }
+        $where[] = $parameter['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
+        $parameter['bind_param'] = array_merge($parameter['bind_param'],$this->id_group);
+
+        if (!empty($where))
+        {
+            $sql .= ' WHERE '.implode(' AND ', $where);
+        }
+
+        $query = $this->query($sql, $parameter['bind_param']);
+        if ($query !== false)
+        {
+            if ($query->rowCount() == 0)
+            {
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' no row deleted under condition '.print_r($where, true);
+                return false;
+            }
+            else
+            {
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' '.$query->rowCount().' row(s) deleted';
+                return true;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    function update($value = array(), $parameter = array())
+    {
+        if (empty($value))
+        {
+            if (empty($this->row))
+            {
+                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE entity with empty value';
+                return false;
+            }
+            else
+            {
+                $value = $this->row[0];
+                $this->row = null;
+            }
+        }
+        if (!$this->_initialized)
+        {
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot perform delete before it is initialized with get() or set() function';
+            return false;
+        }
+        if (empty($this->id_group))
+        {
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot perform delete with empty id_group';
+            return array();
+        }
+        $parameter = array_merge($this->parameter,$parameter);
+        $format = format::get_obj();
+
+        if (empty($parameter['bind_param']))
+        {
+            $parameter['bind_param'] = array();
+        }
+
+        $sql = 'UPDATE '.$parameter['table'].' SET ';
+        $field_bind = array();
+        foreach ($parameter['table_fields'] as $field_index=>$field_name)
+        {
+            if (isset($value[$field_name]))
+            {
+                $field_bind[] = '`'.$field_name.'` = :'.$field_name;
+                $parameter['bind_param'][':'.$field_name] = $value[$field_name];
+            }
+        }
+        $sql .= implode(',',$field_bind);
+        unset($field_bind);
+
+        $where = array();
+        if (!empty($parameter['where']))
+        {
+            if (is_array($parameter['where']))
+            {
+                $where = $parameter['where'];
+            }
+            else
+            {
+                $where[] = $parameter['where'];
+            }
+        }
+        $where[] = $parameter['primary_key'].' IN ('.implode(',',array_keys($this->id_group)).')';
+        $parameter['bind_param'] = array_merge($parameter['bind_param'],$this->id_group);
+        if (!empty($where))
+        {
+            $sql .= ' WHERE '.implode(' AND ', $where);
+        }
+
+        $query = $this->query($sql, $parameter['bind_param']);
+        if ($query !== false)
+        {
+            if ($query->rowCount() == 0)
+            {
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' no row updated for '.print_r($parameter['bind_param']).' under condition '.print_r($where, true);
+                return false;
+            }
+            else
+            {
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' '.$query->rowCount().' row(s) updated';
+                return true;
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
 }
 
