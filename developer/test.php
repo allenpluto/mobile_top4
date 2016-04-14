@@ -124,6 +124,18 @@ print_r($view_business_detail_gallery_image_obj);
 print_r($GLOBALS['global_message']);*/
 
 $entity = new entity();
-$param = ['table_fields'=>['friendly_url','name']];
-$value = [['test1','Test Name 1'],['test2','Test Name 2']];
-$entity->set($value,$param);
+//$param = ['table_fields'=>['friendly_url','name']];
+//$value = [['test1','Test Name 1'],['test2','Test Name 2']];
+//print_r($entity->set($value,$param));
+
+$param = ['table_fields'=>['id','friendly_url','name'],'bind_param'=>[':name'=>'Default Name',':friendly_url'=>'default-url',':id'=>'']];
+$value = [
+    [6,'list_6','Test List 6'],
+    [11,'list_11','Test List 11'],
+    [23,'list_23','Test List 23'],
+    ['','list_26','Test List 26'],
+    ['friendly_url'=>'new_list_8','name'=>'Test List 8','id'=>8],
+    ['name'=>'New List 24','id'=>24],
+    ['friendly_url'=>'new-test-url']
+];
+print_r($entity->set($value,$param));

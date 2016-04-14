@@ -262,6 +262,7 @@ class entity
             }
         }
         $parameter = array_merge($this->parameter,$parameter);
+        $format = format::get_obj();
 
         if (empty($parameter['bind_param']))
         {
@@ -317,7 +318,15 @@ class entity
                         {
                             $query2 = $this->_conn->query('SELECT LAST_INSERT_ID() AS new_id;');
                             $result = $query2->fetch(PDO::FETCH_ASSOC);
-                            $id_group[] = $result['new_id'];
+                            if ($query2->errorCode() == '00000')
+                            {
+                                $id_group[] = $result['new_id'];
+                            }
+                            else
+                            {
+                                $query_errorInfo = $query2->errorInfo();
+                                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+                            }
                         }
                         else
                         {
@@ -326,103 +335,142 @@ class entity
                         }
                     }
                 }
-                print_r($id_group);
-                exit();
                 break;
             case 'insert_update':
+                $field_index = array_search($parameter['primary_key'], $parameter['table_fields']);
+                if ($field_index === false)
+                {
+                    $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Primary Key must be present in order to UPDATE rows';
+                    break;
+                }
+                $sql = 'INSERT INTO '.$parameter['table'].' (`'.implode('`,`',$parameter['table_fields']).'`) VALUES (:'.implode(',:',$parameter['table_fields']).') ON DUPLICATE KEY UPDATE ';
+                $field_bind = array();
+                foreach ($parameter['table_fields'] as $field_index=>$field_name)
+                {
+                    if ($field_name != $parameter['primary_key'])
+                    {
+                        $field_bind[] = '`'.$field_name.'` = :'.$field_name;
+                    }
+                }
+                $sql .= implode(',',$field_bind);
+                unset($field_bind);
+                $query = $this->_conn->prepare($sql);
+                foreach ($value as $index=>$row)
+                {
+                    $bind_value = array();
+                    foreach ($parameter['table_fields'] as $field_index=>$field_name)
+                    {
+                        if (isset($row[$field_name]) OR isset($row[$field_index]))
+                        {
+                            $bind_value[':'.$field_name] = isset($row[$field_name])?$row[$field_name]:$row[$field_index];
+                        }
+                    }
+                    $bind_value = array_merge($parameter['bind_param'],$bind_value);
+
+                    if (count($bind_value) != count($parameter['table_fields']))
+                    {
+                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE fields count('.count($parameter['table_fields']).') is not consistent to value count('.count($bind_value).') - '.print_r($bind_value,true);
+                    }
+                    else
+                    {
+                        $query->execute($bind_value);
+
+                        if ($query->errorCode() == '00000')
+                        {
+                            if ($query->rowCount() == 0)
+                            {
+                                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' NO UPDATE on row '.print_r($bind_value,true).'. PK does not exist or all values are same as original row.';
+                            }
+                            else
+                            {
+                                $query2 = $this->_conn->query('SELECT LAST_INSERT_ID() AS new_id;');
+                                $result = $query2->fetch(PDO::FETCH_ASSOC);
+                                if ($query2->errorCode() == '00000')
+                                {
+                                    if ($result['new_id'] == 0) $id_group[] = $bind_value[':'.$parameter['primary_key']];
+                                    else $id_group[] = $result['new_id'];
+                                }
+                                else
+                                {
+                                    $query_errorInfo = $query2->errorInfo();
+                                    $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+                                }
+                            }
+                        }
+                        else
+                        {
+                            $query_errorInfo = $query->errorInfo();
+                            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+                        }
+                    }
+                }
                 break;
             case 'update':
+                $field_index = array_search($parameter['primary_key'], $parameter['table_fields']);
+                if ($field_index === false)
+                {
+                    $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Primary Key must be present in order to UPDATE rows';
+                    break;
+                }
+                $sql = 'UPDATE '.$parameter['table'].' SET ';
+                $field_bind = array();
+                foreach ($parameter['table_fields'] as $field_index=>$field_name)
+                {
+                    if ($field_name != $parameter['primary_key'])
+                    {
+                        $field_bind[] = '`'.$field_name.'` = :'.$field_name;
+                    }
+                }
+                $sql .= implode(',',$field_bind);
+                unset($field_bind);
+                $sql .= ' WHERE `'.$parameter['primary_key'].'` = :'.$parameter['primary_key'];
+
+                $query = $this->_conn->prepare($sql);
+                foreach ($value as $index=>$row)
+                {
+                    $bind_value = array();
+                    foreach ($parameter['table_fields'] as $field_index=>$field_name)
+                    {
+                        if (isset($row[$field_name]) OR isset($row[$field_index]))
+                        {
+                            $bind_value[':'.$field_name] = isset($row[$field_name])?$row[$field_name]:$row[$field_index];
+                        }
+                    }
+                    $bind_value = array_merge($parameter['bind_param'],$bind_value);
+
+                    if (count($bind_value) != count($parameter['table_fields']))
+                    {
+                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' INSERT/UPDATE fields count('.count($parameter['table_fields']).') is not consistent to value count('.count($bind_value).') - '.print_r($bind_value,true);
+                    }
+                    else
+                    {
+                        $query->execute($bind_value);
+                        if ($query->errorCode() == '00000')
+                        {
+                            if ($query->rowCount() == 0)
+                            {
+                                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' NO UPDATE on row '.print_r($bind_value,true).'. PK does not exist or all values are same as original row.';
+                            }
+                            else
+                            {
+                                $id_group[] = $bind_value[':'.$parameter['primary_key']];
+                            }
+                        }
+                        else
+                        {
+                            $query_errorInfo = $query->errorInfo();
+                            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+                        }
+                    }
+                }
                 break;
         }
 
         //INSERT INTO `tbl_entity`(`id`, `friendly_url`, `name`) VALUES ('', 'test4', 'Test Name 4') ON DUPLICATE KEY UPDATE `friendly_url` = VALUES(`friendly_url`), `name` = VALUES(`name`);
 //SELECT LAST_INSERT_ID() AS new_id;
 
-
-        foreach ($this->row as $row_index=>$row_value)
-        {
-            $sql_columns = array();
-            $sql_values = array();
-            $bind_values = array();
-            
-            // Bind values for all insert and update fields
-            $sql_columns = array_unique(array_merge($parameter['insert_fields'],$parameter['update_fields']));
-
-            foreach ($sql_columns as $column_index=>$column_value)
-            {
-                if(isset($row_value[$column_value]))
-                {
-                    $sql_values[$column_value] = ':'.$column_value;
-                    $bind_values[':'.$column_value] = $row_value[$column_value];
-                }
-                else
-                {
-                    // if the field has default values, for example update_time, enter_time
-                    if (isset($this->default_value[$column_value]))
-                    {
-                        $sql_values[$column_value] = $this->default_value[$column_value];
-                    }
-                }
-            }
-
-
-            $sql = 'INSERT INTO '.DATABASE_TABLE_PREFIX.get_class($this).' (';
-            foreach($parameter['insert_fields'] as $column_index=>$column_value)
-            {
-                if (isset($sql_values[$column_value]))
-                {
-                    if ($column_index > 0)
-                    {
-                        $sql .= ', ';
-                    }
-                    $sql .= '`'.$column_value.'`';
-                }
-            }
-            $sql .= ') VALUES (';
-            foreach($parameter['insert_fields'] as $column_index=>$column_value)
-            {
-                if (isset($sql_values[$column_value]))
-                {
-                    if ($column_index > 0)
-                    {
-                        $sql .= ', ';
-                    }
-                    $sql .= $sql_values[$column_value];
-                }
-            }
-            $sql .= ') ON DUPLICATE KEY UPDATE ';
-            foreach($parameter['update_fields'] as $column_index=>$column_value)
-            {
-                if (isset($sql_values[$column_value]))
-                {
-                    if ($column_index > 0)
-                    {
-                        $sql .= ', ';
-                    }
-                    $sql .= '`'.$column_value .'` = '.$sql_values[$column_value];
-                }
-            }
-
-            $row_bind_values = array_merge($parameter['bind_param'], $bind_values);
-            $query = $this->query($sql,$row_bind_values);
-            if ($query->errorCode() == '00000')
-            {
-                $this->row[$row_index][$this->parameter['primary_key']] = $this->_conn->lastInsertId();
-            }
-            else
-            {
-                $query_errorInfo = $query->errorInfo();
-                $this->message[] = 'SQL Error: '.$query_errorInfo[2];
-                return false;
-            }
-        }
-
-        // Always Select from database after Insert/Update to keep data consistant
-        $get_parameter = $parameter;
-        unset($get_parameter['bind_param']);
-
-        $result = $this->get($get_parameter);
-        return $result;
+        $this->id_group = $format->id_group($id_group);
+        return $this->id_group;
     }
 }
 
