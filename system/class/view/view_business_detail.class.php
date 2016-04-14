@@ -85,6 +85,19 @@ class view_business_detail extends view_organization
 
             }
 
+            if ($this->row[$row_index]['count_review'] > 0)
+            {
+                $this->row[$row_index]['aggregaterating'] = new view_web_page_element(null, array(
+                    'template'=>'view_business_detail_aggregaterating',
+                    'build_from_content'=>array(
+                        array(
+                            'count_review'=>$this->row[$row_index]['count_review'],
+                            'avg_review'=>$this->row[$row_index]['avg_review']
+                        )
+                    )
+                ));
+            }
+
             $keyword_strip_tags = strip_tags($this->row[$row_index]['keywords']);
             if (!empty($keyword_strip_tags))
             {

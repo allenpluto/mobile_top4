@@ -1,10 +1,10 @@
-[[-view_business_detail]]
+[[-view_business_amp_detail]]
 <div id="listing_detail_view_wrapper" class="wrapper[[*extra_classes]]" itemscope="" itemtype="[[*schema_itemtype]]">
     <div id="listing_detail_view_top_wrapper" class="wrapper">
         <div id="listing_detail_view_top_container" class="container column_container">
             [[$logo]]
             <div class="listing_detail_view_top_text_container[[*top_text_container_column]]">
-                <div class="listing_detail_view_title_container"><h1>[[*name]]</h1></div>
+                <div class="listing_detail_view_title_container"><h1 itemprop="name">[[*name]]</h1></div>
                 <div class="listing_detail_view_rating_container">
                     <div class="listing_detail_view_count_visit"><span>[[*count_visit]]</span><span class="listing_detail_view_count_visit_label"> Visits</span></div>
                     <div class="rating_star_wrapper">
@@ -23,10 +23,7 @@
                                 --><span class="rating_star"></span><!--
                             --></div>
                     </div>
-                    <div class="block_content_rating_description" itemprop="aggregateRating" itemscope="" itemtype="http://schema.org/AggregateRating">
-                        <meta itemprop="ratingValue" content="[[*avg_review]]">
-                        <meta itemprop="reviewCount" content="[[*count_review]]">
-                    </div>
+                    [[$aggregaterating]]
                 </div>
                 <div id="listing_detail_view_address_container_large_screen" class="listing_detail_view_address_container">
                     <p itemprop="address" itemscope="" itemtype="http://schema.org/PostalAddress">
