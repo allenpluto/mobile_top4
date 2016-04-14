@@ -12,12 +12,6 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta property="og:title" content="Top4 - The New Australian Social Business Directory">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="http://www.top4.com.au/">
-    <meta property="og:image" content="http://www.top4.com.au/custom/domain_1/theme/top4/images/logo-bottom.png">
-    <meta property="og:locale" content="en_AU">
-
     <meta name="robots" content="noindex, nofollow">
     
     [[+style]]
