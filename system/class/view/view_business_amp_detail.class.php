@@ -81,7 +81,7 @@ class view_business_amp_detail extends view_organization
             else
             {
                 $this->row[$row_index]['banner']->fetch_value();
-                $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_detail_view_top_container .rating_star_front_container {width:'.$row_value['avg_review_percentage'].'%;} #listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'m/'.$this->row[$row_index]['banner']->row[0]['image_file'].');} @media only screen and (min-width:320px) and (max-width:479px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'l/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}} @media only screen and (min-width:480px) and (max-width:767px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'xl/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}} @media only screen and (min-width:768px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'xxl/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}}');
+                $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'m/'.$this->row[$row_index]['banner']->row[0]['image_file'].');} @media only screen and (min-width:320px) and (max-width:479px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'l/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}} @media only screen and (min-width:480px) and (max-width:767px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'xl/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}} @media only screen and (min-width:768px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'xxl/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}}');
             }
 
             if ($this->row[$row_index]['count_review'] > 0)
@@ -95,6 +95,7 @@ class view_business_amp_detail extends view_organization
                         )
                     )
                 ));
+                $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_detail_view_top_container .rating_star_front_container {width:'.$row_value['avg_review_percentage'].'%;}');
             }
 
             $keyword_strip_tags = strip_tags($this->row[$row_index]['keywords']);

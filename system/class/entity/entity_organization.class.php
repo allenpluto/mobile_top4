@@ -3,40 +3,8 @@
 // Name: entity_organization
 // Description: organization, business, company table, which stores all company (or organziaton) reltated information
 
-class entity_organization extends entity_thing
+class entity_organization extends entity
 {
-    // class organziaton is allowed to be constructed by 'friendly_url' or 'id'. However, if both provided, 'id' overwrite 'friendly_url'. e.g. $organization_obj = new organization('example-friendly-url-345')
-    // use other functions to select a group of people
-    function __construct($init_value = Null, $parameter = array())
-    {    
-        parent::__construct();
-        if (!empty($parameter))
-        {
-            $this->set_parameter($parameter);
-        }
-        if (!is_null($init_value))
-        {
-            if (is_array($init_value))
-            {
-                $this->row = $init_value;
-                $this->get();
-            }
-            else    // Simplified usage, not secured
-            {
-                if (is_numeric($parameter)) // try to initialize with id
-                {
-                    $this->get(array('id'=>$parameter));
-                }
-                else // try to initialize with friendly url
-                {
-                    $this->get(array('friendly_url'=>$parameter));
-                }
-            }
-        }
-
-        return $this;
-    }
-
     function get($parameter = array())
     {
         $get_parameter = array('bind_param'=>array());
@@ -76,15 +44,7 @@ class entity_organization extends entity_thing
         }
 
         // Call thing::get function
-        parent::get($get_parameter);
-
-        // Additional data format change code here
-    }
-
-    function set($parameter = array())
-    {
-        // Call thing::set function
-        parent::set($parameter);
+        return parent::get($get_parameter);
     }
 }
 

@@ -96,6 +96,7 @@ class view_business_detail extends view_organization
                         )
                     )
                 ));
+                $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_detail_view_top_container .rating_star_front_container {width:'.$row_value['avg_review_percentage'].'%;}');
             }
 
             $keyword_strip_tags = strip_tags($this->row[$row_index]['keywords']);

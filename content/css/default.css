@@ -1202,6 +1202,7 @@ img {display:block;max-width:100%;}
 
 .rating_star_front_container
 {
+    width:0;
     position:absolute;
     top:0;
     left:0;

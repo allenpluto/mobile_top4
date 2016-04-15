@@ -15,7 +15,7 @@
                                 --><span class="rating_star"></span><!--
                                 --><span class="rating_star"></span><!--
                             --></div>
-                        <div class="rating_star_container rating_star_front_container" style="width: [[*avg_review_percentage]]%;"><!--
+                        <div class="rating_star_container rating_star_front_container"><!--
                                 --><span class="rating_star"></span><!--
                                 --><span class="rating_star"></span><!--
                                 --><span class="rating_star"></span><!--
