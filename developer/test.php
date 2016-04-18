@@ -123,13 +123,13 @@ $view_business_detail_gallery_image_obj->get_by_gallery([1690]);
 print_r($view_business_detail_gallery_image_obj);
 print_r($GLOBALS['global_message']);*/
 
-$entity = new entity();
+$entity = new entity_organization();
 //$param = ['table_fields'=>['friendly_url','name']];
 //$value = [['test1','Test Name 1'],['test2','Test Name 2']];
 //print_r($entity->set($value,$param));
 
-$param = ['table_fields'=>['id','friendly_url','name'],'bind_param'=>[':name'=>'Default Name',':friendly_url'=>'default-url',':id'=>'']];
-$value = [
+$param = ['table_fields'=>['friendly_url','name','address','suburb_id','email','telephone']];
+/*$value = [
     [6,'list_6','Test List 6'],
     [11,'list_11','Test List 11'],
     [23,'list_23','Test List 23'],
@@ -137,8 +137,9 @@ $value = [
     ['friendly_url'=>'new_list_8','name'=>'Test List 8','id'=>8],
     ['name'=>'New List 24','id'=>24],
     ['friendly_url'=>'new-test-url']
-];
-//print_r($entity->set($value,$param));
+];*/
+$value = [['test-lisitng-1', 'Test Insert New Listing','19 bond street', 721, 'test@top4.com.au', '02 9639 2711']];
+print_r($entity->set($value,$param));
 $entity->get(['where'=>'`friendly_url` LIKE :friendly_url','bind_param'=>[':friendly_url'=>'list_%']]);
 print_r($entity->id_group);
 print_r($entity->update(['friendly_url'=>'listing_test']));
