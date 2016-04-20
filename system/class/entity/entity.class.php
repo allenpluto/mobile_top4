@@ -457,6 +457,129 @@ class entity
             return false;
         }
     }
+
+    function prepare_sync($parameter = array())
+    {
+        if (!isset($parameter['table_type']))
+        {
+            $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' table_type(index/view) is required for prepare_sync function';
+            return false;
+        }
+        else
+        {
+            if ($parameter['table_type'] != 'index' AND $parameter['table_type'] != 'view')
+            {
+                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' unknown table_type, table_type(index/view) is required for prepare_sync function';
+                return false;
+            }
+        }
+        if (!isset($parameter['operation']))
+        {
+            $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' operation(insert/update/delete) is required for prepare_sync function';
+            return false;
+        }
+        else
+        {
+            if ($parameter['operation'] != 'insert' AND $parameter['operation'] != 'update' AND $parameter['operation'] != 'delete')
+            {
+                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' unknown operation, operation(insert/update/delete) is required for prepare_sync function';
+                return false;
+            }
+        }
+        $parameter = array_merge($this->parameter,$parameter);
+
+        if ($GLOBALS['db']) $db = $GLOBALS['db'];
+        else $db = new db;
+        $parameter['sync_table'] = str_replace('entity',$parameter['table_type'],$parameter['table']);
+        if (!isset($parameter['sync_table_primary_key'])) {
+            $result = $db->db_get_primary_key($parameter['sync_table']);
+            if (empty($result[0]))
+            {
+                $parameter['sync_table_primary_key'] = 'id';
+            }
+            else
+            {
+                $parameter['sync_table_primary_key'] = $result[0];
+            }
+        }
+
+        // id_group to delete
+        $sql = 'DELETE FROM '.$parameter['sync_table'].' WHERE '.$parameter['sync_table_primary_key'].' IN (
+        SELECT '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].'
+        FROM '.$parameter['table'].'
+        RIGHT JOIN '.$parameter['sync_table'].'
+        ON '.$parameter['table'].'.'.$parameter['primary_key'].' = '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].'
+        WHERE '.$parameter['table'].'.'.$parameter['primary_key'].' IS NULL)';
+        $query = $this->query($sql, $parameter['bind_param']);
+        if ($query !== false)
+        {
+            if ($query->rowCount() == 0)
+            {
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' on sync no row deleted';
+                return false;
+            }
+            else
+            {
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' on sync '.$query->rowCount().' row(s) deleted';
+                return true;
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+        $sql = 'SELECT '.$parameter['table'].'.'.$parameter['primary_key'].'
+        FROM '.$parameter['table'].'
+        LEFT JOIN '.$parameter['sync_table'].'
+        ON '.$parameter['table'].'.'.$parameter['primary_key'].' = '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].'
+        WHERE '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].' IS NULL OR '.$parameter['table'].'.update_time > '.$parameter['sync_table'].'.update_time';
+
+
+        /*// id_group to delete
+        $sql = 'SELECT '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].' AS '.$parameter['primary_key'].'
+        FROM '.$parameter['table'].'
+        RIGHT JOIN '.$parameter['sync_table'].'
+        ON '.$parameter['table'].'.'.$parameter['primary_key'].' = '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].'
+        WHERE '.$parameter['table'].'.'.$parameter['primary_key'].' IS NULL';
+
+        // id_group to insert
+        $sql = 'SELECT '.$parameter['table'].'.'.$parameter['primary_key'].'
+        FROM '.$parameter['table'].'
+        LEFT JOIN '.$parameter['sync_table'].'
+        ON '.$parameter['table'].'.'.$parameter['primary_key'].' = '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].'
+        WHERE '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].' IS NULL';
+
+        // id_group to update
+        $sql = 'SELECT '.$parameter['table'].'.'.$parameter['primary_key'].'
+        FROM '.$parameter['table'].'
+        JOIN '.$parameter['sync_table'].'
+        ON '.$parameter['table'].'.'.$parameter['primary_key'].' = '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].'
+        WHERE '.$parameter['table'].'.update_time > '.$parameter['sync_table'].'.update_time';*/
+
+
+        $query = $this->query($sql,$parameter['bind_param']);
+        if ($query !== false)
+        {
+            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            $new_id_group = array();
+            foreach ($result as $row_index=>$row_value)
+            {
+                $new_id_group[] = $row_value[$parameter['primary_key']];
+            }
+            $format = format::get_obj();
+            $new_id_group = $format->id_group($new_id_group);
+            $this->id_group = $new_id_group;
+
+            $this->_initialized = true;
+            return $this->id_group;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 }
 
 ?>
