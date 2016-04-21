@@ -537,42 +537,6 @@ print_r($sql.'<br>');
 
         if (!isset($parameter['update_query']))
         {
-            if (!isset($parameter['sync_table_fields']))
-            {
-                $result = $db->db_get_columns($parameter['sync_table']);
-                if ($result === false)
-                {
-                    return false;
-                }
-                else
-                {
-                    $parameter['sync_table_fields'] = $result;
-                }
-            }
-
-            if (!isset($parameter['update_fields'])) $parameter['update_fields'] = array();
-
-            $shared_table_fields = array_intersect($parameter['table_fields'], $parameter['sync_table_fields']);
-            foreach ($shared_table_fields as $field_index=>$field_name)
-            {
-                if (!array_key_exists($field_name,$parameter['update_fields'])) $parameter['update_fields'][$field_name] = $parameter['table'].'.'.$field_name;
-            }
-            unset($shared_table_fields);
-
-            // default table fields remove two timestamp fields, but on sync, they are required
-            if (!array_key_exists('enter_time',$parameter['update_fields'])) $parameter['update_fields']['enter_time'] = $parameter['table'].'.enter_time';
-            if (!array_key_exists('update_time',$parameter['update_fields'])) $parameter['update_fields']['update_time'] = $parameter['table'].'.update_time';
-
-            $parameter['update_query'] = 'INSERT INTO '.$parameter['sync_table'].' ('.implode(',',array_keys($parameter['update_fields'])).')
-            SELECT '.implode(',',$parameter['update_fields']).' FROM '.$parameter['table'].' WHERE '.$parameter['primary_key'].' IN ([[*pk_id_group]])
-            ON DUPLICATE KEY UPDATE ';
-            $update_fields = array();
-            foreach($parameter['update_fields'] as $field_index=>$field_name)
-            {
-                $update_fields[] = $field_name.'=VALUES('.$field_name.')';
-            }
-            $parameter['update_query'] .= implode(',',$update_fields);
-            unset($update_fields);
         }
 
         $sql = 'SELECT '.$parameter['table'].'.'.$parameter['primary_key'].'
@@ -592,7 +556,45 @@ print_r($sql.'<br>');
             }
             if (count($new_id_group) > 0)
             {
-                $sql = str_replace('[[*pk_id_group]]',implode(',',$new_id_group),$parameter['update_query']);
+                // Generate INSERT/UPDATE query
+                if (!isset($parameter['sync_table_fields']))
+                {
+                    $result = $db->db_get_columns($parameter['sync_table']);
+                    if ($result === false)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        $parameter['sync_table_fields'] = $result;
+                    }
+                }
+
+                if (!isset($parameter['join_query'])) $parameter['join_query'] = array();
+
+                if (!isset($parameter['update_fields'])) $parameter['update_fields'] = array();
+
+                $shared_table_fields = array_intersect($parameter['table_fields'], $parameter['sync_table_fields']);
+                foreach ($shared_table_fields as $field_index=>$field_name)
+                {
+                    if (!array_key_exists($field_name,$parameter['update_fields'])) $parameter['update_fields'][$field_name] = $parameter['table'].'.'.$field_name;
+                }
+                unset($shared_table_fields);
+
+                // default table fields remove two timestamp fields, but on sync, they are required
+                if (!array_key_exists('enter_time',$parameter['update_fields'])) $parameter['update_fields']['enter_time'] = $parameter['table'].'.enter_time';
+                if (!array_key_exists('update_time',$parameter['update_fields'])) $parameter['update_fields']['update_time'] = $parameter['table'].'.update_time';
+
+                $sql = 'INSERT INTO '.$parameter['sync_table'].' ('.implode(',',array_keys($parameter['update_fields'])).')
+SELECT '.implode(',',$parameter['update_fields']).' FROM '.$parameter['table'].' '.implode(' ',$parameter['join_query']).' WHERE '.$parameter['primary_key'].' IN ('.implode(',',$new_id_group).')
+ON DUPLICATE KEY UPDATE ';
+                $update_fields = array();
+                foreach($parameter['update_fields'] as $field_index=>$field_name)
+                {
+                    $update_fields[] = $field_index.'=VALUES('.$field_index.')';
+                }
+                $sql .= implode(',',$update_fields);
+                unset($update_fields);
                 $query = $this->query($sql);
                 if ($query !== false)
                 {
