@@ -6,7 +6,7 @@
  * Time: 2:00 PM
  */
 include('../system/config/config.php');
-
+$timestamp = time();
 echo '<pre>';
 
 /*$id_array = array(3, 4, 5, 'a', 'b', 'c', ' 231', '%333');
@@ -123,7 +123,7 @@ $view_business_detail_gallery_image_obj->get_by_gallery([1690]);
 print_r($view_business_detail_gallery_image_obj);
 print_r($GLOBALS['global_message']);*/
 
-$entity = new entity_thing();
+$entity = new entity_place();
 //$param = ['table_fields'=>['friendly_url','name']];
 //$value = [['test1','Test Name 1'],['test2','Test Name 2']];
 //print_r($entity->set($value,$param));
@@ -147,3 +147,4 @@ print_r($entity->update(['friendly_url'=>'listing_test']));
 
 $entity->sync();
 print_r($global_message);
+print_r('Executing time: '.(time() - $timestamp).'<br>');

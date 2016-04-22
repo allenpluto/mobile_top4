@@ -586,8 +586,9 @@ print_r($sql.'<br>');
                 if (!array_key_exists('update_time',$parameter['update_fields'])) $parameter['update_fields']['update_time'] = $parameter['table'].'.update_time';
 
                 $sql = 'INSERT INTO '.$parameter['sync_table'].' ('.implode(',',array_keys($parameter['update_fields'])).')
-SELECT '.implode(',',$parameter['update_fields']).' FROM '.$parameter['table'].' '.implode(' ',$parameter['join_query']).' WHERE '.$parameter['primary_key'].' IN ('.implode(',',$new_id_group).')
-ON DUPLICATE KEY UPDATE ';
+SELECT '.implode(',',$parameter['update_fields']).' FROM '.$parameter['table'].' '.implode(' ',$parameter['join']).' WHERE '.$parameter['table'].'.'.$parameter['primary_key'].' IN ('.implode(',',$new_id_group).')';
+                if (!empty($parameter['where'])) $sql .= ' AND ('.implode(' ',$parameter['where']).')';
+                $sql .= 'ON DUPLICATE KEY UPDATE ';
                 $update_fields = array();
                 foreach($parameter['update_fields'] as $field_index=>$field_name)
                 {
