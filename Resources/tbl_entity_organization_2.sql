@@ -35,7 +35,7 @@ Listing.pinterest_link,
 Listing.googleplus_link
 FROM Listing;
 
-ALTER TABLE `tbl_entity_organization_2` ENGINE = MYISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+ALTER TABLE `tbl_entity_organization_2` ENGINE = InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ALTER TABLE `tbl_entity_organization_2`
 MODIFY `id` INT(11) AUTO_INCREMENT PRIMARY KEY,
 MODIFY `friendly_url` VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "",

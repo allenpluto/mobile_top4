@@ -460,23 +460,39 @@ print_r($sql.'<br>');
 
     function sync($parameter = array())
     {
-        if (!isset($parameter['table_type']))
+        if (!isset($parameter['sync_table']))
         {
-            $parameter['table_type'] = 'index';
-        }
-        else
-        {
-            if ($parameter['table_type'] != 'index' AND $parameter['table_type'] != 'view')
-            {
-                $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' unknown table_type, table_type(index/view) is required for prepare_sync function';
-                return false;
-            }
+            $parameter['sync_table'] = str_replace('entity','view',$parameter['table']);
         }
         $parameter = array_merge($this->parameter,$parameter);
 
+        if (!isset($parameter['join']))
+        {
+            $parameter['join'] = array();
+        }
+
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
         else $db = new db;
-        $parameter['sync_table'] = str_replace('entity',$parameter['table_type'],$parameter['table']);
+
+        $sql = 'SHOW TABLES LIKE "'.$parameter['sync_table'].'"';
+        $query = $this->query($sql);
+        if ($query->errorCode() == '00000')
+        {
+            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            if (count($result) == 0)
+            {
+                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.$parameter['sync_table'].' does not exist';
+                return false;
+            }
+        }
+        else
+        {
+            $query_errorInfo = $query->errorInfo();
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+            return false;
+        }
+
+
         if (!isset($parameter['sync_table_primary_key'])) {
             $result = $db->db_get_primary_key($parameter['sync_table']);
             if (empty($result[0]))
@@ -488,6 +504,8 @@ print_r($sql.'<br>');
                 $parameter['sync_table_primary_key'] = $result[0];
             }
         }
+
+
 
         // id_group to delete
         $sql = 'SELECT '.$parameter['sync_table'].'.'.$parameter['sync_table_primary_key'].'
@@ -533,10 +551,6 @@ print_r($sql.'<br>');
         else
         {
             return false;
-        }
-
-        if (!isset($parameter['update_query']))
-        {
         }
 
         $sql = 'SELECT '.$parameter['table'].'.'.$parameter['primary_key'].'
@@ -587,7 +601,7 @@ print_r($sql.'<br>');
 
                 $sql = 'INSERT INTO '.$parameter['sync_table'].' ('.implode(',',array_keys($parameter['update_fields'])).')
 SELECT '.implode(',',$parameter['update_fields']).' FROM '.$parameter['table'].' '.implode(' ',$parameter['join']).' WHERE '.$parameter['table'].'.'.$parameter['primary_key'].' IN ('.implode(',',$new_id_group).')';
-                if (!empty($parameter['where'])) $sql .= ' AND ('.implode(' ',$parameter['where']).')';
+                if (!empty($parameter['where'])) $sql .= ' AND ('.implode(' AND ',$parameter['where']).')';
                 $sql .= 'ON DUPLICATE KEY UPDATE ';
                 $update_fields = array();
                 foreach($parameter['update_fields'] as $field_index=>$field_name)
@@ -647,6 +661,38 @@ SELECT '.implode(',',$parameter['update_fields']).' FROM '.$parameter['table'].'
         WHERE '.$parameter['table'].'.update_time > '.$parameter['sync_table'].'.update_time';*/
 
 
+    }
+
+    function full_sync($parameter = array())
+    {
+        $parameter = array_merge($this->parameter,$parameter);
+        $sql = 'DROP TABLE IF EXISTS '.$parameter['sync_table'].';';
+        $update_fields = array();
+        foreach ($parameter['update_fields'] as $field_index=>$field_value)
+        {
+            $update_fields[] = $field_value.' AS '.$field_index;
+        }
+        $sql .= 'CREATE TABLE '.$parameter['sync_table'].' SELECT '.implode(',',$update_fields).' FROM '.$parameter['table'].' '.implode(' ',$parameter['join']);
+        if (!empty($parameter['where'])) $sql .= ' WHERE ('.implode(' AND ',$parameter['where']).')';
+        unset($update_fields);
+        $sql .= ';';
+        $sql .= 'ALTER TABLE '.$parameter['sync_table'].' ENGINE = MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;';
+        $sql .= 'ALTER TABLE '.$parameter['sync_table'].' MODIFY '.$parameter['primary_key'].' PRIMARY KEY;';
+        if (isset($parameter['fulltext_key']))
+        {
+            $sql .= 'ALTER TABLE '.$parameter['sync_table'];
+            $fulltext_query = array();
+            foreach ($parameter['fulltext_key'] as $fulltext_index=>$fulltext_fields)
+            {
+                $fulltext_query[] = ' ADD FULLTEXT KEY '.$fulltext_index.' ('.implode(',',$fulltext_fields).')';
+            }
+            $sql .= implode(',',$fulltext_query).';';
+            unset($fulltext_query);
+        }
+        $query = $this->query($sql);
+
+
+        return true;
     }
 
 }
