@@ -145,7 +145,7 @@ print_r($entity->id_group);
 print_r($entity->update(['friendly_url'=>'listing_test']));
 */
 $parameter = array();
-$entity->sync();
+$entity->full_sync();
 /*$parameter = array();
 $parameter['sync_table'] = str_replace('entity','index',$entity->parameter['table']);
 $parameter['update_fields'] = array(

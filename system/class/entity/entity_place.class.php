@@ -87,7 +87,7 @@ class entity_place extends entity
             'tbl_entity_place.type = "suburb"'
         );
 
-        parent::sync($parameter);
+        parent::full_sync($parameter);
 
         $parameter['sync_table'] = str_replace('entity','view',$this->parameter['table']);
         $parameter['update_fields'] = array(
@@ -98,7 +98,13 @@ class entity_place extends entity
             'enter_time' => 'tbl_entity_place.enter_time',
             'update_time' => 'tbl_entity_place.update_time',
             'latitude' => 'tbl_entity_place.latitude',
-            'longitude' => 'tbl_entity_place.longitude'
+            'longitude' => 'tbl_entity_place.longitude',
+            'viewport_northeast_latitude' => 'tbl_entity_place.viewport_northeast_latitude',
+            'viewport_northeast_longitude' => 'tbl_entity_place.viewport_northeast_longitude',
+            'viewport_southwest_latitude' => 'tbl_entity_place.viewport_southwest_latitude',
+            'viewport_southwest_longitude' => 'tbl_entity_place.viewport_southwest_longitude',
+            'formatted_address' => 'tbl_entity_place.formatted_address',
+            'formatted_address_alt' => 'CONCAT(tbl_entity_place.alternate_name,", ",place_state.alternate_name," ",tbl_entity_place.post)'
         );
 
         $parameter['join'] = array(
@@ -109,7 +115,7 @@ class entity_place extends entity
             'tbl_entity_place.type = "suburb"'
         );
 
-        parent::sync($parameter);
+        parent::full_sync($parameter);
     }
 }
 
