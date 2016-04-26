@@ -29,12 +29,12 @@ class db
     {
         $table = str_replace("'","\'", $table);
         $sql = 'DESCRIBE '.$table;
-        $query = self::$_conn->query($sql);
+        $pdo_statement_obj = self::$_conn->query($sql);
 
         if (self::$_conn->errorCode() == '00000')
         {
             $column = array();
-            foreach ($query as $column_description_index=>$column_description_value)
+            foreach ($pdo_statement_obj as $column_description_index=>$column_description_value)
             {
                 $column[] = $column_description_value['Field'];
             }
@@ -52,12 +52,12 @@ class db
     {
         $table = str_replace("'","\'", $table);
         $sql = 'SHOW INDEX FROM `'.$table.'` WHERE Key_name = "PRIMARY"';
-        $query = self::$_conn->query($sql);
+        $pdo_statement_obj = self::$_conn->query($sql);
 
         if (self::$_conn->errorCode() == '00000')
         {
             $column = array();
-            foreach ($query as $column_description_index=>$column_description_value)
+            foreach ($pdo_statement_obj as $column_description_index=>$column_description_value)
             {
                 $column[] = $column_description_value['Column_name'];
             }
@@ -75,12 +75,14 @@ class db
     {
         $table = str_replace("'","\'", $table);
         $sql = 'SHOW INDEX FROM `'.$table.'` WHERE index_type = "FullTEXT"';
-        $query = self::$_conn->query($sql);
+        print_r($sql);
+        $pdo_statement_obj = self::$_conn->query($sql);
+        print_r($pdo_statement_obj);
 
         if (self::$_conn->errorCode() == '00000')
         {
             $column = array();
-            foreach ($query as $column_description_index=>$column_description_value)
+            foreach ($pdo_statement_obj as $column_description_index=>$column_description_value)
             {
                 if (!isset($column[$column_description_value['Key_name']])) $column[$column_description_value['Key_name']] = array('Seq_in_index'=>array(),'Column_name'=>array());
                 $column[$column_description_value['Key_name']]['Seq_in_index'][] = $column_description_value['Seq_in_index'];
@@ -100,6 +102,109 @@ class db
             $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
             return false;
         }
+    }
+
+    function db_table_exists($table)
+    {
+        $sql = 'SHOW TABLES LIKE "'.$table.'"';
+        $pdo_statement_obj = self::$_conn->query($sql);
+
+        if (self::$_conn->errorCode() == '00000')
+        {
+            if (count($pdo_statement_obj->fetchAll(PDO::FETCH_ASSOC)) == 0)
+            {
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.$table.' does not exist';
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            $query_errorInfo = self::$_conn->errorInfo();
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+            return false;
+        }
+    }
+
+    // compare records of two tables with same id (e.g. tb_entity_thing & tb_index_thing), return the ids listed in source_table but not in target_table
+    // if $parameter['include_update'] === true, return ids in source_table with newer update_time as well
+    function db_compare_records($parameter)
+    {
+        /*$sql = 'SELECT ' . $parameter['source_table'] . '.' . $parameter['source_primary_key'] . '
+        FROM ' . $parameter['source_table'] . '
+        LEFT JOIN ' . $parameter['target_table'] . '
+        ON ' . $parameter['source_table'] . '.' . $parameter['source_primary_key'] . ' = ' . $parameter['target_table'] . '.' . $parameter['target_primary_key'] . '
+        WHERE ' . $parameter['target_table'] . '.' . $parameter['target_primary_key'] . ' IS NULL';*/
+        $result = array();
+        $sql = 'SELECT ' . $parameter['source_primary_key'] . '
+        FROM ' . $parameter['source_table'] . '
+        WHERE ' . $parameter['source_primary_key'] . ' NOT IN
+        (SELECT ' . $parameter['target_primary_key'] .' FROM ' . $parameter['target_table'] . ')';
+        $pdo_statement_obj = self::$_conn->query($sql);
+        if (self::$_conn->errorCode() == '00000')
+        {
+            $id_group = array();
+            foreach ($pdo_statement_obj as $row_index => $row_value)
+            {
+                $id_group[] = $row_value[$parameter['source_primary_key']];
+            }
+            $result['insert_id_group'] = $id_group;
+            unset($id_group);
+        }
+        else
+        {
+            $query_errorInfo = self::$_conn->errorInfo();
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+            return false;
+        }
+
+        $sql = 'SELECT ' . $parameter['target_primary_key'] . '
+        FROM ' . $parameter['target_table'] . '
+        WHERE ' . $parameter['target_primary_key'] . ' NOT IN
+        (SELECT ' . $parameter['source_primary_key'] .' FROM ' . $parameter['source_table'] . ')';
+        $pdo_statement_obj = self::$_conn->query($sql);
+        if (self::$_conn->errorCode() == '00000')
+        {
+            $id_group = array();
+            foreach ($pdo_statement_obj as $row_index => $row_value)
+            {
+                $id_group[] = $row_value[$parameter['source_primary_key']];
+            }
+            $result['delete_id_group'] = $id_group;
+            unset($id_group);
+        }
+        else
+        {
+            $query_errorInfo = self::$_conn->errorInfo();
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+            return false;
+        }
+
+        $sql = 'SELECT ' . $parameter['source_table'] . '.' . $parameter['source_primary_key'] . '
+        FROM ' . $parameter['source_table'] . '
+        JOIN ' . $parameter['target_table'] . ' ON ' . $parameter['source_table'] . '.' . $parameter['source_primary_key'] . '=' . $parameter['target_table'] . '.' . $parameter['target_primary_key'] . '
+        WHERE '.$parameter['source_table'].'.update_time > '.$parameter['target_table'].'.update_time';
+        $pdo_statement_obj = self::$_conn->query($sql);
+        if (self::$_conn->errorCode() == '00000')
+        {
+            $id_group = array();
+            foreach ($pdo_statement_obj as $row_index => $row_value)
+            {
+                $id_group[] = $row_value[$parameter['source_primary_key']];
+            }
+            $result['update_id_group'] = $id_group;
+            unset($id_group);
+        }
+        else
+        {
+            $query_errorInfo = self::$_conn->errorInfo();
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+            return false;
+        }
+        return $result;
     }
 }
 ?>

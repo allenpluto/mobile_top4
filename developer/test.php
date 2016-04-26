@@ -143,10 +143,10 @@ print_r($entity->set($value,$param));
 $entity->get(['where'=>'`friendly_url` LIKE :friendly_url','bind_param'=>[':friendly_url'=>'list_%']]);
 print_r($entity->id_group);
 print_r($entity->update(['friendly_url'=>'listing_test']));
-
-
-$entity->sync();*/
+*/
 $parameter = array();
+$entity->sync();
+/*$parameter = array();
 $parameter['sync_table'] = str_replace('entity','index',$entity->parameter['table']);
 $parameter['update_fields'] = array(
     'id' => 'tbl_entity_place.id',
@@ -158,7 +158,11 @@ $parameter['update_fields'] = array(
     'enter_time' => 'tbl_entity_place.enter_time',
     'update_time' => 'tbl_entity_place.update_time',
     'latitude' => 'tbl_entity_place.latitude',
-    'longitude' => 'tbl_entity_place.longitude'
+    'longitude' => 'tbl_entity_place.longitude',
+    'bounds_northeast_latitude' => 'tbl_entity_place.bounds_northeast_latitude',
+    'bounds_northeast_longitude' => 'tbl_entity_place.bounds_northeast_longitude',
+    'bounds_southwest_latitude' => 'tbl_entity_place.bounds_southwest_latitude',
+    'bounds_southwest_longitude' => 'tbl_entity_place.bounds_southwest_longitude'
 );
 
 $parameter['join'] = array(
@@ -172,6 +176,6 @@ $parameter['fulltext_key'] = array(
     'fulltext_location' => array('suburb','suburb_alt','state,state_alt','country','post')
 );
 
-$entity->full_sync($parameter);
+$entity->full_sync($parameter);*/
 print_r($global_message);
 print_r('Executing time: '.(time() - $timestamp).'<br>');
