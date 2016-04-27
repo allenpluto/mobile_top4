@@ -590,24 +590,27 @@ SELECT ' . implode(',', $parameter['update_fields']) . ' FROM ' . $parameter['ta
         unset($update_fields);
         $sql .= ';';
         $sql .= 'ALTER TABLE '.$parameter['sync_table'].' ENGINE = MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;';
-        $sql .= 'ALTER TABLE '.$parameter['sync_table'].' MODIFY '.$parameter['primary_key'].' PRIMARY KEY;';
+        $sql .= 'ALTER TABLE '.$parameter['sync_table'].' ADD PRIMARY KEY ('.$parameter['primary_key'].');';
+        $sql .= 'ALTER TABLE '.$parameter['sync_table'].' MODIFY enter_time TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00"';
+        $sql .= ', MODIFY update_time TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00"';
         if (isset($parameter['fulltext_key']))
         {
-            $sql .= 'ALTER TABLE '.$parameter['sync_table'];
-            $fulltext_query = array();
             foreach ($parameter['fulltext_key'] as $fulltext_index=>$fulltext_fields)
             {
-                $fulltext_query[] = ' ADD FULLTEXT KEY '.$fulltext_index.' ('.implode(',',$fulltext_fields).')';
+                $sql .= ', ADD FULLTEXT KEY '.$fulltext_index.' ('.implode(',',$fulltext_fields).')';
             }
-            $sql .= implode(',',$fulltext_query).';';
-            unset($fulltext_query);
         }
+        $sql .= ';';
         $query = $this->query($sql);
-
-
-        return true;
+        if ($query !== false)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
-
 }
 
 ?>

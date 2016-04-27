@@ -26,8 +26,8 @@ class entity_organization extends entity
                         $get_parameter['where'][] = '`id` = :id';
                         $get_parameter['bind_param'][':id'] = $parameter_value;
                         break;
-                    case 'order_by':
-                        $get_parameter['order_by'] = $parameter_value;
+                    case 'order':
+                        $get_parameter['order'] = $parameter_value;
                         break;
                     case 'limit':
                         $get_parameter['limit'] = ':limit';
