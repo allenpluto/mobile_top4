@@ -75,9 +75,7 @@ class db
     {
         $table = str_replace("'","\'", $table);
         $sql = 'SHOW INDEX FROM `'.$table.'` WHERE index_type = "FullTEXT"';
-        print_r($sql);
         $pdo_statement_obj = self::$_conn->query($sql);
-        print_r($pdo_statement_obj);
 
         if (self::$_conn->errorCode() == '00000')
         {

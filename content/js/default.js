@@ -1235,6 +1235,7 @@ $.fn.overlay_popup = function(user_option){
 $.fn.touch_slider = function(user_option){
     var default_option = {
         'min_trigger_offset': 0.3,
+        'display_count': true,
         'navigation_arrow': true
     };
     // Extend our default option with user provided.
@@ -1270,6 +1271,10 @@ $.fn.touch_slider = function(user_option){
                 }
                 slider_container.data('count_current', new_count_current);
                 slider_container.css('text-indent',-100*slider_container.data('count_current')+'%');
+                if (slider_container.data('option').display_count === true)
+                {
+                    slider_container.find('.touch_slider_image_counter_container').html(slider_container.data('count_current')+' / '+slider_container.data('count_total'));
+                }
             });
 
             slider_container.bind('touchstart',function(event){
@@ -1391,6 +1396,14 @@ $.fn.touch_slider = function(user_option){
                         slider_container.data('current_event','');
                     }
                 });
+            }
+
+            if (slider_container.data('option').display_count === true)
+            {
+                var image_counter = $('<div />', {
+                    'class': 'touch_slider_image_counter_container'
+                }).html(slider_container.data('count_current')+' / '+slider_container.data('count_total'));
+                image_counter.appendTo(slider_container);
             }
 
         }
