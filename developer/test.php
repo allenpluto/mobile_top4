@@ -123,7 +123,7 @@ $view_business_detail_gallery_image_obj->get_by_gallery([1690]);
 print_r($view_business_detail_gallery_image_obj);
 print_r($GLOBALS['global_message']);*/
 
-$entity = new entity_place();
+$entity = new entity_organization();
 //$param = ['table_fields'=>['friendly_url','name']];
 //$value = [['test1','Test Name 1'],['test2','Test Name 2']];
 //print_r($entity->set($value,$param));
@@ -144,8 +144,8 @@ $entity->get(['where'=>'`friendly_url` LIKE :friendly_url','bind_param'=>[':frie
 print_r($entity->id_group);
 print_r($entity->update(['friendly_url'=>'listing_test']));
 */
-$parameter = array();
-$entity->full_sync();
+$parameter = array('full_sync'=>true);
+$entity->sync($parameter);
 /*$parameter = array();
 $parameter['sync_table'] = str_replace('entity','index',$entity->parameter['table']);
 $parameter['update_fields'] = array(

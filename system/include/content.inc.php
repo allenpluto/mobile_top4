@@ -32,7 +32,7 @@ class content {
         // Google Analytics Tracking
         if ($GLOBALS['global_preference']->ga_tracking_id)
         {
-            $this->content['script'][] = array('type'=>'remote_file', 'file_path'=>'http://www.google-analytics.com/','file_name'=>'analytics');
+            $this->content['script'][] = array('type'=>'remote_file', 'file_path'=>'http://www.google-analytics.com/analytics.js','file_name'=>'analytics');
             $this->content['script'][] = array('type'=>'text_content', 'content'=>'window[\'GoogleAnalyticsObject\'] = \'ga\';window[\'ga\'] = window[\'ga\'] || function() {(window[\'ga\'].q = window[\'ga\'].q || []).push(arguments)}, window[\'ga\'].l = 1 * new Date();ga(\'create\', \''.$GLOBALS['global_preference']->ga_tracking_id.'\', \'auto\');ga(\'send\', \'pageview\');');
         }
 
@@ -793,7 +793,7 @@ class content {
                                     }
                                     break;
                                 case 'remote_file':
-                                    $file_header = @get_headers($row['file_path'].$row['file_name'].'.js');
+                                    $file_header = @get_headers($row['file_path']);
                                     if (strpos( $file_header[0], '200 OK' ) !== false)
                                     {
                                         $file_header_array = array();
@@ -828,7 +828,7 @@ class content {
                                         {
                                             if (!file_exists(PATH_CACHE_JS)) mkdir(PATH_CACHE_JS, 0755, true);
 
-                                            copy($row['file_path'].$row['file_name'].'.js', PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.js');
+                                            copy($row['file_path'], PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.js');
 
                                             exec('java -jar '.PATH_CONTENT_JAR.'yuicompressor-2.4.8.jar '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.js -o '.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js', $result);
                                             // further minify js, remove comments
@@ -847,7 +847,7 @@ class content {
                                         }
                                         else
                                         {
-                                            $row['src'] = $row['file_path'].$row['file_name'].'.js';
+                                            $row['src'] = $row['file_path'];
                                             $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): load minified js script ['.PATH_CACHE_JS.$row['file_name'].'.'.$file_version.'.min.js] failed';
                                         }
                                     }
@@ -896,10 +896,10 @@ class content {
                                     }
                                     break;
                                 case 'remote_file':
-                                    $file_header = @get_headers($row['file_path'].$row['file_name'].'.js');
+                                    $file_header = @get_headers($row['file_path']);
                                     if (strpos( $file_header[0], '200 OK' ) !== false)
                                     {
-                                        $row['src'] = $row['file_path'].$row['file_name'].'.js';
+                                        $row['src'] = $row['file_path'];
                                         unset($file_header);
                                     }
                                     break;

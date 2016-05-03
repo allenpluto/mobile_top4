@@ -555,6 +555,7 @@ print_r($sql.'<br>');
             $sql = 'INSERT INTO ' . $parameter['sync_table'] . ' (' . implode(',', array_keys($parameter['update_fields'])) . ')
 SELECT ' . implode(',', $parameter['update_fields']) . ' FROM ' . $parameter['table'] . ' ' . implode(' ', $parameter['join']) . ' WHERE ' . $parameter['table'] . '.' . $parameter['primary_key'] . ' IN (' . implode(',', $id_group) . ')';
             if (!empty($parameter['where'])) $sql .= ' AND (' . implode(' AND ', $parameter['where']) . ')';
+            if (!empty($parameter['group'])) $sql .= ' GROUP BY '.implode(', ',$parameter['group']);
             $sql .= 'ON DUPLICATE KEY UPDATE ';
             $update_fields = array();
             foreach ($parameter['update_fields'] as $field_index => $field_name) {
@@ -587,6 +588,7 @@ SELECT ' . implode(',', $parameter['update_fields']) . ' FROM ' . $parameter['ta
         }
         $sql .= 'CREATE TABLE '.$parameter['sync_table'].' SELECT '.implode(',',$update_fields).' FROM '.$parameter['table'].' '.implode(' ',$parameter['join']);
         if (!empty($parameter['where'])) $sql .= ' WHERE ('.implode(' AND ',$parameter['where']).')';
+        if (!empty($parameter['group'])) $sql .= ' GROUP BY '.implode(', ',$parameter['group']);
         unset($update_fields);
         $sql .= ';';
         $sql .= 'ALTER TABLE '.$parameter['sync_table'].' ENGINE = MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;';

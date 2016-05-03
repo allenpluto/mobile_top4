@@ -63,5 +63,7 @@ INSERT INTO `tbl_entity_organization` (
   FROM Listing
     JOIN tbl_entity_google_place ON Listing.id = tbl_entity_google_place.listing_id
   WHERE tbl_entity_google_place.types = 'street_address'
-  GROUP BY Listing.id ORDER BY Listing.id
+    AND Listing.id NOT IN (SELECT tbl_entity_organization.id FROM tbl_entity_organization)
+  GROUP BY Listing.id
+  ORDER BY Listing.id
   Limit 1000;
