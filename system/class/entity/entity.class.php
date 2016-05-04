@@ -466,11 +466,6 @@ print_r($sql.'<br>');
         }
         $parameter = array_merge($this->parameter,$parameter);
 
-        if (isset($parameter['full_sync']) AND  $parameter['full_sync'] == true)
-        {
-            return $this->full_sync($parameter);
-        }
-
         if (!isset($parameter['join']))
         {
             $parameter['join'] = array();
@@ -481,8 +476,13 @@ print_r($sql.'<br>');
 
         if (!$db->db_table_exists($parameter['sync_table']))
         {
-            $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): Create the sync target table '.$parameter['sync_table'].' first then run sync function again';
-            return false;
+            $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): table '.$parameter['sync_table'].' does not exist, attempt to init with full_sync function';
+            $parameter['full_sync'] = true;
+        }
+
+        if (isset($parameter['full_sync']) AND  $parameter['full_sync'] == true)
+        {
+            return $this->full_sync($parameter);
         }
 
         if (!isset($parameter['sync_table_primary_key'])) {
@@ -503,7 +503,8 @@ print_r($sql.'<br>');
             'source_table'=>$parameter['table'],
             'source_primary_key'=>$parameter['primary_key'],
             'target_table'=>$parameter['sync_table'],
-            'target_primary_key'=>$parameter['sync_table_primary_key']
+            'target_primary_key'=>$parameter['sync_table_primary_key'],
+            'where'=>$parameter['where']
         ));
         if ($compare_result === false) return false;
         if (count($compare_result['delete_id_group']) > 0)
@@ -562,7 +563,7 @@ print_r($sql.'<br>');
 SELECT ' . implode(',', $parameter['update_fields']) . ' FROM ' . $parameter['table'] . ' ' . implode(' ', $parameter['join']) . ' WHERE ' . $parameter['table'] . '.' . $parameter['primary_key'] . ' IN (' . implode(',', $id_group) . ')';
             if (!empty($parameter['where'])) $sql .= ' AND (' . implode(' AND ', $parameter['where']) . ')';
             if (!empty($parameter['group'])) $sql .= ' GROUP BY '.implode(', ',$parameter['group']);
-            $sql .= 'ON DUPLICATE KEY UPDATE ';
+            $sql .= ' ON DUPLICATE KEY UPDATE ';
             $update_fields = array();
             foreach ($parameter['update_fields'] as $field_index => $field_name) {
                 $update_fields[] = $field_index . '=VALUES(' . $field_index . ')';

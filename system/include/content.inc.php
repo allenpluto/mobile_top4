@@ -181,6 +181,7 @@ class content {
                             'name'=>$view_business_detail_value[0]['name'],
                             'description'=>$view_business_detail_value[0]['description'],
                             'amp_uri'=>URI_SITE_BASE.'business-amp/'.$this->parameter['instance'],
+                            'robots'=>'index, nofollow',
                             'body'=>$view_business_detail_obj
                         )
                     )
@@ -441,6 +442,7 @@ class content {
                                 array(
                                     'name'=>$long_title,
                                     'description'=>$long_title,
+                                    'robots'=>'noindex, follow',
                                     'body'=>$view_web_page_element_obj_body
                                 )
                             )
