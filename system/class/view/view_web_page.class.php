@@ -44,6 +44,14 @@ class view_web_page extends view
         foreach ($this->row as $row_index=>$row_value)
         {
             $this->row[$row_index]['base'] = URI_SITE_BASE;
+            if ($GLOBALS['global_preference']->environment != 'production')
+            {
+                $this->row[$row_index]['robots'] = 'noindex, nofollow';
+            }
+            else
+            {
+                if (!isset($this->row[$row_index]['robots'])) $this->row[$row_index]['robots'] = 'index, follow';
+            }
         }
         return $this->row;
     }
