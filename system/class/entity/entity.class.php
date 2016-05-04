@@ -466,6 +466,11 @@ print_r($sql.'<br>');
         }
         $parameter = array_merge($this->parameter,$parameter);
 
+        if (isset($parameter['full_sync']) AND  $parameter['full_sync'] == true)
+        {
+            return $this->full_sync($parameter);
+        }
+
         if (!isset($parameter['join']))
         {
             $parameter['join'] = array();
@@ -491,6 +496,7 @@ print_r($sql.'<br>');
                 $parameter['sync_table_primary_key'] = $result[0];
             }
         }
+
 
         // id_group to delete
         $compare_result = $db->db_compare_records(array(

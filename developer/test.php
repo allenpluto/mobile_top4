@@ -144,7 +144,8 @@ $entity->get(['where'=>'`friendly_url` LIKE :friendly_url','bind_param'=>[':frie
 print_r($entity->id_group);
 print_r($entity->update(['friendly_url'=>'listing_test']));
 */
-$parameter = array('full_sync'=>true);
+//$parameter = array('full_sync'=>true);
+$parameter = array();
 $entity->sync($parameter);
 /*$parameter = array();
 $parameter['sync_table'] = str_replace('entity','index',$entity->parameter['table']);
