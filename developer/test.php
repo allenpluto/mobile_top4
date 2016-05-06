@@ -123,7 +123,7 @@ $view_business_detail_gallery_image_obj->get_by_gallery([1690]);
 print_r($view_business_detail_gallery_image_obj);
 print_r($GLOBALS['global_message']);*/
 
-$entity = new entity_organization();
+$entity = new entity_organization([10811, 10818]);
 //$param = ['table_fields'=>['friendly_url','name']];
 //$value = [['test1','Test Name 1'],['test2','Test Name 2']];
 //print_r($entity->set($value,$param));
@@ -145,7 +145,7 @@ print_r($entity->id_group);
 print_r($entity->update(['friendly_url'=>'listing_test']));
 */
 //$parameter = array('full_sync'=>true);
-$parameter = array();
+$parameter = array('sync_type'=>'update_current');
 $entity->sync($parameter);
 /*$parameter = array();
 $parameter['sync_table'] = str_replace('entity','index',$entity->parameter['table']);
@@ -178,5 +178,5 @@ $parameter['fulltext_key'] = array(
 );
 
 $entity->full_sync($parameter);*/
-print_r($global_message);
+print_r($global_message->display());
 print_r('Executing time: '.(time() - $timestamp).'<br>');

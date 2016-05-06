@@ -5,7 +5,7 @@
 
 class message
 {
-    private $property = array('notice'=>array(),'warning'=>array(),'error'=>array());
+    private $property = array();
     private static $instance;
 
     private function __construct() {}
@@ -21,29 +21,18 @@ class message
 
     public function __set($key, $value)
     {
-        switch($key)
-        {
-            case 'notice':
-            case 'error':
-            case 'warning':
-                $this->property[$key][] = $value;
-                break;
-            default:
-                $this->property['notice'][] = $value;
-        }
-
+        if (!isset($this->property[$key])) $this->property[$key] = array();
+        $this->property[$key][] = $value;
     }
 
-    public function __get($key) {
-        switch($key)
-        {
-            case 'notice':
-            case 'error':
-            case 'warning':
-                return $this->property[$key];
-                break;
-            default:
-                return $this->property;
-        }
+    public function __get($key)
+    {
+        if (!isset($this->property[$key])) return false;
+        return $this->property[$key];
+    }
+
+    public function display()
+    {
+        return $this->property;
     }
 }

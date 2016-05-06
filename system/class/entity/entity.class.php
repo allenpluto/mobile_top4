@@ -471,16 +471,21 @@ print_r($sql.'<br>');
             $parameter['join'] = array();
         }
 
+        if (!isset($parameter['sync_type']))
+        {
+            $parameter['sync_type'] = 'differential_sync';
+        }
+
         if ($GLOBALS['db']) $db = $GLOBALS['db'];
         else $db = new db;
 
         if (!$db->db_table_exists($parameter['sync_table']))
         {
-            $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): table '.$parameter['sync_table'].' does not exist, attempt to init with full_sync function';
-            $parameter['full_sync'] = true;
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): table '.$parameter['sync_table'].' does not exist, attempt to init with full_sync function';
+            $parameter['sync_type'] = 'full_sync'; // When target sync_table does not exist, can only perform full_sync (DROP TABLE AND CREATE TABLE)
         }
 
-        if (isset($parameter['full_sync']) AND  $parameter['full_sync'] == true)
+        if ($parameter['sync_type'] == 'full_sync')
         {
             return $this->full_sync($parameter);
         }
@@ -498,28 +503,51 @@ print_r($sql.'<br>');
         }
 
 
-        // id_group to delete
-        $compare_result = $db->db_compare_records(array(
-            'source_table'=>$parameter['table'],
-            'source_primary_key'=>$parameter['primary_key'],
-            'target_table'=>$parameter['sync_table'],
-            'target_primary_key'=>$parameter['sync_table_primary_key'],
-            'where'=>$parameter['where']
-        ));
-        if ($compare_result === false) return false;
-        if (count($compare_result['delete_id_group']) > 0)
+        switch ($parameter['sync_type'])
         {
-            $sql = 'DELETE FROM '.$parameter['sync_table'].' WHERE '.$parameter['sync_table_primary_key'].' IN ('.implode(',',$compare_result['delete_id_group']).')';
+            case 'update_current':
+                // update_current, force update current object id_group rows
+                $sync_id_group = array(
+                    'delete' => array(),
+                    'update' => array(),
+                    'insert' => $this->id_group
+                );
+                break;
+            case 'delete_current':
+                // delete_current, force delete current object id_group rows
+                $sync_id_group = array(
+                    'delete' => $this->id_group,
+                    'update' => array(),
+                    'insert' => array()
+                );
+                break;
+            case 'differential_sync':
+            default:
+                // differential_sync, compare source table and target table id and updated date field to get the sync rows
+                $sync_id_group = $db->db_compare_records(array(
+                    'source_table'=>$parameter['table'],
+                    'source_primary_key'=>$parameter['primary_key'],
+                    'target_table'=>$parameter['sync_table'],
+                    'target_primary_key'=>$parameter['sync_table_primary_key'],
+                    'where'=>$parameter['where']
+                ));
+                if ($sync_id_group === false) return false;
+        }
+
+        // id_group to delete
+        if (count($sync_id_group['delete']) > 0)
+        {
+            $sql = 'DELETE FROM '.$parameter['sync_table'].' WHERE '.$parameter['sync_table_primary_key'].' IN ('.implode(',',$sync_id_group['delete']).')';
             $query = $this->query($sql);
             if ($query !== false)
             {
                 if ($query->rowCount() == 0)
                 {
-                    $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' on sync no row deleted';
+                    $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.$parameter['table'].' on sync to '.$parameter['sync_table'].' no row deleted';
                 }
                 else
                 {
-                    $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' on sync '.$query->rowCount().' row(s) deleted';
+                    $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.$parameter['table'].' on sync to '.$parameter['sync_table'].' '.$query->rowCount().' row(s) deleted';
                 }
             }
             else
@@ -529,10 +557,10 @@ print_r($sql.'<br>');
         }
         else
         {
-            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' on sync no row deleted';
+            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.$parameter['table'].' on sync to '.$parameter['sync_table'].' no row deleted';
         }
 
-        $id_group = array_merge($compare_result['insert_id_group'], $compare_result['update_id_group']);
+        $id_group = array_merge($sync_id_group['insert'], $sync_id_group['update']);
         if (count($id_group) > 0)
         {
             // Generate INSERT/UPDATE query
@@ -573,13 +601,21 @@ SELECT ' . implode(',', $parameter['update_fields']) . ' FROM ' . $parameter['ta
             $query = $this->query($sql);
             if ($query !== false) {
                 if ($query->rowCount() == 0) {
-                    $GLOBALS['global_message']->notice = __FILE__ . '(line ' . __LINE__ . '): ' . get_class($this) . ' on sync no row inserted/updated';
-                } else {
-                    $GLOBALS['global_message']->notice = __FILE__ . '(line ' . __LINE__ . '): ' . get_class($this) . ' on sync ' . $query->rowCount() . ' row(s)/field(s) inserted/updated';
+                    $GLOBALS['global_message']->notice = __FILE__ . '(line ' . __LINE__ . '): '.$parameter['table'].' on sync to '.$parameter['sync_table'].' no row inserted/updated';
                 }
-            } else {
+                else
+                {
+                    $GLOBALS['global_message']->notice = __FILE__ . '(line ' . __LINE__ . '): '.$parameter['table'].' on sync to '.$parameter['sync_table'].' '.$query->rowCount().' row(s)/field(s) inserted/updated';
+                }
+            }
+            else
+            {
                 return false;
             }
+        }
+        else
+        {
+            $GLOBALS['global_message']->notice = __FILE__ . '(line ' . __LINE__ . '): '.$parameter['table'].' on sync to '.$parameter['sync_table'].' no row inserted/updated';
         }
         return true;
     }

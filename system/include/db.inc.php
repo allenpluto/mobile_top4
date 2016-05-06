@@ -150,7 +150,7 @@ class db
             {
                 $id_group[] = $row_value[$parameter['source_primary_key']];
             }
-            $result['insert_id_group'] = $id_group;
+            $result['insert'] = $id_group;
             unset($id_group);
         }
         else
@@ -172,7 +172,7 @@ class db
             {
                 $id_group[] = $row_value[$parameter['source_primary_key']];
             }
-            $result['delete_id_group'] = $id_group;
+            $result['delete'] = $id_group;
             unset($id_group);
         }
         else
@@ -195,7 +195,7 @@ class db
             {
                 $id_group[] = $row_value[$parameter['source_primary_key']];
             }
-            $result['update_id_group'] = $id_group;
+            $result['update'] = $id_group;
             unset($id_group);
         }
         else

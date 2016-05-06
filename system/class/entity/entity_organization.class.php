@@ -49,9 +49,12 @@ class entity_organization extends entity
 
     function sync($parameter = array())
     {
+        $sync_parameter = array();
+
+        // set default sync parameters for index table
         //$parameter['sync_table'] = str_replace('entity','index',$this->parameter['table']);
-        $parameter['sync_table'] = 'tbl_index_organization_1';
-        $parameter['update_fields'] = array(
+        $sync_parameter['sync_table'] = 'tbl_index_organization_1';
+        $sync_parameter['update_fields'] = array(
             'id' => 'tbl_entity_organization.id',
             'name' => 'tbl_entity_organization.name',
             'alternate_name' => 'tbl_entity_organization.alternate_name',
@@ -68,28 +71,34 @@ class entity_organization extends entity
             'featured' => 'IF((CURDATE()<=ListingFeatured.date_end AND CURDATE()>=ListingFeatured.date_start), 1, 0)'
         );
 
-        $parameter['join'] = array(
+        $sync_parameter['join'] = array(
             'JOIN Listing_Category tbl_rel_category_to_listing ON tbl_entity_organization.id = tbl_rel_category_to_listing.listing_id',
             'LEFT JOIN ListingFeatured ON tbl_entity_organization.id = ListingFeatured.id',
             'LEFT JOIN tbl_entity_google_place ON tbl_entity_organization.id = tbl_entity_google_place.listing_id AND (tbl_entity_google_place.types = "route" OR tbl_entity_google_place.types = "street_address" OR tbl_entity_google_place.types = "subpremise")'
         );
 
-        $parameter['where'] = array(
+        $sync_parameter['where'] = array(
             'tbl_entity_organization.status = "A"'
         );
 
-        $parameter['group'] = array(
+        $sync_parameter['group'] = array(
             'tbl_entity_organization.id'
         );
 
-        $parameter['fulltext_key'] = array(
+        $sync_parameter['fulltext_key'] = array(
             'fulltext_keywords' => ['name','alternate_name','description','keywords']
         );
 
-        $result[] = parent::sync($parameter);
+        $sync_parameter = array_merge($sync_parameter, $parameter);
 
-        $parameter['sync_table'] = 'tbl_view_organization_1';
-        $parameter['update_fields'] = array(
+        $result[] = parent::sync($sync_parameter);
+
+
+        $sync_parameter = array();
+
+        // set default sync parameters for view table
+        $sync_parameter['sync_table'] = 'tbl_view_organization_1';
+        $sync_parameter['update_fields'] = array(
             'id' => 'tbl_entity_organization.id',
             'friendly_url' => 'tbl_entity_organization.friendly_url',
             'name' => 'tbl_entity_organization.name',
@@ -117,7 +126,7 @@ class entity_organization extends entity
             'featured' => 'IF((CURDATE()<=ListingFeatured.date_end AND CURDATE()>=ListingFeatured.date_start), 1, 0)'
         );
 
-        $parameter['join'] = array(
+        $sync_parameter['join'] = array(
             'LEFT JOIN Listing_Category tbl_rel_category_to_listing ON tbl_entity_organization.id = tbl_rel_category_to_listing.listing_id',
             'LEFT JOIN Image logo_image ON tbl_entity_organization.logo_id = logo_image.id',
             'LEFT JOIN Image banner_image ON tbl_entity_organization.banner_id = banner_image.id',
@@ -125,17 +134,19 @@ class entity_organization extends entity
             'LEFT JOIN tbl_entity_google_place ON tbl_entity_organization.id = tbl_entity_google_place.listing_id AND (tbl_entity_google_place.types = "route" OR tbl_entity_google_place.types = "street_address" OR tbl_entity_google_place.types = "subpremise")'
         );
 
-        $parameter['where'] = array(
+        $sync_parameter['where'] = array(
             'tbl_entity_organization.status = "A"'
         );
 
-        $parameter['group'] = array(
+        $sync_parameter['group'] = array(
             'tbl_entity_organization.id'
         );
 
-        $parameter['fulltext_key'] = array();
+        $sync_parameter['fulltext_key'] = array();
 
-        $result[] = parent::sync($parameter);
+        $sync_parameter = array_merge($sync_parameter, $parameter);
+
+        $result[] = parent::sync($sync_parameter);
     }
 }
 
