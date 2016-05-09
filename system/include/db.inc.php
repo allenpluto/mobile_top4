@@ -131,11 +131,6 @@ class db
     // if $parameter['include_update'] === true, return ids in source_table with newer update_time as well
     function db_compare_records($parameter)
     {
-        /*$sql = 'SELECT ' . $parameter['source_table'] . '.' . $parameter['source_primary_key'] . '
-        FROM ' . $parameter['source_table'] . '
-        LEFT JOIN ' . $parameter['target_table'] . '
-        ON ' . $parameter['source_table'] . '.' . $parameter['source_primary_key'] . ' = ' . $parameter['target_table'] . '.' . $parameter['target_primary_key'] . '
-        WHERE ' . $parameter['target_table'] . '.' . $parameter['target_primary_key'] . ' IS NULL';*/
         $result = array();
         $sql = 'SELECT ' . $parameter['source_primary_key'] . '
         FROM ' . $parameter['source_table'] . '

@@ -276,7 +276,7 @@ print_r($sql.'<br>');
             {
                 $query->execute($bind_value);
 
-                if ($query->errorCode() == '00000')
+                if ($query !== false)
                 {
                     if ($query->rowCount() == 0)
                     {
@@ -297,11 +297,6 @@ print_r($sql.'<br>');
                             $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
                         }
                     }
-                }
-                else
-                {
-                    $query_errorInfo = $query->errorInfo();
-                    $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
                 }
             }
         }
@@ -455,6 +450,69 @@ print_r($sql.'<br>');
         else
         {
             return false;
+        }
+    }
+
+    function get_relation($parameter = array())
+    {
+        if (!isset($parameter['relation_table']))
+        {
+            $GLOBALS['global_message']->error = __FILE__ . '(line ' . __LINE__ . '): ' . get_class($this) . ' relation_table not set';
+            return false;
+        }
+        if ($GLOBALS['db']) $db = $GLOBALS['db'];
+        else $db = new db;
+        if (!$db->db_table_exists($parameter['relation_table']))
+        {
+            $GLOBALS['global_message']->error = __FILE__ . '(line ' . __LINE__ . '): relation_table ' . $parameter['relation_table'] . ' does not exist';
+            return false;
+        }
+        $parameter = array_merge($this->parameter,$parameter);
+
+        if (!isset($parameter['bind_param'])) $parameter['bind_param'] = array();
+
+        if (!isset($parameter['id_field'])) $parameter['id_field'] = str_replace('entity_','',get_class($this)).'_id';
+        if (!isset($parameter['relation_fields'])) $parameter['relation_fields'] = $db->db_get_columns($parameter['relation_table']);
+
+        $sql = 'SELECT * FROM '.$parameter['relation_table'].' WHERE '.$parameter['id_field'].' IN ('.implode(',',array_keys($this->id_group)).');';
+        $parameter['bind_param'] = array_merge($parameter['bind_param'],$this->id_group);
+
+        $query = $this->query($sql, $parameter['bind_param']);
+        if ($query !== false)
+        {
+            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    function set_relation($parameter = array())
+    {
+        if (!isset($parameter['relation_table']))
+        {
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' relation_table not set';
+            return false;
+        }
+        if ($GLOBALS['db']) $db = $GLOBALS['db'];
+        else $db = new db;
+        if (!$db->db_table_exists($parameter['relation_table']))
+        {
+            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): relation_table '.$parameter['relation_table'].' does not exist';
+            return false;
+        }
+        $parameter = array_merge($this->parameter,$parameter);
+
+        if (!isset($parameter['id_field'])) $parameter['id_field'] = str_replace('entity_','',get_class($this)).'_id';
+        if (!isset($parameter['relation_fields'])) $parameter['relation_fields'] = $db->db_get_columns($parameter['relation_table']);
+
+        $sql = 'DELETE FROM '.$parameter['relation_table'].' WHERE '.$parameter['id_field'].' IN ('.implode(',',$this->id_group).');';
+        $sql .= 'INSERT INTO '.$parameter['relation_table'].' ('.implode(',',$parameter['relation_fields']).') VALUES ';
+        foreach ($parameter['relation_row'] as $row_index => $row)
+        {
+            $sql .= ' ('.implode(',',$row).') ';
         }
     }
 
@@ -620,7 +678,7 @@ SELECT ' . implode(',', $parameter['update_fields']) . ' FROM ' . $parameter['ta
         return true;
     }
 
-    function full_sync($parameter = array())
+    protected function full_sync($parameter = array())
     {
         $parameter = array_merge($this->parameter,$parameter);
         $sql = 'DROP TABLE IF EXISTS '.$parameter['sync_table'].';';
