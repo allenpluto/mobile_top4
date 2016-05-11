@@ -237,15 +237,22 @@ print_r($sql.'<br>');
         $parameter = array_merge($this->parameter,$parameter);
         $format = format::get_obj();
 
-        if (empty($parameter['bind_param']))
+        if (!isset($parameter['bind_param']))
         {
             $parameter['bind_param'] = array();
         }
+
+        if (!isset($parameter['rel_tables']))
+        {
+            $parameter['rel_tables'] = array();
+        }
+
 
         $id_group = array();
 
         $sql = 'INSERT INTO '.$parameter['table'].' (`'.implode('`,`',$parameter['table_fields']).'`) VALUES (:'.implode(',:',$parameter['table_fields']).') ON DUPLICATE KEY UPDATE ';
         $field_bind = array();
+        $rel_table_value = array();
         foreach ($parameter['table_fields'] as $field_index=>$field_name)
         {
             if ($field_name != $parameter['primary_key'])
@@ -259,11 +266,46 @@ print_r($sql.'<br>');
         foreach ($value as $index=>$row)
         {
             $bind_value = array();
-            foreach ($parameter['table_fields'] as $field_index=>$field_name)
+            if (isset($row[$parameter['table_fields'][0]]))
             {
-                if (isset($row[$field_name]) OR isset($row[$field_index]))
+                // if row value provide with field name as key, binding value according to key name, key order can be random
+                // e.g. $parameter['table_fields'] = ['id','source_url']; $row = ['source_url'=>'example.html','id'=>3]
+                foreach ($parameter['table_fields'] as $field_index=>$field_name)
                 {
-                    $bind_value[':'.$field_name] = isset($row[$field_name])?$row[$field_name]:$row[$field_index];
+                    if (isset($row[$field_name]))
+                    {
+                        $bind_value[':'.$field_name] = $row[$field_name];
+                    }
+                }
+                foreach ($parameter['rel_tables'] as $rel_table_name=>$rel_table)
+                {
+                    if (isset($row[$rel_table_name]))
+                    {
+                        $rel_table_value[$rel_table_name] = $row[$rel_table_name];
+                        if (!is_array($rel_table_value[$rel_table_name]))
+                        {
+                            $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // otherwise, binding value according to provided fields sequence
+                // e.g. $parameter['table_fields'] = ['id','source_url']; $row = [3, 'example.html']
+                foreach ($parameter['table_fields'] as $field_index=>$field_name)
+                {
+                    $bind_value[':'.$field_name] = $row[$field_index];
+                }
+                $row_index_count = count($bind_value);
+                foreach ($parameter['rel_tables'] as $rel_table_name=>$rel_table)
+                {
+                    $rel_table_value[$rel_table_name] = $row[$row_index_count];
+                    if (!is_array($rel_table_value[$rel_table_name]))
+                    {
+                        $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
+                    }
+                    $row_index_count++;
                 }
             }
             $bind_value = array_merge($parameter['bind_param'],$bind_value);
@@ -280,7 +322,8 @@ print_r($sql.'<br>');
                 {
                     if ($query->rowCount() == 0)
                     {
-                        $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Row '.print_r($bind_value,true).' has not been inserted or updated. All values might be same as original row.';
+                        $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Row '.print_r($bind_value,true).' has not been inserted or updated. All values might be same as original row.';
+                        $row_primary_key = $bind_value[':'.$parameter['primary_key']];
                     }
                     else
                     {
@@ -288,13 +331,27 @@ print_r($sql.'<br>');
                         $result = $query2->fetch(PDO::FETCH_ASSOC);
                         if ($query2->errorCode() == '00000')
                         {
-                            if ($result['new_id'] == 0) $id_group[] = $bind_value[':'.$parameter['primary_key']];
-                            else $id_group[] = $result['new_id'];
+                            if ($result['new_id'] == 0) $row_primary_key = $bind_value[':'.$parameter['primary_key']];
+                            else $row_primary_key = $result['new_id'];
                         }
                         else
                         {
                             $query_errorInfo = $query2->errorInfo();
                             $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+                        }
+                    }
+                    if (isset($row_primary_key))
+                    {
+                        $id_group[] = $row_primary_key;
+                        foreach ($parameter['rel_tables'] as $rel_table_name=>$rel_table)
+                        {
+
+                            /*$rel_table_value[$rel_table_name] = $row[$row_index_count];
+                            if (!is_array($rel_table_value[$rel_table_name]))
+                            {
+                                $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
+                            }
+                            $row_index_count++;*/
                         }
                     }
                 }
@@ -402,7 +459,7 @@ print_r($sql.'<br>');
         }
 
         $sql = 'UPDATE '.$parameter['table'].' SET ';
-        $field_bind = array();
+        $rel_table_bind = array();
         foreach ($parameter['table_fields'] as $field_index=>$field_name)
         {
             if (isset($value[$field_name]))
