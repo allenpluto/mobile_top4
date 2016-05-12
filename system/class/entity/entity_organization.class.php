@@ -5,6 +5,19 @@
 
 class entity_organization extends entity
 {
+    function __construct($value = Null, $parameter = array())
+    {
+        parent::__construct($value, $parameter);
+
+        $this->parameter['rel_tables'] = [
+            'category'=>[
+                'relation_table'=>'tbl_rel_category_to_organization'
+            ]
+        ];
+
+        return $this;
+    }
+
     function get($parameter = array())
     {
         $get_parameter = array('bind_param'=>array());

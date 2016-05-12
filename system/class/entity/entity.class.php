@@ -236,6 +236,8 @@ print_r($sql.'<br>');
         }
         $parameter = array_merge($this->parameter,$parameter);
         $format = format::get_obj();
+        if ($GLOBALS['db']) $db = $GLOBALS['db'];
+        else $db = new db;
 
         if (!isset($parameter['bind_param']))
         {
@@ -245,6 +247,55 @@ print_r($sql.'<br>');
         if (!isset($parameter['rel_tables']))
         {
             $parameter['rel_tables'] = array();
+        }
+        else
+        {
+            foreach ($parameter['rel_tables'] as $rel_table_name => $rel_table)
+            {
+                if (!isset($rel_table['relation_table']))
+                {
+                    $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Cannot determine relational table. Please define relation_table in each row of rel_tables';
+                    continue;
+                }
+                if (!$db->db_table_exists($rel_table['relation_table']))
+                {
+                    $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Relational table '.$rel_table['relation_table'].' does not exist.';
+                    continue;
+                }
+                if (!isset($rel_table['source_id_field'])) $parameter['rel_tables'][$rel_table_name]['source_id_field'] = str_replace('entity_','',get_class($this)).'_id';
+                $primary_fields = $db->db_get_primary_key($rel_table['relation_table']);
+                print_r('Display id fields in relation:<br>');
+                print_r($parameter['rel_tables'][$rel_table_name]['source_id_field']);
+                print_r($primary_fields);
+                if (!in_array($parameter['rel_tables'][$rel_table_name]['source_id_field'],$primary_fields))
+                {
+                    $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Cannot determine Foreign Key field mapping to current table ('.$this->parameter['table'].') Primary Key';
+                    continue;
+                }
+                if (!isset($rel_table['constrain_field'])) $parameter['rel_tables'][$rel_table_name]['constrain_field'] = 'constrain';
+                if (!isset($rel_table['constrain'])) $parameter['rel_tables'][$rel_table_name]['constrain'] = 'default';
+                if (!isset($rel_table['target_id_field']))
+                {
+                    foreach($primary_fields as $primary_field_index=>$primary_field)
+                    {
+                        if ($primary_field == $parameter['rel_tables'][$rel_table_name]['source_id_field']) continue;
+                        if ($primary_field == $parameter['rel_tables'][$rel_table_name]['constrain_field']) continue;
+                        $parameter['rel_tables'][$rel_table_name]['target_id_field'] = $primary_field;
+                    }
+                }
+                if (!isset($parameter['rel_tables'][$rel_table_name]['target_id_field']))
+                {
+                    $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Cannot determine Foreign Key field mapping to other table Primary Key';
+                    continue;
+                }
+                $relation_table_fields = $db->db_get_columns($rel_table['relation_table']);
+                foreach($relation_table_fields as $field_index=>$field)
+                {
+                    if (!isset($parameter['rel_tables'][$rel_table_name][$field])) unset($relation_table_fields[$field_index]);
+                }
+                $relation_table_fields = array_unique(array_merge($relation_table_fields, $primary_fields));
+                $parameter['rel_tables'][$rel_table_name]['relation_table_fields'] = $relation_table_fields;
+            }
         }
 
 
@@ -345,6 +396,34 @@ print_r($sql.'<br>');
                         $id_group[] = $row_primary_key;
                         foreach ($parameter['rel_tables'] as $rel_table_name=>$rel_table)
                         {
+                            $target_id_values = $rel_table_value[$rel_table_name];
+                            $relation_table_update_value = array();
+                            foreach ($target_id_values as $target_id_value_index=>$target_id_value)
+                            {
+                                $relation_table_update_value_row = array();
+                                foreach($rel_table['relation_table_fields'] as $field_index=>$field)
+                                {
+                                    switch($field)
+                                    {
+                                        case $rel_table['source_id_field']:
+                                            $relation_table_update_value_row[':'.$field] = $row_primary_key;
+                                            break;
+                                        case $rel_table['target_id_field']:
+                                            $relation_table_update_value_row[':'.$field] = $target_id_value;
+                                            break;
+                                        case $rel_table['constrain_field']:
+                                            $relation_table_update_value_row[':'.$field] = $rel_table['constrain'];
+                                            break;
+                                        default:
+                                            $relation_table_update_value_row[':'.$field] = $rel_table[$field];
+                                    }
+                                }
+                                $relation_table_update_value[] = $relation_table_update_value_row;
+                            }
+                            $rel_table['value'] = $relation_table_update_value;
+print_r($relation_table_update_value);
+print_r($rel_table);
+                            $this->set_relation($rel_table);
 
                             /*$rel_table_value[$rel_table_name] = $row[$row_index_count];
                             if (!is_array($rel_table_value[$rel_table_name]))
@@ -562,14 +641,28 @@ print_r($sql.'<br>');
         }
         $parameter = array_merge($this->parameter,$parameter);
 
-        if (!isset($parameter['id_field'])) $parameter['id_field'] = str_replace('entity_','',get_class($this)).'_id';
-        if (!isset($parameter['relation_fields'])) $parameter['relation_fields'] = $db->db_get_columns($parameter['relation_table']);
+        if (!isset($parameter['source_id_field'])) $parameter['source_id_field'] = str_replace('entity_','',get_class($this)).'_id';
+        if (!isset($parameter['relation_table_fields'])) $parameter['relation_table_fields'] = $db->db_get_columns($parameter['relation_table']);
 
-        $sql = 'DELETE FROM '.$parameter['relation_table'].' WHERE '.$parameter['id_field'].' IN ('.implode(',',$this->id_group).');';
-        $sql .= 'INSERT INTO '.$parameter['relation_table'].' ('.implode(',',$parameter['relation_fields']).') VALUES ';
-        foreach ($parameter['relation_row'] as $row_index => $row)
+        $source_id = [];
+        foreach ($parameter['value'] as $row_index => $row)
         {
-            $sql .= ' ('.implode(',',$row).') ';
+            $source_id[] = $row[':'.$parameter['source_id_field']];
+        }
+        $source_id = array_unique($source_id);
+        $format = format::get_obj();
+        $source_id = $format->id_group($source_id);
+
+        // Delete all the existing relations of current type
+        $sql = 'DELETE FROM '.$parameter['relation_table'].' WHERE '.$parameter['source_id_field'].' IN ('.implode(',',array_keys($source_id)).') AND '.$parameter['constrain_field'].' = "'.$parameter['constrain'].'";';
+        $query = $this->query($sql, $source_id);
+        if ($query === false) return false;
+
+        $sql = 'INSERT INTO '.$parameter['relation_table'].' ('.implode(',',$parameter['relation_table_fields']).') VALUES (:'.implode(',:',$parameter['relation_table_fields']).');';
+        foreach ($parameter['value'] as $row_index => $row)
+        {
+            $query = $this->query($sql, $row);
+            if ($query === false) return false;
         }
     }
 
