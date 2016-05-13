@@ -12,6 +12,11 @@ class entity_organization extends entity
         $this->parameter['rel_tables'] = [
             'category'=>[
                 'relation_table'=>'tbl_rel_category_to_organization'
+            ],
+            'gallery'=>[
+                'relation_table'=>'tbl_rel_gallery_to_item',
+                'source_id_field'=>'item_id',
+                'constrain'=>'listing'
             ]
         ];
 

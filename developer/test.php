@@ -146,13 +146,14 @@ print_r($entity->update(['friendly_url'=>'listing_test']));
 */
 //$parameter = array('full_sync'=>true);
 $value = [
-    [10810, 'test', 'Test Listing', '4,20,21'],
-    [10811, 'greg-james-garage-doors-10811', 'Greg James Garage Door', '141,142'],
-    [10818, 'build-a-door-services-10818', 'Build A Door Services', '141'],
-    ['', 'test2', 'Test Listing 2', '142,143']
+    [10810, 'test', 'Test Listing', '4,20,21,20','348'],
+    [10811, 'greg-james-garage-doors-10811', 'Greg James Garage Door', '141,142','349'],
+    [10818, 'build-a-door-services-10818', 'Build A Door Services', '141','360'],
+    ['', 'test2', 'Test Listing 2', '142,143', '']
 ];
 $parameter = [
-    'table_fields' => ['id', 'friendly_url', 'name']
+    'table_fields' => ['id', 'friendly_url', 'name'],
+    'relation_fields' => ['category','gallery']
 ];
 $entity->set($value, $parameter);
 //$entity->sync($parameter);

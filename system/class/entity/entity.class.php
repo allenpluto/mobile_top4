@@ -103,7 +103,7 @@ class entity
 
     function query($sql, $parameter=array())
     {
-print_r($sql.'<br>');
+//print_r($sql.'<br>');
 //print_r($parameter);
         $query = $this->_conn->prepare($sql);
         $query->execute($parameter);
@@ -250,6 +250,17 @@ print_r($sql.'<br>');
         }
         else
         {
+
+            if (isset($parameter['relation_fields']))
+            {
+                foreach ($parameter['rel_tables'] as $rel_table_name => $rel_table)
+                {
+                    if (!in_array($rel_table_name, $parameter['relation_fields']))
+                    {
+                        unset($parameter['rel_tables'][$rel_table_name]);
+                    }
+                }
+            }
             foreach ($parameter['rel_tables'] as $rel_table_name => $rel_table)
             {
                 if (!isset($rel_table['relation_table']))
@@ -264,9 +275,6 @@ print_r($sql.'<br>');
                 }
                 if (!isset($rel_table['source_id_field'])) $parameter['rel_tables'][$rel_table_name]['source_id_field'] = str_replace('entity_','',get_class($this)).'_id';
                 $primary_fields = $db->db_get_primary_key($rel_table['relation_table']);
-                print_r('Display id fields in relation:<br>');
-                print_r($parameter['rel_tables'][$rel_table_name]['source_id_field']);
-                print_r($primary_fields);
                 if (!in_array($parameter['rel_tables'][$rel_table_name]['source_id_field'],$primary_fields))
                 {
                     $GLOBALS['global_message']->warning = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Cannot determine Foreign Key field mapping to current table ('.$this->parameter['table'].') Primary Key';
@@ -295,6 +303,7 @@ print_r($sql.'<br>');
                 }
                 $relation_table_fields = array_unique(array_merge($relation_table_fields, $primary_fields));
                 $parameter['rel_tables'][$rel_table_name]['relation_table_fields'] = $relation_table_fields;
+                if (!isset($rel_table['value'])) $parameter['rel_tables'][$rel_table_name]['value'] = array();
             }
         }
 
@@ -337,6 +346,7 @@ print_r($sql.'<br>');
                         {
                             $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
                         }
+                        asort($rel_table_value[$rel_table_name]);
                     }
                 }
             }
@@ -351,12 +361,18 @@ print_r($sql.'<br>');
                 $row_index_count = count($bind_value);
                 foreach ($parameter['rel_tables'] as $rel_table_name=>$rel_table)
                 {
-                    $rel_table_value[$rel_table_name] = $row[$row_index_count];
-                    if (!is_array($rel_table_value[$rel_table_name]))
+                    if (isset($row[$row_index_count]))
                     {
-                        $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
+                        $rel_table_value[$rel_table_name] = $row[$row_index_count];
+                        if (!is_array($rel_table_value[$rel_table_name]))
+                        {
+                            $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
+                        }
+                        $rel_table_value[$rel_table_name] = array_unique($rel_table_value[$rel_table_name]);
+                        asort($rel_table_value[$rel_table_name]);
+                        $row_index_count++;
                     }
-                    $row_index_count++;
+                    else break;
                 }
             }
             $bind_value = array_merge($parameter['bind_param'],$bind_value);
@@ -371,9 +387,10 @@ print_r($sql.'<br>');
 
                 if ($query !== false)
                 {
-                    if ($query->rowCount() == 0)
+                    $insert_respond = $query->rowCount();
+                    unset($row_primary_key);
+                    if ($insert_respond == 0)
                     {
-                        $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Row '.print_r($bind_value,true).' has not been inserted or updated. All values might be same as original row.';
                         $row_primary_key = $bind_value[':'.$parameter['primary_key']];
                     }
                     else
@@ -396,45 +413,62 @@ print_r($sql.'<br>');
                         $id_group[] = $row_primary_key;
                         foreach ($parameter['rel_tables'] as $rel_table_name=>$rel_table)
                         {
-                            $target_id_values = $rel_table_value[$rel_table_name];
-                            $relation_table_update_value = array();
-                            foreach ($target_id_values as $target_id_value_index=>$target_id_value)
+                            $sql = 'SELECT '.$rel_table['source_id_field'].', GROUP_CONCAT(DISTINCT '.$rel_table['target_id_field'].' ORDER BY '.$rel_table['target_id_field'].') AS current_target_id_values FROM '.$rel_table['relation_table'].' WHERE '.$rel_table['source_id_field'].' = '.$row_primary_key.' AND '.$rel_table['constrain_field'].' = "'.$rel_table['constrain'].'" GROUP BY '.$rel_table['source_id_field'].';';
+                            $query2 = $this->query($sql);
+                            $current_target_id_values = '';
+                            if ($query2 !== false)
                             {
-                                $relation_table_update_value_row = array();
-                                foreach($rel_table['relation_table_fields'] as $field_index=>$field)
+                                $result = $query2->fetch(PDO::FETCH_ASSOC);
+                                $current_target_id_values = $result['current_target_id_values'];
+                            }
+                            if (implode(',',$rel_table_value[$rel_table_name]) != $current_target_id_values)
+                            {
+                                if ($insert_respond == 0)
                                 {
-                                    switch($field)
-                                    {
-                                        case $rel_table['source_id_field']:
-                                            $relation_table_update_value_row[':'.$field] = $row_primary_key;
-                                            break;
-                                        case $rel_table['target_id_field']:
-                                            $relation_table_update_value_row[':'.$field] = $target_id_value;
-                                            break;
-                                        case $rel_table['constrain_field']:
-                                            $relation_table_update_value_row[':'.$field] = $rel_table['constrain'];
-                                            break;
-                                        default:
-                                            $relation_table_update_value_row[':'.$field] = $rel_table[$field];
-                                    }
+                                    // force change update_time when relation table records are changed
+                                    $sql = 'UPDATE '.$parameter['table'].' SET update_time = NOW() WHERE '.$parameter['primary_key'].' = '.$row_primary_key.';';
+                                    $query2 = $this->query($sql);
                                 }
-                                $relation_table_update_value[] = $relation_table_update_value_row;
+                                // If relation table updated, add one update field count
+                                $insert_respond++;
+                                $target_id_values = $rel_table_value[$rel_table_name];
+                                foreach ($target_id_values as $target_id_value_index=>$target_id_value)
+                                {
+                                    $relation_table_update_value_row = array();
+                                    foreach($rel_table['relation_table_fields'] as $field_index=>$field)
+                                    {
+                                        switch($field)
+                                        {
+                                            case $rel_table['source_id_field']:
+                                                $relation_table_update_value_row[':'.$field] = $row_primary_key;
+                                                break;
+                                            case $rel_table['target_id_field']:
+                                                $relation_table_update_value_row[':'.$field] = $target_id_value;
+                                                break;
+                                            case $rel_table['constrain_field']:
+                                                $relation_table_update_value_row[':'.$field] = $rel_table['constrain'];
+                                                break;
+                                            default:
+                                                $relation_table_update_value_row[':'.$field] = $rel_table[$field];
+                                        }
+                                    }
+                                    $parameter['rel_tables'][$rel_table_name]['value'][] = $relation_table_update_value_row;
+                                }
                             }
-                            $rel_table['value'] = $relation_table_update_value;
-print_r($relation_table_update_value);
-print_r($rel_table);
-                            $this->set_relation($rel_table);
-
-                            /*$rel_table_value[$rel_table_name] = $row[$row_index_count];
-                            if (!is_array($rel_table_value[$rel_table_name]))
-                            {
-                                $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
-                            }
-                            $row_index_count++;*/
                         }
+                    }
+                    if ($insert_respond == 0)
+                    {
+                        $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Row '.print_r($bind_value,true).' has not been inserted or updated. All values might be same as original row.';
                     }
                 }
             }
+        }
+
+        // update the relation tables
+        foreach ($parameter['rel_tables'] as $rel_table_name=>$rel_table)
+        {
+            $this->set_relation($rel_table);
         }
 
         $this->id_group = $format->id_group($id_group);
@@ -605,10 +639,19 @@ print_r($rel_table);
         }
         $parameter = array_merge($this->parameter,$parameter);
 
-        if (!isset($parameter['bind_param'])) $parameter['bind_param'] = array();
+        if (!isset($parameter['source_id_field'])) $parameter['source_id_field'] = str_replace('entity_','',get_class($this)).'_id';
+        if (!isset($parameter['relation_table_fields'])) $parameter['relation_table_fields'] = $db->db_get_columns($parameter['relation_table']);
 
-        if (!isset($parameter['id_field'])) $parameter['id_field'] = str_replace('entity_','',get_class($this)).'_id';
-        if (!isset($parameter['relation_fields'])) $parameter['relation_fields'] = $db->db_get_columns($parameter['relation_table']);
+        $source_id = [];
+        foreach ($parameter['value'] as $row_index => $row)
+        {
+            $source_id[] = $row[':'.$parameter['source_id_field']];
+        }
+
+        // Delete all the existing relations of current type
+        $sql = 'SELECT '.$parameter['source_id_field'].', GROUP_CONCAT('.$parameter['target_id_field'].') AS '.$parameter['target_id_field'].' FROM '.$parameter['relation_table'].' WHERE '.$parameter['source_id_field'].' IN ('.implode(',',array_keys($source_id)).') AND '.$parameter['constrain_field'].' = "'.$parameter['constrain'].'" GROUP BY '.$parameter['source_id_field'].';';
+        $query = $this->query($sql, $source_id);
+        if ($query === false) return false;
 
         $sql = 'SELECT * FROM '.$parameter['relation_table'].' WHERE '.$parameter['id_field'].' IN ('.implode(',',array_keys($this->id_group)).');';
         $parameter['bind_param'] = array_merge($parameter['bind_param'],$this->id_group);
@@ -659,11 +702,23 @@ print_r($rel_table);
         if ($query === false) return false;
 
         $sql = 'INSERT INTO '.$parameter['relation_table'].' ('.implode(',',$parameter['relation_table_fields']).') VALUES (:'.implode(',:',$parameter['relation_table_fields']).');';
+        $query = $this->_conn->prepare($sql);
+        $row_update_count = 0;
         foreach ($parameter['value'] as $row_index => $row)
         {
-            $query = $this->query($sql, $row);
-            if ($query === false) return false;
+            $query->execute($row);
+            if ($query->errorCode() == '00000')
+            {
+                $row_update_count += $query->rowCount();
+            }
+            else
+            {
+                $query_errorInfo = $query->errorInfo();
+                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
+                return false;
+            }
         }
+        return $row_update_count;
     }
 
     function sync($parameter = array())
