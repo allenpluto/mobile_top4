@@ -304,6 +304,7 @@ class entity
                 $relation_table_fields = array_unique(array_merge($relation_table_fields, $primary_fields));
                 $parameter['rel_tables'][$rel_table_name]['relation_table_fields'] = $relation_table_fields;
                 if (!isset($rel_table['value'])) $parameter['rel_tables'][$rel_table_name]['value'] = array();
+                if (!isset($rel_table['delete_source_id'])) $parameter['rel_tables'][$rel_table_name]['delete_source_id'] = array();
             }
         }
 
@@ -364,12 +365,19 @@ class entity
                     if (isset($row[$row_index_count]))
                     {
                         $rel_table_value[$rel_table_name] = $row[$row_index_count];
-                        if (!is_array($rel_table_value[$rel_table_name]))
+                        if (empty($rel_table_value[$rel_table_name]))
                         {
-                            $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
+                            $rel_table_value[$rel_table_name] = array();
                         }
-                        $rel_table_value[$rel_table_name] = array_unique($rel_table_value[$rel_table_name]);
-                        asort($rel_table_value[$rel_table_name]);
+                        else
+                        {
+                            if (!is_array($rel_table_value[$rel_table_name]))
+                            {
+                                $rel_table_value[$rel_table_name] = explode(',', $rel_table_value[$rel_table_name]);
+                            }
+                            $rel_table_value[$rel_table_name] = array_unique($rel_table_value[$rel_table_name]);
+                            asort($rel_table_value[$rel_table_name]);
+                        }
                         $row_index_count++;
                     }
                     else break;
@@ -432,27 +440,34 @@ class entity
                                 // If relation table updated, add one update field count
                                 $insert_respond++;
                                 $target_id_values = $rel_table_value[$rel_table_name];
-                                foreach ($target_id_values as $target_id_value_index=>$target_id_value)
+                                if (count($target_id_values) > 0)
                                 {
-                                    $relation_table_update_value_row = array();
-                                    foreach($rel_table['relation_table_fields'] as $field_index=>$field)
+                                    foreach ($target_id_values as $target_id_value_index=>$target_id_value)
                                     {
-                                        switch($field)
+                                        $relation_table_update_value_row = array();
+                                        foreach($rel_table['relation_table_fields'] as $field_index=>$field)
                                         {
-                                            case $rel_table['source_id_field']:
-                                                $relation_table_update_value_row[':'.$field] = $row_primary_key;
-                                                break;
-                                            case $rel_table['target_id_field']:
-                                                $relation_table_update_value_row[':'.$field] = $target_id_value;
-                                                break;
-                                            case $rel_table['constrain_field']:
-                                                $relation_table_update_value_row[':'.$field] = $rel_table['constrain'];
-                                                break;
-                                            default:
-                                                $relation_table_update_value_row[':'.$field] = $rel_table[$field];
+                                            switch($field)
+                                            {
+                                                case $rel_table['source_id_field']:
+                                                    $relation_table_update_value_row[':'.$field] = $row_primary_key;
+                                                    break;
+                                                case $rel_table['target_id_field']:
+                                                    $relation_table_update_value_row[':'.$field] = $target_id_value;
+                                                    break;
+                                                case $rel_table['constrain_field']:
+                                                    $relation_table_update_value_row[':'.$field] = $rel_table['constrain'];
+                                                    break;
+                                                default:
+                                                    $relation_table_update_value_row[':'.$field] = $rel_table[$field];
+                                            }
                                         }
+                                        $parameter['rel_tables'][$rel_table_name]['value'][] = $relation_table_update_value_row;
                                     }
-                                    $parameter['rel_tables'][$rel_table_name]['value'][] = $relation_table_update_value_row;
+                                }
+                                else
+                                {
+                                    $parameter['rel_tables'][$rel_table_name]['delete_source_id'][] = $row_primary_key;
                                 }
                             }
                         }
@@ -468,7 +483,10 @@ class entity
         // update the relation tables
         foreach ($parameter['rel_tables'] as $rel_table_name=>$rel_table)
         {
-            $this->set_relation($rel_table);
+            if (count($rel_table['value'])+count($rel_table['delete_source_id']) > 0)
+            {
+                $this->set_relation($rel_table);
+            }
         }
 
         $this->id_group = $format->id_group($id_group);
@@ -686,16 +704,16 @@ class entity
 
         if (!isset($parameter['source_id_field'])) $parameter['source_id_field'] = str_replace('entity_','',get_class($this)).'_id';
         if (!isset($parameter['relation_table_fields'])) $parameter['relation_table_fields'] = $db->db_get_columns($parameter['relation_table']);
+        if (!isset($parameter['delete_source_id'])) $parameter['delete_source_id'] = array();
 
         $source_id = [];
         foreach ($parameter['value'] as $row_index => $row)
         {
             $source_id[] = $row[':'.$parameter['source_id_field']];
         }
-        $source_id = array_unique($source_id);
+        $source_id = array_unique(array_merge($source_id,$parameter['delete_source_id']));
         $format = format::get_obj();
         $source_id = $format->id_group($source_id);
-
         // Delete all the existing relations of current type
         $sql = 'DELETE FROM '.$parameter['relation_table'].' WHERE '.$parameter['source_id_field'].' IN ('.implode(',',array_keys($source_id)).') AND '.$parameter['constrain_field'].' = "'.$parameter['constrain'].'";';
         $query = $this->query($sql, $source_id);
