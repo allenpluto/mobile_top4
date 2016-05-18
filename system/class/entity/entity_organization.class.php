@@ -7,18 +7,14 @@ class entity_organization extends entity
 {
     function __construct($value = Null, $parameter = array())
     {
-        parent::__construct($value, $parameter);
-
-        $this->parameter['rel_tables'] = [
-            'category'=>[
-                'relation_table'=>'tbl_rel_category_to_organization'
-            ],
-            'gallery'=>[
-                'relation_table'=>'tbl_rel_gallery_to_item',
-                'source_id_field'=>'item_id',
-                'constrain'=>'listing'
+        $default_parameter = [
+            'relational_fields'=>[
+                'category'=>[],
+                'gallery'=>[]
             ]
         ];
+        $parameter = array_merge($default_parameter, $parameter);
+        parent::__construct($value, $parameter);
 
         return $this;
     }

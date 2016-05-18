@@ -36,7 +36,7 @@ class db
             $column = array();
             foreach ($pdo_statement_obj as $column_description_index=>$column_description_value)
             {
-                $column[] = $column_description_value['Field'];
+                $column[$column_description_value['Field']] = $column_description_value['Field'];
             }
             return $column;
         }
