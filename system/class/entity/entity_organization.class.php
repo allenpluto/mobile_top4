@@ -19,48 +19,6 @@ class entity_organization extends entity
         return $this;
     }
 
-    function get($parameter = array())
-    {
-        $get_parameter = array('bind_param'=>array());
-
-        if (is_array($parameter)) $parameter = array_merge($this->parameter, $parameter);
-        else $parameter = $this->parameter;
-
-        if (!empty($parameter))
-        {
-            foreach ($parameter as $parameter_index => $parameter_value)
-            {
-                switch ($parameter_index)
-                {
-                    case 'friendly_url':
-                        $get_parameter['where'][] = '`friendly_url` = :friendly_url';
-                        $get_parameter['bind_param'][':friendly_url'] = $parameter_value;
-                        break;
-                    case 'id':
-                        $get_parameter['where'][] = '`id` = :id';
-                        $get_parameter['bind_param'][':id'] = $parameter_value;
-                        break;
-                    case 'order':
-                        $get_parameter['order'] = $parameter_value;
-                        break;
-                    case 'limit':
-                        $get_parameter['limit'] = ':limit';
-                        $get_parameter['bind_param'][':limit'] = $parameter_value;
-                        break;
-                    case 'offset':
-                        $get_parameter['offset'] = ':offset';
-                        $get_parameter['bind_param'][':offset'] = $parameter_value;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        // Call thing::get function
-        return parent::get($get_parameter);
-    }
-
     function sync($parameter = array())
     {
         $sync_parameter = array();
@@ -161,6 +119,8 @@ class entity_organization extends entity
         $sync_parameter = array_merge($sync_parameter, $parameter);
 
         $result[] = parent::sync($sync_parameter);
+
+        return $result;
     }
 }
 

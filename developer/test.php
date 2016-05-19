@@ -152,12 +152,23 @@ $value = [
     ['', 'test2', 'Test Listing 2', '142,143', '']
 ];
 $parameter = [
-    'table_fields' => ['id', 'friendly_url', 'name'],
-    'relation_fields' => ['category','gallery']
+    /*'table_fields' => ['id', 'friendly_url', 'name'],
+    'relation_fields' => ['category','gallery']*/
+    'fields' => ['id', 'friendly_url', 'name', 'category','gallery'],
+    'row' => $value
 ];
-$entity->set($value, $parameter);
+$entity->set($parameter);
 print_r($entity);
-//$entity->sync($parameter);
+$entity->get(['id_group'=>[10859,11437]]);
+print_r($entity);
+
+$timestamp1 = time();
+$entity->sync(['sync_type'=>'full_sync']);
+print_r('Executing time full sync: '.(time() - $timestamp1).'<br>');
+
+$timestamp2 = time();
+$entity->sync(['sync_type'=>'full_sync2']);
+print_r('Executing time full sync: '.(time() - $timestamp2).'<br>');
 /*$parameter = array();
 $parameter['sync_table'] = str_replace('entity','index',$entity->parameter['table']);
 $parameter['update_fields'] = array(
