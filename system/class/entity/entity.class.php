@@ -168,8 +168,8 @@ class entity
 
     function query($sql, $parameter=array())
     {
-print_r($sql.'<br>');
-print_r($parameter);
+//print_r($sql.'<br>');
+//print_r($parameter);
         $query = $this->_conn->prepare($sql);
         $query->execute($parameter);
 
@@ -383,7 +383,20 @@ print_r($parameter);
             $parameter['relational_fields'] = array();
             foreach ($parameter['fields'] as $set_field_index=>$set_field)
             {
+                // row provided value for updating current entity table
                 if (isset($this->parameter['table_fields'][$set_field])) $parameter['table_fields'][$set_field] = $this->parameter['table_fields'][$set_field];
+
+                // row indirectly provided value for updating current entity table, e.g. field 'name' provided, but not 'friendly_url', auto generate friendly_url value according to name value
+                if (isset($this->parameter['table_fields_additional'][$set_field]))
+                {
+                    foreach($this->parameter['table_fields_additional'][$set_field] as $additional_field_index=>$additional_field)
+                    {
+                        if (!isset($parameter['fields'][$additional_field_index]))
+                        $parameter['table_fields_additional'][$additional_field_index] = $additional_field;
+                    }
+                }
+
+                // row provided value for updating relational tables, e.g. category field to update rel_category_to_organization table
                 if (isset($this->parameter['relational_fields'][$set_field])) $parameter['relational_fields'][$set_field] = $this->parameter['relational_fields'][$set_field];
             }
             unset($parameter['fields']);
@@ -414,6 +427,7 @@ print_r($parameter);
         $sql .= implode(',',$field_bind);
         unset($field_bind);
         $query = $this->_conn->prepare($sql);
+        $new_row = array();
         foreach ($row as $record_index=>$record)
         {
             $bind_value = array();
@@ -458,105 +472,105 @@ print_r($parameter);
             else
             {
                 $query->execute($bind_value);
+                if ($query === false) continue;
 
-                if ($query !== false)
+                $insert_respond = $query->rowCount();
+                unset($record_primary_key);
+                if ($insert_respond == 0)
                 {
-                    $insert_respond = $query->rowCount();
-                    unset($record_primary_key);
-                    if ($insert_respond == 0)
+                    $record_primary_key = $bind_value[':'.$parameter['primary_key']];
+                }
+                else
+                {
+                    $query2 = $this->_conn->query('SELECT LAST_INSERT_ID() AS new_id;');
+                    $result = $query2->fetch(PDO::FETCH_ASSOC);
+                    if ($query2->errorCode() == '00000')
                     {
-                        $record_primary_key = $bind_value[':'.$parameter['primary_key']];
+                        if ($result['new_id'] == 0) $record_primary_key = $bind_value[':'.$parameter['primary_key']];
+                        else
+                        {
+                            $record_primary_key = $result['new_id'];
+                        }
                     }
                     else
                     {
-                        $query2 = $this->_conn->query('SELECT LAST_INSERT_ID() AS new_id;');
-                        $result = $query2->fetch(PDO::FETCH_ASSOC);
-                        if ($query2->errorCode() == '00000')
-                        {
-                            if ($result['new_id'] == 0) $record_primary_key = $bind_value[':'.$parameter['primary_key']];
-                            else $record_primary_key = $result['new_id'];
-                        }
-                        else
-                        {
-                            $query_errorInfo = $query2->errorInfo();
-                            $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
-                        }
+                        $query_errorInfo = $query2->errorInfo();
+                        $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): SQL Error - '.$query_errorInfo[2];
                     }
-                    if (isset($record_primary_key))
+                }
+                if (isset($record_primary_key))
+                {
+                    $new_row['id_'.$record_primary_key] = $record;
+                    $new_row['id_'.$record_primary_key][$parameter['primary_key']] = $record_primary_key;
+
+                    foreach ($parameter['relational_fields'] as $relational_field_name=>$relational_field)
                     {
-                        foreach ($parameter['relational_fields'] as $relational_field_name=>$relational_field)
+                        if (isset($record[$relational_field_name]))
                         {
-                            if (isset($record[$relational_field_name]))
+                            $relational_table_bind_value = array();
+                            $relational_table_bind_value[':'.$relational_field['source_id_field']] = $record_primary_key;
+                            $relational_sql = 'SELECT GROUP_CONCAT(DISTINCT '.$relational_field['target_id_field'].' ORDER BY '.$relational_field['target_id_field'].') AS current_target_id_values FROM '.$relational_field['table'].' WHERE '.$relational_field['source_id_field'].' = :'.$relational_field['source_id_field'].';';
+                            $relational_query = $this->query($relational_sql, $relational_table_bind_value);
+                            if ($relational_query === false) continue;
+                            $relational_result = $relational_query->fetch(PDO::FETCH_ASSOC);
+                            if ($relational_result) $current_target_id = $relational_result['current_target_id_values'];
+                            else $current_target_id = '';
+
+                            $new_target_id_values = $record[$relational_field_name];
+                            if (!is_array($new_target_id_values)) $new_target_id_values = explode(',',$new_target_id_values);
+                            asort($new_target_id_values);
+                            $new_target_id_values = array_unique($new_target_id_values);
+                            $record[$relational_field_name] = implode(',',$new_target_id_values);
+
+                            if ($current_target_id != $record[$relational_field_name])
                             {
-                                $relational_table_bind_value = array();
-                                $relational_table_bind_value[':'.$relational_field['source_id_field']] = $record_primary_key;
-                                $relational_sql = 'SELECT GROUP_CONCAT(DISTINCT '.$relational_field['target_id_field'].' ORDER BY '.$relational_field['target_id_field'].') AS current_target_id_values FROM '.$relational_field['table'].' WHERE '.$relational_field['source_id_field'].' = :'.$relational_field['source_id_field'].';';
-                                $relational_query = $this->query($relational_sql, $relational_table_bind_value);
-                                if ($relational_query === false) continue;
-                                $relational_result = $relational_query->fetch(PDO::FETCH_ASSOC);
-                                if ($relational_result) $current_target_id = $relational_result['current_target_id_values'];
-                                else $current_target_id = '';
-
-                                $new_target_id_values = $record[$relational_field_name];
-                                if (!is_array($new_target_id_values)) $new_target_id_values = explode(',',$new_target_id_values);
-                                asort($new_target_id_values);
-                                $new_target_id_values = array_unique($new_target_id_values);
-                                $record[$relational_field_name] = implode(',',$new_target_id_values);
-
-                                if ($current_target_id != $record[$relational_field_name])
+                                // if target ids are different from original and update_time is not set, update entity table current row update_time
+                                if (!isset($record['update_time']) AND $insert_respond == 0)
                                 {
-                                    // if target ids are different from original and update_time is not set, update entity table current row update_time
-                                    if (!isset($record['update_time']) AND $insert_respond == 0)
-                                    {
-                                        $relational_sql = 'UPDATE '.$parameter['table'].' SET update_time = NOW() WHERE '.$parameter['primary_key'].' = '.$record_primary_key.';';
-                                        $relational_query = $this->query($relational_sql);
-                                    }
-
-                                    // Delete every records in relation table corresponding to current entity row
-                                    $relational_sql = 'DELETE FROM '.$relational_field['table'].' WHERE '.$relational_field['source_id_field'].' = :'.$relational_field['source_id_field'].';';
-                                    $relational_query = $this->query($relational_sql, $relational_table_bind_value);
-
-                                    // If new target_id_values are not empty, insert each target_id into relation table
-                                    if (!empty($record[$relational_field_name]))
-                                    {
-                                        $relational_table_bind_row = array();
-                                        $relational_sql = 'INSERT INTO '.$relational_field['table'].'('.$relational_field['source_id_field'].','.$relational_field['target_id_field'].') VALUES ';
-                                        foreach ($new_target_id_values as $target_id_index => $target_id_value)
-                                        {
-                                            $relational_table_bind_value[':'.$relational_field['target_id_field'].'_'.$target_id_index] = $target_id_value;
-                                            $relational_table_bind_row[] = '(:'.$relational_field['source_id_field'].',:'.$relational_field['target_id_field'].'_'.$target_id_index.')';
-                                        }
-                                        $relational_sql .= implode(',',$relational_table_bind_row).';';
-                                        $relational_query = $this->query($relational_sql, $relational_table_bind_value);
-                                    }
-
-                                    $insert_respond++;
+                                    $relational_sql = 'UPDATE '.$parameter['table'].' SET update_time = NOW() WHERE '.$parameter['primary_key'].' = '.$record_primary_key.';';
+                                    $relational_query = $this->query($relational_sql);
                                 }
 
-                            }
-                        }
+                                // Delete every records in relation table corresponding to current entity row
+                                $relational_sql = 'DELETE FROM '.$relational_field['table'].' WHERE '.$relational_field['source_id_field'].' = :'.$relational_field['source_id_field'].';';
+                                $relational_query = $this->query($relational_sql, $relational_table_bind_value);
 
-                        $id_group[] = $record_primary_key;
-                    }
-                    if ($insert_respond == 0)
-                    {
-                        $record_display = array();
-                        foreach($record as $key=>$item)
-                        {
-                            $record_display[] = $key.'=>"'.$item.'"';
+                                // If new target_id_values are not empty, insert each target_id into relation table
+                                if (!empty($record[$relational_field_name]))
+                                {
+                                    $relational_table_bind_row = array();
+                                    $relational_sql = 'INSERT INTO '.$relational_field['table'].'('.$relational_field['source_id_field'].','.$relational_field['target_id_field'].') VALUES ';
+                                    foreach ($new_target_id_values as $target_id_index => $target_id_value)
+                                    {
+                                        $relational_table_bind_value[':'.$relational_field['target_id_field'].'_'.$target_id_index] = $target_id_value;
+                                        $relational_table_bind_row[] = '(:'.$relational_field['source_id_field'].',:'.$relational_field['target_id_field'].'_'.$target_id_index.')';
+                                    }
+                                    $relational_sql .= implode(',',$relational_table_bind_row).';';
+                                    $relational_query = $this->query($relational_sql, $relational_table_bind_value);
+                                }
+
+                                $insert_respond++;
+                            }
+
                         }
-                        $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Row ('.implode(',',$record_display).') has not been inserted or updated. All values might be same as original row.';
                     }
+
+                    $id_group[] = $record_primary_key;
+                }
+                if ($insert_respond == 0)
+                {
+                    $record_display = array();
+                    foreach($record as $key=>$item)
+                    {
+                        $record_display[] = $key.'=>"'.$item.'"';
+                    }
+                    $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' Row ('.implode(',',$record_display).') has not been inserted or updated. All values might be same as original row.';
                 }
             }
         }
 
         $this->id_group = $format->id_group($id_group);
-        if(!empty($row))
-        {
-            // if value is provided by external array, unset $this->row to keep consistency
-            unset($this->row);
-        }
+        $this->row = $new_row;
         $this->_initialized = true;
         return $this->id_group;
     }
