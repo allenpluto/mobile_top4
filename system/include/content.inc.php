@@ -195,6 +195,7 @@ class content {
 
                 $this->content['style'] = [];
                 $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'amp');
+                $this->content['script'] = [];
 
                 $view_business_detail_obj = new view_business_amp_detail($this->parameter['instance']);
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
@@ -209,10 +210,10 @@ class content {
                         )
                     )
                 );
+                $this->content['script'][] = array('type'=>'json-ld','content'=>['@id'=>URI_SITE_BASE.'business/'.$this->parameter['instance'],'url'=>URI_SITE_BASE.'business/'.$this->parameter['instance']]);
                 $render_parameter = array_merge($this->parameter, $render_parameter);
                 $view_web_page_obj = new view_web_page(null, $render_parameter);
                 $this->content['html'] = $view_web_page_obj->render();
-                $this->content['script'] = [];
                 break;
             case 'listing':
                 $page_parameter = $format->pagination_param($this->parameter);
@@ -755,6 +756,7 @@ class content {
                 $page_script = '';
                 if ($GLOBALS['global_preference']->minify_js)
                 {
+                    $json_ld = array();
                     foreach ($this->content['script'] as $row_index=>$row)
                     {
                         if (isset($row['type']))
@@ -857,6 +859,9 @@ class content {
                                 case 'text_content':
                                     $row['content'] = $format->minify_js($row['content']);
                                     break;
+                                case 'json-ld':
+                                    $json_ld = array_merge($json_ld, $row['content']);
+                                    unset($row['content']);
                                 default:
                             }
                         }
@@ -865,9 +870,11 @@ class content {
                     }
                     if (!empty($page_script)) $page_script = '<script type="text/javascript">'.$page_script.'</script>';
                     $page_script = str_replace('<script type="text/javascript"></script>','',$page_script);
+                    if ($json_ld) $page_script .= '<script type="application/ld+json">'.$format->minify_js(json_encode($json_ld)).'</script>';
                 }
                 else
                 {
+                    $json_ld = array();
                     foreach ($this->content['script'] as $row_index=>$row)
                     {
                         if (isset($row['type']))
@@ -907,6 +914,9 @@ class content {
                                     break;
                                 case 'text_content':
                                     break;
+                                case 'json-ld':
+                                    $json_ld = array_merge($json_ld, $row['content']);
+                                    unset($row['content']);
                                 default:
                             }
                         }
@@ -924,10 +934,7 @@ class content {
                         $page_script .= '</script>';
                     }
                     $page_script = str_replace('<script type="text/javascript"></script>','',$page_script);
-                }
-                if (substr($this->parameter['namespace'], strlen($this->parameter['namespace'])-4) == '-amp')
-                {
-                    $page_script = str_replace('<script type="text/javascript">','<script type="application/ld+json">',$page_script);
+                    if ($json_ld) $page_script .= '<script type="application/ld+json">'.json_encode($json_ld).'</script>';
                 }
                 $this->content['html'] = str_replace('[[+script]]',$page_script,$this->content['html']);
                 unset($page_script);

@@ -72,6 +72,11 @@ class view_business_amp_detail extends view_organization
                 $this->row[$row_index]['logo']->rendered_html = '';
                 $this->row[$row_index]['top_text_container_column'] = ' column_12';
             }
+            else
+            {
+                $this->row[$row_index]['logo']->fetch_value();
+                $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['image'=>$this->row[$row_index]['logo']->row[0]['image_src']]);
+            }
             $this->row[$row_index]['banner'] = new view_business_detail_banner($row_value['banner_id']);
             if ($this->row[$row_index]['banner']->_initialized === false)
             {
@@ -170,6 +175,40 @@ class view_business_amp_detail extends view_organization
                     )
                 ));
             }
+
+            if (isset($row_value['schema_itemtype']))
+            {
+                if (preg_match('/^(https?:\/\/[-\.\w]+)\/([-\.\w]+)\/?(.*)$/', $row_value['schema_itemtype'], $matches))
+                {
+                    $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['@context'=>$matches[1],'@type'=>$matches[2]]);
+                }
+            }
+            if (isset($row_value['name'])) $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['name'=>$row_value['name']]);
+            if (isset($row_value['street_address']))
+            {
+                $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>[
+                    'address'=>[
+                        '@type'=>'PostalAddress',
+                        'streetAddress'=>$row_value['street_address'],
+                        'addressLocality'=>$row_value['suburb'],
+                        'addressRegion'=>$row_value['state'],
+                        'postalCode'=>$row_value['post'],
+                        'addressCountry'=>'AU'
+                    ]
+                ]);
+            }
+            if (isset($row_value['geo_location_formatted']))
+            {
+                $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>[
+                    'geo'=>[
+                        '@type'=>'GeoCoordinates',
+                        'latitude'=>round($row_value['latitude'],6),
+                        'longitude'=>round($row_value['longitude'],6)
+                    ]
+                ]);
+            }
+            if (isset($row_value['phone'])) $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['telephone'=>$row_value['phone']]);
+            if (isset($row_value['website'])) $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['url'=>$row_value['website']]);
         }
 
         return parent::render($parameter);
