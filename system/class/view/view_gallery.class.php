@@ -31,6 +31,11 @@ class view_gallery extends view
                 $gallery_image_object_type = get_class($this).'_image';
                 $this->row[$row_index]['gallery_image'] = new $gallery_image_object_type();
                 $this->row[$row_index]['gallery_image']->get_by_gallery($row_value['id']);
+                if (count($this->row[$row_index]['gallery_image']->id_group) == 0)
+                {
+                    unset($this->id_group[array_search($row_value['id'], $this->id_group)]);
+                    unset($this->row[$row_index]);
+                }
             }
             $result = $this->row;
         }

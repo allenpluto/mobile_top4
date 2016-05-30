@@ -452,7 +452,10 @@ class view
                 return $rendered_html;
             }
         }
-
+        else
+        {
+            return '';
+        }
     }
 }
 
