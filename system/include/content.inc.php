@@ -178,8 +178,8 @@ class content {
                 $render_parameter = array(
                     'build_from_content'=>array(
                         array(
-                            'name'=>$view_business_detail_value[0]['name'],
-                            'description'=>$view_business_detail_value[0]['description'],
+                            'name'=>htmlspecialchars($view_business_detail_value[0]['name']),
+                            'description'=>htmlspecialchars($view_business_detail_value[0]['description']),
                             'amp_uri'=>URI_SITE_BASE.'business-amp/'.$this->parameter['instance'],
                             'robots'=>'index, nofollow',
                             'body'=>$view_business_detail_obj
@@ -202,8 +202,8 @@ class content {
                 $render_parameter = array(
                     'build_from_content'=>array(
                         array(
-                            'name'=>$view_business_detail_value[0]['name'],
-                            'description'=>$view_business_detail_value[0]['description'],
+                            'name'=>htmlspecialchars($view_business_detail_value[0]['name']),
+                            'description'=>htmlspecialchars($view_business_detail_value[0]['description']),
                             'default_uri'=>URI_SITE_BASE.'business/'.$this->parameter['instance'],
                             'body'=>$view_business_detail_obj
                         )
@@ -333,7 +333,7 @@ class content {
                         }
 
                         $category_row = $view_category_obj->fetch_value();
-                        $long_title = 'Top 4 '.$category_row[0]['page_title'];
+                        $long_title = htmlspecialchars('Top 4 '.$category_row[0]['page_title']);
 
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
@@ -423,7 +423,7 @@ class content {
                         }
 
 
-                        $long_title = 'Search '.($what?html_entity_decode($what):'Business').' in '.($where?$where:'Australia');
+                        $long_title = htmlspecialchars('Search '.($what?html_entity_decode($what):'Business').' in '.($where?$where:'Australia'));
 
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
