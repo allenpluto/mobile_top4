@@ -200,6 +200,8 @@ class content {
                 $view_business_detail_obj = new view_business_amp_detail($this->parameter['instance']);
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
 
+                if (count($view_business_detail_value) == 0) header('Location: '.URI_SITE_BASE.'404');
+
                 $render_parameter = array(
                     'build_from_content'=>array(
                         array(
