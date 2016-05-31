@@ -50,12 +50,13 @@ class view_business_amp_detail extends view_organization
                         {
                             $open_time = $format->time($time_period[0]);
                             $close_time = $format->time($time_period[1]);
+                            if ($close_time=='24:00') $close_time = '23:59';
                             $hours_work_formatted .= '<div class="hour_row">'.$open_time.' to '.$close_time.'</div>';
                             $hours_work_schema[] = [
                                 '@type'=>'OpeningHoursSpecification',
                                 'dayOfWeek'=>'http://schema.org/'.$weekday_name,
                                 'opens'=>$open_time,
-                                'closes'=>($close_time=='24:00'?'23:59':$close_time)
+                                'closes'=>$close_time
                             ];
                         }
                     }
@@ -73,7 +74,10 @@ class view_business_amp_detail extends view_organization
                 }
 
                 $this->row[$row_index]['hours_work_formatted'] =  $hours_work_formatted;
-                $this->row[$row_index]['hours_work_schema'] =  $hours_work_schema;
+                if ($row['base_category_id'] == 4)      // Only apply OpeningHoursSpecification schema markup for LocalBusiness and sub types
+                {
+                    $this->row[$row_index]['hours_work_schema'] =  $hours_work_schema;
+                }
                 unset($hours_work_formatted);
                 unset($hours_work_schema);
             }

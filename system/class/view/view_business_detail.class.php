@@ -51,12 +51,26 @@ class view_business_detail extends view_organization
                             $open_time = $format->time($time_period[0]);
                             $close_time = $format->time($time_period[1]);
                             if ($close_time=='24:00') $close_time = '23:59';
-                            $hours_work_formatted .= '<div class="hour_row" itemprop="OpeningHoursSpecification" itemscope="" itemtype="http://schema.org/OpeningHoursSpecification"><link itemprop="dayOfWeek" href="http://schema.org/'.$weekday_name.'" /><span itemprop="opens">'.$open_time.'</span> to <span itemprop="closes">'.$close_time.'</span></div>';
+                            if ($row['base_category_id'] == 4)      // Only apply OpeningHoursSpecification schema markup for LocalBusiness and sub types
+                            {
+                                $hours_work_formatted .= '<div class="hour_row" itemprop="OpeningHoursSpecification" itemscope="" itemtype="http://schema.org/OpeningHoursSpecification"><link itemprop="dayOfWeek" href="http://schema.org/'.$weekday_name.'" /><span itemprop="opens">'.$open_time.'</span> to <span itemprop="closes">'.$close_time.'</span></div>';
+                            }
+                            else
+                            {
+                                $hours_work_formatted .= '<div class="hour_row" ><span>'.$open_time.'</span> to <span>'.$close_time.'</span></div>';
+                            }
                         }
                     }
                     else
                     {
-                        $hours_work_formatted .= '<div class="hour_row" itemprop="OpeningHoursSpecification" itemscope="" itemtype="http://schema.org/OpeningHoursSpecification"><link itemprop="dayOfWeek" href="http://schema.org/'.$weekday_name.'" /><meta itemprop="opens" content="00:00"><meta itemprop="closes" content="00:00">Closed</div>';
+                        if ($row['base_category_id'] == 4)      // Only apply OpeningHoursSpecification schema markup for LocalBusiness and sub types
+                        {
+                            $hours_work_formatted .= '<div class="hour_row" itemprop="OpeningHoursSpecification" itemscope="" itemtype="http://schema.org/OpeningHoursSpecification"><link itemprop="dayOfWeek" href="http://schema.org/'.$weekday_name.'" /><meta itemprop="opens" content="00:00"><meta itemprop="closes" content="00:00">Closed</div>';
+                        }
+                        else
+                        {
+                            $hours_work_formatted .= '<div class="hour_row">Closed</div>';
+                        }
                     }
                     $hours_work_formatted .= '</div></div>';
                 }
