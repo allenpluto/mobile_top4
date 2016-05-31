@@ -50,5 +50,6 @@
     [[$keyword_section]]
     [[$overview_section]]
     [[$contact_section]]
+    [[$hour_section]]
     [[$gallery_section]]
 </div>

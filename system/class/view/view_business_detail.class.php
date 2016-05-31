@@ -14,6 +14,7 @@ class view_business_detail extends view_organization
     function fetch_value($parameter = array())
     {
         $result = parent::fetch_value($parameter);
+        $format = format::get_obj();
         foreach ($result as $row_index=>$row)
         {
             if (isset($row['keywords']))
@@ -31,6 +32,37 @@ class view_business_detail extends view_organization
                 {
                     unset($this->row[$row_index]['geo_location_formatted']);
                 }
+            }
+            if (!empty($row['hours_work']))
+            {
+                $hours_work = json_decode($row['hours_work'],true);
+                $hours_work_formatted = '';
+                $hours_work_schema = array();
+                $weekday_names = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+                foreach ($weekday_names as $weekday_index=>$weekday_name)
+                {
+                    $weekday_number = ($weekday_index + 1) % 7;
+                    $hours_work_formatted .= '<div class="weekday_row"><div class="weekday_name">'.$weekday_names[$weekday_index].'</div><div class="weekday_content hour_row_container">';
+                    if (isset($hours_work[$weekday_number]))
+                    {
+                        foreach ($hours_work[$weekday_number] as $time_period_index=>$time_period)
+                        {
+                            $open_time = $format->time($time_period[0]);
+                            $close_time = $format->time($time_period[1]);
+                            if ($close_time=='24:00') $close_time = '23:59';
+                            $hours_work_formatted .= '<div class="hour_row" itemprop="OpeningHoursSpecification" itemscope="" itemtype="http://schema.org/OpeningHoursSpecification"><link itemprop="dayOfWeek" href="http://schema.org/'.$weekday_name.'" /><span itemprop="opens">'.$open_time.'</span> to <span itemprop="closes">'.$close_time.'</span></div>';
+                        }
+                    }
+                    else
+                    {
+                        $hours_work_formatted .= '<div class="hour_row" itemprop="OpeningHoursSpecification" itemscope="" itemtype="http://schema.org/OpeningHoursSpecification"><link itemprop="dayOfWeek" href="http://schema.org/'.$weekday_name.'" /><meta itemprop="opens" content="00:00"><meta itemprop="closes" content="00:00">Closed</div>';
+                    }
+                    $hours_work_formatted .= '</div></div>';
+                }
+
+                $this->row[$row_index]['hours_work_formatted'] =  $hours_work_formatted;
+                unset($hours_work_formatted);
             }
         }
         return $result;
@@ -141,6 +173,18 @@ class view_business_detail extends view_organization
                     )
                 )
             ));
+
+            if (isset( $this->row[$row_index]['hours_work_formatted']))
+            {
+                $this->row[$row_index]['hour_section'] = new view_web_page_element(null, array(
+                    'template'=>'view_business_detail_hour_section',
+                    'build_from_content'=>array(
+                        array(
+                            'hours_work_formatted'=>$this->row[$row_index]['hours_work_formatted']
+                        )
+                    )
+                ));
+            }
 
             if (isset($this->row[$row_index]['geo_location_formatted']))
             {

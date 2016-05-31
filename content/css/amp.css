@@ -659,7 +659,20 @@ a, a:hover, a:visited {
     font-weight: normal;
 }
 
+/*# Body/Listing/Detail/Hour Section #*/
+.weekday_name,
+.weekday_content
+{
+    display: inline-block;
+    padding: 0.2em 0;
 
+    font-size: 1.2em;
+}
+
+.weekday_name
+{
+    width: 10em;
+}
 
 /*# Body/Listing/Detail/Gallery Section #*/
 .listing_detail_view_gallery_title

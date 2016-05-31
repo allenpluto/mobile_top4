@@ -143,20 +143,30 @@ class format
         return $result;
     }
 
+    // Display Time (transfer any float number 0-1 to string 00:00-24:00)
+    private function time($value)
+    {
+        $minutes = round($value*1440);
+        $hour = floor($minutes/60);
+        $minute = $minutes%60;
+        $result = ($hour<10?'0':'').$hour.':'.($minute<10?'0':'').$minute;
+        return $result;
+    }
+
     // Display Website URI
     private function uri($value)
     {
-        $value = trim($value);
-        if (empty($value)) return $value;
+        $result = trim($value);
+        if (empty($result)) return $result;
 
-        if (!preg_match("/^https?\:\/\//", $value))
+        if (!preg_match("/^https?\:\/\//", $result))
         {
-            $value = str_replace(":","",$value);
-            $value = str_replace("//","/",$value);
-            $value = 'http://'.$value;
+            $result = str_replace(":","",$result);
+            $result = str_replace("//","/",$result);
+            $result = 'http://'.$result;
         }
 
-        return $value;
+        return $result;
     }
 
     // Display ABN

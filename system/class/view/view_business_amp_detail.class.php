@@ -14,6 +14,7 @@ class view_business_amp_detail extends view_organization
     function fetch_value($parameter = array())
     {
         $result = parent::fetch_value($parameter);
+        $format = format::get_obj();
         foreach ($result as $row_index=>$row)
         {
             if (isset($row['keywords']))
@@ -31,6 +32,50 @@ class view_business_amp_detail extends view_organization
                 {
                     unset($this->row[$row_index]['geo_location_formatted']);
                 }
+            }
+            if (!empty($row['hours_work']))
+            {
+                $hours_work = json_decode($row['hours_work'],true);
+                $hours_work_formatted = '';
+                $hours_work_schema = array();
+                $weekday_names = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+                foreach ($weekday_names as $weekday_index=>$weekday_name)
+                {
+                    $weekday_number = ($weekday_index + 1) % 7;
+                    $hours_work_formatted .= '<div class="weekday_row"><div class="weekday_name">'.$weekday_names[$weekday_index].'</div><div class="weekday_content hour_row_container">';
+                    if (isset($hours_work[$weekday_number]))
+                    {
+                        foreach ($hours_work[$weekday_number] as $time_period_index=>$time_period)
+                        {
+                            $open_time = $format->time($time_period[0]);
+                            $close_time = $format->time($time_period[1]);
+                            $hours_work_formatted .= '<div class="hour_row">'.$open_time.' to '.$close_time.'</div>';
+                            $hours_work_schema[] = [
+                                '@type'=>'OpeningHoursSpecification',
+                                'dayOfWeek'=>'http://schema.org/'.$weekday_name,
+                                'opens'=>$open_time,
+                                'closes'=>($close_time=='24:00'?'23:59':$close_time)
+                            ];
+                        }
+                    }
+                    else
+                    {
+                        $hours_work_formatted .= '<div class="hour_row">Closed</div>';
+                        $hours_work_schema[] = [
+                            '@type'=>'OpeningHoursSpecification',
+                            'dayOfWeek'=>'http://schema.org/'.$weekday_name,
+                            'opens'=>'00:00',
+                            'closes'=>'00:00'
+                        ];
+                    }
+                    $hours_work_formatted .= '</div></div>';
+                }
+
+                $this->row[$row_index]['hours_work_formatted'] =  $hours_work_formatted;
+                $this->row[$row_index]['hours_work_schema'] =  $hours_work_schema;
+                unset($hours_work_formatted);
+                unset($hours_work_schema);
             }
         }
         return $result;
@@ -156,6 +201,18 @@ class view_business_amp_detail extends view_organization
                 )
             ));
 
+            if (isset( $this->row[$row_index]['hours_work_formatted']))
+            {
+                $this->row[$row_index]['hour_section'] = new view_web_page_element(null, array(
+                    'template'=>'view_business_amp_detail_hour_section',
+                    'build_from_content'=>array(
+                        array(
+                            'hours_work_formatted'=>$this->row[$row_index]['hours_work_formatted']
+                        )
+                    )
+                ));
+            }
+
             $this->row[$row_index]['gallery'] = new view_business_amp_detail_gallery();
             $this->row[$row_index]['gallery']->get_business_gallery($this->id_group);
             $this->row[$row_index]['gallery']->fetch_value();
@@ -209,6 +266,7 @@ class view_business_amp_detail extends view_organization
             }
             if (isset($row_value['phone'])) $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['telephone'=>$row_value['phone']]);
             if (isset($row_value['website'])) $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['url'=>$row_value['website']]);
+            if (isset( $this->row[$row_index]['hours_work_schema'])) $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['openingHoursSpecification'=>$row_value['hours_work_schema']]);
         }
 
         return parent::render($parameter);
