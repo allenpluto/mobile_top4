@@ -245,6 +245,17 @@ class view_business_amp_detail extends view_organization
                 }
             }
             if (isset($row_value['name'])) $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['name'=>$row_value['name']]);
+            if (isset($row_value['description'])) $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>['description'=>$row_value['description']]);
+            if (!empty($row_value['count_review']))
+            {
+                $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>[
+                    'aggregateRating'=>[
+                        '@type'=>'AggregateRating',
+                        'ratingValue'=>$row_value['avg_review'],
+                        'reviewCount'=>$row_value['count_review']
+                    ]
+                ]);
+            }
             if (isset($row_value['street_address']))
             {
                 $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>[
