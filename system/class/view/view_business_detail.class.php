@@ -178,7 +178,7 @@ class view_business_detail extends view_organization
                 'template'=>'view_business_detail_contact_section',
                 'build_from_content'=>array(
                     array(
-                        'phone'=>$this->row[$row_index]['phone']?'<a itemprop="telephone" href="tel:'.$this->row[$row_index]['phone'].'">'.$format->phone($this->row[$row_index]['phone']).'</a>':'N/A',
+                        'phone'=>$this->row[$row_index]['phone']?'<a href="tel:'.$this->row[$row_index]['phone'].'">'.$format->phone($this->row[$row_index]['phone']).'</a><metaitemprop="telephone" content="'.$this->row[$row_index]['phone'].'">':'N/A',
                         'website'=>$this->row[$row_index]['website']?'<a itemprop="url" href="'.$format->uri($this->row[$row_index]['website']).'" target="_blank">'.$format->uri($this->row[$row_index]['website']).'</a>':'N/A',
                         'street_address'=>$this->row[$row_index]['street_address'],
                         'suburb'=>$this->row[$row_index]['suburb'],
