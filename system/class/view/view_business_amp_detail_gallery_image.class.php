@@ -25,26 +25,8 @@ class view_business_amp_detail_gallery_image extends view_gallery_image
                 }
                 else
                 {
-                    // try to generate image if not exists
-                    $url = URI_IMAGE . $parameter['image_size'] . '/' . $row_value['image_file'];
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_URL, $url);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-                    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-                    $auth = curl_exec($curl);
-                    curl_close($curl);
-
-                    if ($auth)
-                    {
-                        if (file_exists(PATH_IMAGE . $parameter['image_size'] . '/' . $row_value['image_file']))
-                        {
-                            $info = getimagesize(PATH_IMAGE . $parameter['image_size'] . '/' . $row_value['image_file']);
-
-                            $this->row[$row_index]['width'] = $info[0];
-                            $this->row[$row_index]['height'] = $info[1];
-                        }
-                    }
+                    $this->row[$row_index]['width'] = $GLOBALS['global_preference']->image_size_m;
+                    $this->row[$row_index]['height'] = empty($this->row[$row_index]['height'])?$GLOBALS['global_preference']->image_size_m:($GLOBALS['global_preference']->image_size_m * $row_value['width'] / $row_value['height']);
                 }
             }
 
