@@ -156,7 +156,7 @@ class view_business_amp_detail extends view_organization
             if (!empty($keyword_strip_tags))
             {
                 $this->row[$row_index]['keyword_section'] = new view_web_page_element(null, array(
-                    'template'=>'view_business_detail_keyword',
+                    'template'=>'view_business_detail_keyword_section',
                     'build_from_content'=>array(
                         array(
                             'keywords'=>$this->row[$row_index]['keywords']
@@ -170,7 +170,7 @@ class view_business_amp_detail extends view_organization
             if (!empty($overview_strip_tags))
             {
                 $this->row[$row_index]['overview_section'] = new view_web_page_element(null, array(
-                    'template'=>'view_business_detail_overview',
+                    'template'=>'view_business_detail_overview_section',
                     'build_from_content'=>array(
                         array(
                             'long_description'=>$this->row[$row_index]['long_description']
@@ -191,7 +191,7 @@ class view_business_amp_detail extends view_organization
             }
 
             $this->row[$row_index]['contact_section'] = new view_web_page_element(null, array(
-                'template'=>'view_business_amp_detail_contact',
+                'template'=>'view_business_amp_detail_contact_section',
                 'build_from_content'=>array(
                     array(
                         'phone'=>$this->row[$row_index]['phone']?'<a href="tel:'.$this->row[$row_index]['phone'].'">'.$format->phone($this->row[$row_index]['phone']).'</a>':'N/A',
@@ -258,7 +258,7 @@ class view_business_amp_detail extends view_organization
                     ]
                 ]);
             }
-            if (isset($row_value['geo_location_formatted']))
+            if (isset($row_value['geo_location_formatted']) AND $row_value['base_category_id'] == 4)
             {
                 $GLOBALS['page_content']->content['script'][] = array('type'=>'json-ld','content'=>[
                     'geo'=>[

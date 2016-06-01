@@ -1,4 +1,4 @@
-[[-view_business_detail_keyword]]
+[[-view_business_detail_keyword_section]]
 <div id="listing_detail_view_keywords_wrapper" class="wrapper listing_detail_view_section_wrapper">
     <div class="wrapper listing_detail_view_section_title_wrapper">
         <div class="container listing_detail_view_section_title_container"><h3>Services</h3></div>
