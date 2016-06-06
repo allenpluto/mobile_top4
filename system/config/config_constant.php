@@ -63,6 +63,7 @@ $global_preference->minify_css = false;
 $global_preference->minify_js = false;
 
 $global_preference->page_cache = true;
+$global_preference->format_cache = true;
 
 $global_preference->environment = 'production';
 

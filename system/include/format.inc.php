@@ -51,7 +51,7 @@ class format
         else
         {
             $flatten_value = $this->minify_js(json_encode($value));
-            if (isset(self::$cached[$method][$flatten_value]))
+            if ($GLOBALS['global_message']->format_cache AND isset(self::$cached[$method][$flatten_value]))
             {
                 $GLOBALS['global_message']->notice = 'Format value from cache ['.$method.']:'.$flatten_value;
                 return self::$cached[$method][$flatten_value];

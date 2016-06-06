@@ -5,6 +5,15 @@ $.fn.ajax_loader = function(user_option) {
     var default_option = {};
     // Extend our default option with user provided.
     var option = $.extend(default_option, user_option);
+    if ($('head style').length == 0)
+    {
+        var style_tag = $('<style />');
+        style_tag.appendTo('head');
+    }
+    else
+    {
+        var style_tag = $('head style:last-child');
+    }
 
     return this.each(function() {
 
@@ -33,6 +42,10 @@ $.fn.ajax_loader = function(user_option) {
                         'page_number': 0,
                         'id_group': next_page_id_group
                     };
+                    if ($('.system_debug').length>0)
+                    {
+                        post_value['system_debug'] = true;
+                    }
                     $.each(ajax_loader_container.data('option'), function (option_key, option_value) {
                         if (option_key != 'id_group' && option_key != 'page_number')
                         {
@@ -71,7 +84,7 @@ $.fn.ajax_loader = function(user_option) {
                             data.style.forEach(function(element, index){
                                 if (element.type == 'text_content')
                                 {
-                                    $('head style:last-child').append(element.content);
+                                    style_tag.append(element.content);
                                 }
                             });
                             data.script.forEach(function(element, index){
@@ -80,6 +93,14 @@ $.fn.ajax_loader = function(user_option) {
                                     $('body').append('<script type="text/javascript">'+element.content+'</script>>');
                                 }
                             });
+                            if ($('.system_debug').length>0)
+                            {
+                                if (typeof $('.system_debug').data('ajax_load_count') == 'undefined') $('.system_debug').data('ajax_load_count', 1);
+                                else $('.system_debug').data('ajax_load_count', $('.system_debug').data('ajax_load_count')+1);
+                                $('<div />',{
+                                    'class':'system_debug_row container'
+                                }).html('ajax load ('+$('.system_debug').data('ajax_load_count')+') content: '+JSON.stringify(data.system_debug)).appendTo('.system_debug');
+                            }
 
                             ajax_loader_container.children('.clear').appendTo(ajax_loader_container);
                             ajax_loader_container.children('.ajax_loader_bottom').appendTo(ajax_loader_container);

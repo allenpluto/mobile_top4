@@ -22,15 +22,21 @@ class view_category extends view
 
     function fetch_value($parameter = array())
     {
-        $parameter = array_merge($this->parameter,$parameter);
+        $format = format::get_obj();
         $result = parent::fetch_value($parameter);
-        if ($result !== false AND is_array($this->row))
+        
+        $parameter = array_merge($this->parameter,$parameter);
+        if ($result !== false)
         {
-            foreach ($this->row as $row_index=>$row_value)
+            foreach ($result as $row_index=>$row)
             {
-                $this->row[$row_index]['full_url'] =  $parameter['namespace'] .  $parameter['path'] . $row_value['friendly_url'];
+                if (isset($row['name']))
+                {
+                    $result[$row_index]['friendly_url'] = $format->file_name($row['name'].'-'.$row[$this->parameter['primary_key']]);
+                }
+                $result[$row_index]['full_url'] =  $parameter['namespace'] .  $parameter['path'] . $result[$row_index]['friendly_url'];
             }
-            $result = $this->row;
+            $this->row = $result;
         }
         return $result;
     }

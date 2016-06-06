@@ -381,23 +381,19 @@ class entity
         {
             $parameter['table_fields'] = array();
             $parameter['relational_fields'] = array();
+            $parameter['table_fields_additional'] = array();
             foreach ($parameter['fields'] as $set_field_index=>$set_field)
             {
                 // row provided value for updating current entity table
                 if (isset($this->parameter['table_fields'][$set_field])) $parameter['table_fields'][$set_field] = $this->parameter['table_fields'][$set_field];
 
-                // row indirectly provided value for updating current entity table, e.g. field 'name' provided, but not 'friendly_url', auto generate friendly_url value according to name value
-                if (isset($this->parameter['table_fields_additional'][$set_field]))
-                {
-                    foreach($this->parameter['table_fields_additional'][$set_field] as $additional_field_index=>$additional_field)
-                    {
-                        if (!isset($parameter['fields'][$additional_field_index]))
-                        $parameter['table_fields_additional'][$additional_field_index] = $additional_field;
-                    }
-                }
-
                 // row provided value for updating relational tables, e.g. category field to update rel_category_to_organization table
                 if (isset($this->parameter['relational_fields'][$set_field])) $parameter['relational_fields'][$set_field] = $this->parameter['relational_fields'][$set_field];
+            }
+            foreach($this->parameter['table_fields_additional'] as $set_field_index=>$set_field)
+            {
+                // only set additional field if field is not provided
+                if (!isset($parameter['fields'][$set_field_index])) $parameter['table_fields_additional'][$set_field_index] = $set_field;
             }
             unset($parameter['fields']);
         }

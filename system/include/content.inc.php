@@ -175,6 +175,12 @@ class content {
                 $view_business_detail_obj = new view_business_detail($this->parameter['instance']);
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
 
+                if (count($view_business_detail_value) == 0) header('Location: '.URI_SITE_BASE.'404');
+                if ($view_business_detail_value[0]['friendly_url'] != $this->parameter['instance'])
+                {
+                    header('Location: '.URI_SITE_BASE.$this->parameter['namespace'].'/'.$view_business_detail_value[0]['friendly_url']);
+                }
+
                 $render_parameter = array(
                     'build_from_content'=>array(
                         array(
@@ -201,6 +207,10 @@ class content {
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
 
                 if (count($view_business_detail_value) == 0) header('Location: '.URI_SITE_BASE.'404');
+                if ($view_business_detail_value[0]['friendly_url'] != $this->parameter['instance'])
+                {
+                    header('Location: '.URI_SITE_BASE.$this->parameter['namespace'].'/'.$view_business_detail_value[0]['friendly_url']);
+                }
 
                 $render_parameter = array(
                     'build_from_content'=>array(
@@ -274,6 +284,10 @@ class content {
                         {
                             $this->content['html'] = '';
                             break;
+                        }
+                        if (isset($_POST['system_debug']))
+                        {
+                            $this->parameter['debug_mode'] = $_POST['system_debug']?true:false;
                         }
 
                         switch($_POST['object_type'])
@@ -466,7 +480,6 @@ class content {
                         $this->cache = 1;
                         $index_organization_obj = new index_organization();
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->filter_by_featured(),array('page_size'=>4,'order'=>'RAND()'));
-
                         $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>array_values($view_business_summary_obj->id_group),'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
                         if ($GLOBALS['global_preference']->ajax_data_encode == 'base64')
                         {
@@ -639,6 +652,14 @@ class content {
             if ($result['page_number'] < 0)
             {
                 return false;
+            }
+        }
+        $result['debug_mode'] = false;
+        if (isset($value['debug_mode']))
+        {
+            if ($value['debug_mode'])
+            {
+                $result['debug_mode'] = true;
             }
         }
 
@@ -1065,6 +1086,10 @@ class content {
 
         if ($this->parameter['instance'] == 'ajax-load')
         {
+            if ($this->parameter['debug_mode'] == true)
+            {
+                $this->content['system_debug'] = $GLOBALS['global_message']->display();
+            }
             $ajax_result = json_encode($this->content);
             if (isset($_POST['data_encode_type']))
             {
@@ -1078,6 +1103,12 @@ class content {
         }
         else
         {
+            if ($this->parameter['debug_mode'] == true)
+            {
+                echo '<div class="system_debug wrapper"><div class="system_debug_row container">';
+                print_r(json_encode($GLOBALS['global_message']->display()));
+                echo '</div></div>';
+            }
             print_r($this->content['html']);
             return true;
         }

@@ -1920,9 +1920,10 @@ img {display:block;max-width:100%;}
 }
 
 /*# Debug Area #*/
-.system_debug,
 .system_debug .container
 {
+    padding: 10px 20px;
+
     background:#ffffff !important;
     
     border:2px solid red;
@@ -1930,5 +1931,6 @@ img {display:block;max-width:100%;}
 
 .system_debug.wrapper
 {
+    padding: 20px 0;
     background:#ffeeee !important;
 }
