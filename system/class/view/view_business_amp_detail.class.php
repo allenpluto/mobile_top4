@@ -138,20 +138,6 @@ class view_business_amp_detail extends view_organization
                 $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'m/'.$this->row[$row_index]['banner']->row[0]['image_file'].');} @media only screen and (min-width:320px) and (max-width:479px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'l/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}} @media only screen and (min-width:480px) and (max-width:767px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'xl/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}} @media only screen and (min-width:768px) {#listing_detail_view_wrapper {background-image: url('.URI_IMAGE.'xxl/'.$this->row[$row_index]['banner']->row[0]['image_file'].');}}');
             }
 
-            if ($this->row[$row_index]['count_review'] > 0)
-            {
-                $this->row[$row_index]['aggregaterating'] = new view_web_page_element(null, array(
-                    'template'=>'view_business_detail_aggregaterating',
-                    'build_from_content'=>array(
-                        array(
-                            'count_review'=>$this->row[$row_index]['count_review'],
-                            'avg_review'=>$this->row[$row_index]['avg_review']
-                        )
-                    )
-                ));
-                $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_detail_view_top_container .rating_star_front_container {width:'.$row_value['avg_review_percentage'].'%;}');
-            }
-
             $keyword_strip_tags = strip_tags($this->row[$row_index]['keywords']);
             if (!empty($keyword_strip_tags))
             {

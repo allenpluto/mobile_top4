@@ -48,6 +48,18 @@ class view_business_summary extends view_organization
                 $this->row[$row_index]['image']->fetch_value();
                 $GLOBALS['page_content']->content['style'][] = array('type'=>'text_content', 'content'=>'#listing_block_container_'.$row_value['id'].' .block_thumb_image_container {background-image: url('.URI_IMAGE.'s/'.$this->row[$row_index]['image']->row[0]['image_file'].');} @media only screen and (min-width:768px) {#listing_block_container_'.$row_value['id'].' .block_thumb_image_container {background-image: url('.URI_IMAGE.'m/'.$this->row[$row_index]['image']->row[0]['image_file'].');}}');
             }
+            if ($this->row[$row_index]['count_review'] > 0)
+            {
+                $this->row[$row_index]['aggregaterating'] = new view_web_page_element(null, array(
+                    'template'=>'view_business_aggregaterating',
+                    'build_from_content'=>array(
+                        array(
+                            'count_review'=>$this->row[$row_index]['count_review'],
+                            'avg_review'=>$this->row[$row_index]['avg_review']
+                        )
+                    )
+                ));
+            }
         }
     }
 }
