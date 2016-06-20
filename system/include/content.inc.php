@@ -473,6 +473,14 @@ class content {
                         header('Location: /'.URI_SITE_PATH.$this->parameter['namespace'].'/');
                 }
                 break;
+            case 'member':
+                session_start();
+                switch ($this->parameter['instance'])
+                {
+
+
+                }
+                break;
             default:
                 switch ($this->parameter['instance'])
                 {
