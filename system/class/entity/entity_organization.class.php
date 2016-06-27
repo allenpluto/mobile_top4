@@ -14,9 +14,7 @@ class entity_organization extends entity
             ]
         ];
         $parameter = array_merge($default_parameter, $parameter);
-        parent::__construct($value, $parameter);
-
-        return $this;
+        return parent::__construct($value, $parameter);
     }
 
     function sync($parameter = array())

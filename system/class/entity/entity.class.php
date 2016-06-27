@@ -152,7 +152,7 @@ class entity
             if (!isset($relational_fields[$relational_field_name]['source_id_field'])) $relational_fields[$relational_field_name]['source_id_field'] = str_replace('entity_','',get_class($this)).'_'.$this->parameter['primary_key'];
             if (!in_array($relational_fields[$relational_field_name]['source_id_field'],$relational_fields[$relational_field_name]['primary_key']))
             {
-                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): source_id_field ['.$relational_fields[$relational_field_name]['source_id_field'].'] is not a defined PK field in relation table '.$relational_fields[$relational_field_name]['table'].' PK ('.implode(',',$relational_fields[$relational_field_name]['primary_key']).')';
+                $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): source_id_field ['.$relational_fields[$relational_field_name]['source_id_field'].'] is not a defined PK field in relation table '.$relational_fields[$relational_field_name]['table'].' PK ('.implode(',',$relational_fields[$relational_field_name]['primary_key']).')';
                 return false;
             }
             if (!isset($relational_fields[$relational_field_name]['target_id_field'])) $relational_fields[$relational_field_name]['target_id_field'] = $relational_field_name.'_id';
