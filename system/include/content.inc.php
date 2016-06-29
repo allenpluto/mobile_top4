@@ -35,6 +35,12 @@ class content {
             $this->content['script'][] = array('type'=>'remote_file', 'file_path'=>'http://www.google-analytics.com/analytics.js','file_name'=>'analytics');
             $this->content['script'][] = array('type'=>'text_content', 'content'=>'window[\'GoogleAnalyticsObject\'] = \'ga\';window[\'ga\'] = window[\'ga\'] || function() {(window[\'ga\'].q = window[\'ga\'].q || []).push(arguments)}, window[\'ga\'].l = 1 * new Date();ga(\'create\', \''.$GLOBALS['global_preference']->ga_tracking_id.'\', \'auto\');ga(\'send\', \'pageview\');');
         }
+        // Google Map Service
+        if ($GLOBALS['global_preference']->google_api_credential_browser)
+        {
+            $this->content['script'][] = array('type'=>'local_file', 'file_name'=>'google-map-api-handler');
+            $this->content['script'][] = array('type'=>'remote_file', 'file_path'=>'https://maps.googleapis.com/maps/api/js?key='.$GLOBALS['global_preference']->google_api_credential_browser.'&libraries=places&callback=google_map_api_callback','file_name'=>'google-map-api');
+        }
 
         $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'default');
 

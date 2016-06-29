@@ -43,7 +43,7 @@ class entity_suburb extends entity_place
         $sync_parameter['update_fields'] = array(
             'id' => $this->parameter['table'].'.id',
             'friendly_url' => $this->parameter['table'].'.friendly_url',
-            'suburb' => $this->parameter['table'].'.alternate_name',
+            'suburb' => $this->parameter['table'].'.name',
             'state' => 'tbl_entity_place_state.alternate_name',
             'post' => $this->parameter['table'].'.post',
             'enter_time' => $this->parameter['table'].'.enter_time',
@@ -55,7 +55,7 @@ class entity_suburb extends entity_place
             'viewport_southwest_latitude' => $this->parameter['table'].'.viewport_southwest_latitude',
             'viewport_southwest_longitude' => $this->parameter['table'].'.viewport_southwest_longitude',
             'formatted_address' => $this->parameter['table'].'.formatted_address',
-            'formatted_address_alt' => 'CONCAT('.$this->parameter['table'].'.name,", ",tbl_entity_place_state.name," ",'.$this->parameter['table'].'.postal_code)'
+            'formatted_address_alt' => 'CONCAT('.$this->parameter['table'].'.name,", ",tbl_entity_place_state.alternate_name," ",'.$this->parameter['table'].'.postal_code)'
         );
         $sync_parameter['join'] = array(
             'JOIN tbl_entity_place_state ON '.$this->parameter['table'].'.state_id = tbl_entity_place_state.id'

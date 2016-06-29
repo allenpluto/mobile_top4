@@ -93,4 +93,8 @@ include_once(PATH_INCLUDE.'content'.FILE_EXTENSION_INCLUDE);
 // Other configurations
 // Google Analytic Tracking ID, set as '' to disable
 $global_preference->ga_tracking_id = '';
+
+// Google API credential
+$global_preference->google_api_credential_server = '';
+$global_preference->google_api_credential_browser = '';
 ?>

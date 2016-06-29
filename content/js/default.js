@@ -12,7 +12,7 @@ $.fn.ajax_loader = function(user_option) {
     }
     else
     {
-        var style_tag = $('head style:last-child');
+        var style_tag = $('head style:last');
     }
 
     return this.each(function() {
@@ -78,13 +78,14 @@ $.fn.ajax_loader = function(user_option) {
                                 }
                             }
                             data = $.parseJSON(data);
-//console.log(data);
+console.log(data);
 
                             ajax_loader_container.append(data.html);
                             data.style.forEach(function(element, index){
                                 if (element.type == 'text_content')
                                 {
                                     style_tag.append(element.content);
+//console.log(style_tag);
                                 }
                             });
                             data.script.forEach(function(element, index){
