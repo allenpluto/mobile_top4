@@ -782,6 +782,7 @@ class entity
             if (!empty($parameter['group'])) $sql .= ' GROUP BY '.implode(', ',$parameter['group']);
             unset($update_fields);
             $sql .= ') ON DUPLICATE KEY UPDATE '.$parameter['primary_key'].'='.$parameter['primary_key'].';';
+
             $query = $this->query($sql);
             if ($query === false) return false;
             return true;
@@ -826,7 +827,7 @@ class entity
                     'source_primary_key'=>$parameter['primary_key'],
                     'target_table'=>$parameter['sync_table'],
                     'target_primary_key'=>$parameter['sync_table_primary_key'],
-                    'where'=>$parameter['where']
+                    'where'=>(!empty($parameter['where'])?$parameter['where']:'')
                 ));
                 if ($sync_id_group === false) return false;
         }

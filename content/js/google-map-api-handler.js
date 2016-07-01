@@ -14,10 +14,14 @@ function search_location_change()
     //console.log(place);
     //document.getElementById('map-options').innerHTML = place['formatted_address']+'('+place['types'][0]+':'+place['geometry'].location+')';
     //initialMap(place['geometry'].location);
-    if (place)
+    if (typeof place['formatted_address'] !== 'undefined')
     {
         search_location.value = place['formatted_address'];
         search_location_place_id.value = place['geometry'].location;
+    }
+    else
+    {
+        search_location_place_id.value = '';
     }
 }
 

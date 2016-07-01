@@ -408,6 +408,15 @@ class content {
                             $where = trim(html_entity_decode(strtolower($ulr_part[2])));
                             if (strtolower($ulr_part[1]) == 'where' AND $where != 'empty')
                             {
+                                $index_place_suburb = new index_place_suburb();
+                                echo '<pre>';
+                                print_r($index_place_suburb->filter_by_location_text($where));
+                                $view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
+                                $view_place_suburb->fetch_value();
+                                print_r($view_place_suburb);
+                                exit();
+
+
                                 $index_location_obj = new index_location();
                                 $index_location_obj->filter_by_location_text($where);
                                 if (count($index_location_obj->id_group) > 0)

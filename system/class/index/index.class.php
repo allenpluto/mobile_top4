@@ -241,6 +241,22 @@ class index
             $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): Full text search without corresponding fulltext fields';
             return false;
         }
+        if (!isset($parameter['fulltext_mode'])) $parameter['fulltext_mode'] = 'boolean';
+        switch ($parameter['fulltext_mode'])
+        {
+            case 'nature-language':
+                $fulltext_mode_text = 'IN NATURAL LANGUAGE MODE';
+                break;
+            case 'expansion':
+                $fulltext_mode_text = 'WITH QUERY EXPANSION';
+                break;
+            case 'nature-language-expansion':
+                $fulltext_mode_text = 'IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION';
+                break;
+            case 'boolean':
+            default:
+                $fulltext_mode_text = 'IN BOOLEAN MODE';
+        }
         if (!isset($parameter['special_pattern'])) $parameter['special_pattern'] = '';
         if (!isset($parameter['preset_score']))
         {
@@ -271,7 +287,7 @@ class index
         {
             $filter_parameter = array(
                 'get_field' => array(
-                    'score' => 'MATCH('.implode(', ',$parameter['fulltext_columns']).') AGAINST (:keyword IN BOOLEAN MODE)'
+                    'score' => 'MATCH('.implode(', ',$parameter['fulltext_columns']).') AGAINST (:keyword '.$fulltext_mode_text.')'
                     //'score' => 'MATCH(title) AGAINST (:keyword IN BOOLEAN MODE) / '.count($keyword_phrases)
                 ),
                 'bind_param' => array(
