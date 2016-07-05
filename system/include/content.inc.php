@@ -410,7 +410,35 @@ class content {
                             {
                                 $index_place_suburb = new index_place_suburb();
                                 echo '<pre>';
-                                print_r($index_place_suburb->filter_by_location_text($where));
+                                $suburb_search_result = $index_place_suburb->filter_by_location_text($where);
+                                switch ($suburb_search_result['status'])
+                                {
+                                    case 'exact_match':
+                                        $index_organization_obj->filter_by_suburb($index_place_suburb->id_group);
+                                        break;
+                                    case 'text_match':
+                                        $high_relevance_score = 0.9;
+                                        $high_relevance_suburb = array();
+                                        foreach($suburb_search_result['score'] as $suburb_id=>$score)
+                                        {
+                                            if ($score <= $high_relevance_score)
+                                            {
+                                                break;
+                                            }
+                                            $high_relevance_suburb[] = $suburb_id;
+                                        }
+                                        if (count($high_relevance_suburb) > 1)
+                                        {
+                                            // TODO: Multiple matched results, suggest "Search instead for"
+                                        }
+                                        $index_organization_obj->filter_by_suburb([$high_relevance_suburb[0]]);
+                                        break;
+                                    case 'fail':
+                                    default:
+                                        // If location fail to match any suburb, check if it is matching any specific street address, building name...
+                                        $index_organization_obj->filter_by_location_text($where);
+                                }
+                                print_r($suburb_search_result);
                                 $view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
                                 $view_place_suburb->fetch_value();
                                 print_r($view_place_suburb);

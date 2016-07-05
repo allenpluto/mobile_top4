@@ -358,7 +358,7 @@ class format
         {
             $value = implode($delimiter,$value);
         }
-        $value = preg_replace('/[^'.$special_pattern.'a-zA-Z0-9\s]+/', $delimiter, $value);
+        $value = preg_replace('/[^'.$special_pattern.'a-zA-Z0-9\s\']+/', $delimiter, $value);
         $value = explode($delimiter,$value);
         $result = array('full_text_word'=>array(),'special_word'=>array());
         foreach($value as $key=>$item)

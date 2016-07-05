@@ -242,6 +242,9 @@ class index
             return false;
         }
         if (!isset($parameter['fulltext_mode'])) $parameter['fulltext_mode'] = 'boolean';
+        if (!isset($parameter['fulltext_min_score'])) $parameter['fulltext_min_score'] = 0;
+        if (!isset($parameter['special_pattern'])) $parameter['special_pattern'] = '';
+
         switch ($parameter['fulltext_mode'])
         {
             case 'nature-language':
@@ -256,11 +259,6 @@ class index
             case 'boolean':
             default:
                 $fulltext_mode_text = 'IN BOOLEAN MODE';
-        }
-        if (!isset($parameter['special_pattern'])) $parameter['special_pattern'] = '';
-        if (!isset($parameter['preset_score']))
-        {
-            $parameter['preset_score'] = array();
         }
 
         $original_id_group = array();
@@ -280,7 +278,6 @@ class index
         $format = format::get_obj();
         $keyword_phrases = $format->search_term(array('value' => $parameter['value'], 'special_pattern' => $parameter['special_pattern']));
         $keyword = implode(' ', $keyword_phrases['full_text_word']);
-        $keyword_phrase_count = count($keyword_phrases['full_text_word']) + count($keyword_phrases['special_word']);
 
         // MYSQL fulltext search for standard english words and numbers
         if (!empty($keyword))
@@ -293,7 +290,7 @@ class index
                 'bind_param' => array(
                     ':keyword' => $keyword
                 ),
-                'where' => 'MATCH('.implode(', ',$parameter['fulltext_columns']).') AGAINST (:keyword) > 0',
+                'where' => 'MATCH('.implode(', ',$parameter['fulltext_columns']).') AGAINST (:keyword) > '.$parameter['fulltext_min_score'],
                 //'where' => 'MATCH(title) AGAINST (:keyword) > 0',
                 'order' => 'score DESC'
             );
@@ -312,9 +309,22 @@ class index
         foreach ($keyword_phrases['special_word'] as $special_word_index=>$special_word_item)
         {
             $this->id_group = $original_id_group;
+            $special_word_score = 1;
+            switch ($parameter['fulltext_mode'])
+            {
+                case 'nature-language':
+                case 'expansion':
+                case 'nature-language-expansion':
+                    $special_word_score = count($special_word_item);
+                    break;
+                case 'boolean':
+                default:
+                    $special_word_score = 1;
+            }
+
             $filter_parameter = array(
                 'get_field' => array(
-                    'score' => 1
+                    'score' => $special_word_score
                 ),
                 'where' => 'CONCAT(\' \','.implode(',\' \',',$parameter['fulltext_columns']).',\' \') LIKE CONCAT(\'% \',:keyword,\' %\')',
                 'bind_param' => array(':keyword'=>$special_word_item)
@@ -334,32 +344,37 @@ class index
                     $result['score'][$id] = $row_value;
                 }
             }
-
         }
 
         $result_id_group = array();
 
-        if (!isset($result['score'])) $result['score'] = array();
-        foreach ($result['score'] as $id=>$row)
+        if (!isset($result['score']))
         {
-            $result_id_group[] = $id;
-
-            $result['score'][$id] = round($result['score'][$id] / $keyword_phrase_count, 6);
-            if (isset($parameter['preset_score'][$id]))
-            {
-                $result['score'][$id] = round(sqrt(0.5*pow($result['score'][$id],2)+0.5*pow($parameter['preset_score'][$id],2)),6);
-            }
+            $this->id_group = array();
+            return false;
         }
+        $result_id_group = array_keys($result['score']);
         array_multisort($result['score'], SORT_NUMERIC, SORT_DESC, $result_id_group);
+//echo '<pre>';
+//print_r($result['score']);
+//print_r($result_id_group);
+        $max_score = $result['score'][0];
 
         // Return score as array(id_1=>score_1,id_2=>score_2...)
         $new_result = array();
+        $new_result_id_group = array();
         foreach ($result['score'] as $index=>$score)
         {
-            $new_result[$result_id_group[$index]] = $score;
+            $new_result[$result_id_group[$index]] = round($score/$max_score,6);
+            if ($new_result[$result_id_group[$index]] <= $parameter['fulltext_min_score'])
+            {
+                unset($new_result[$result_id_group[$index]]);
+                break;
+            }
+            $new_result_id_group[] = $result_id_group[$index];
         }
 
-        $this->id_group = $format->id_group($result_id_group);
+        $this->id_group = $format->id_group($new_result_id_group);
         return $new_result;
     }
 

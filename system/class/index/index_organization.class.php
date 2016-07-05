@@ -99,7 +99,7 @@ class index_organization extends index
         }
         $filter_parameter = array(
             'value'=> $value,
-            'special_pattern'=>'\&\'',
+            'special_pattern'=>'\&',
             'fulltext_index_key'=>'fulltext_keyword'
         );
         $filter_parameter = array_merge($filter_parameter,$parameter);
@@ -110,7 +110,6 @@ class index_organization extends index
     {
         $filter_parameter = array(
             'value'=> $value,
-            'special_pattern'=>'\'',
             'fulltext_index_key'=>'fulltext_location'
         );
         $filter_parameter = array_merge($filter_parameter,$parameter);

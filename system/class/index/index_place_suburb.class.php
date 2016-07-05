@@ -105,7 +105,8 @@ class index_place_suburb extends index
             $filter_parameter = array(
                 'value'=> $value,
                 'fulltext_mode'=>'nature-language',
-                'fulltext_index_key'=>'fulltext_location'
+                'fulltext_index_key'=>'fulltext_location',
+                'fulltext_min_score'=>0.5
             );
             $filter_parameter = array_merge($filter_parameter,$parameter);
             $result_score = $this->full_text_search($filter_parameter);
