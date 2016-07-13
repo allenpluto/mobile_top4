@@ -91,7 +91,7 @@ class view
 
         if (!isset($this->parameter['page_size']))
         {
-            $this->parameter['page_size'] = $GLOBALS['global_preference']->default_view_page_size;
+            $this->parameter['page_size'] = $GLOBALS['global_preference']->view_page_size;
         }
 
         $this->parameter['page_count'] = 0;

@@ -15,42 +15,6 @@ class index_place_suburb extends index
         return $this;
     }
 
-    protected function filter_by_word($value)
-    {
-        if ($this->_initialized AND empty($this->id_group)) return false;
-
-        if (is_numeric($value))
-        {
-            $filter_parameter = array(
-                'where' => 'post_code = :post_code',
-                'bind_param' => array(':post_code'=>$value)
-            );
-        }
-        else
-        {
-            $state_list = [
-                'new south wales' => 'nsw',
-                'victoria' => 'vic',
-                'queensland' => 'qld',
-                'australian capital territory' => 'act',
-                'northern territory' => 'nt',
-                'south australia' => 'sa',
-                'western australia' => 'wa',
-                'tasmania' => 'tas'
-            ];
-            if (isset($state_list[$value]))
-            {
-                // Text matches state long name, change it into state short name
-                $value = $state_list[$value];
-            }
-            $filter_parameter = array(
-                'where' => 'lower(suburb) = :location_text OR lower(region) = :location_text OR lower(state) = :location_text',
-                'bind_param' => array(':location_text'=>$value)
-            );
-        }
-        return parent::get($filter_parameter);
-    }
-
     // Exact Match Search
     function filter_by_location_parameter($value, $parameter = array())
     {

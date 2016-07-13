@@ -43,11 +43,13 @@ define('PREFIX_TEMPLATE_PAGE', 'page_');
 // Preference (Global variables, can be overwritten)
 include_once(PATH_INCLUDE.'preference'.FILE_EXTENSION_INCLUDE);
 $global_preference = preference::get_instance();
-$global_preference->default_entity_row_max = 1;
-$global_preference->default_view_page_size = 100;
+
+// View Page Size (number of rows fetched from db and render)
+$global_preference->view_page_size = 100;
 $global_preference->view_category_page_size = 12;
 $global_preference->view_business_summary_page_size = 8;
 
+// Image Size (width grid)
 $global_preference->image_size_xxs = 45;
 $global_preference->image_size_xs = 90;
 $global_preference->image_size_s = 180;
@@ -56,16 +58,24 @@ $global_preference->image_size_l = 480;
 $global_preference->image_size_xl = 800;
 $global_preference->image_size_xxl = 1200;
 
+// Data Encode
 $global_preference->ajax_data_encode = 'base64';
 
+// Minify Text files, (remove unnecessary spaces, long variable name...)
 $global_preference->minify_html = false;
 $global_preference->minify_css = false;
 $global_preference->minify_js = false;
 
+// Enable Cache
 $global_preference->page_cache = true;
 $global_preference->format_cache = true;
 
+// Server Environment
 $global_preference->environment = 'production';
+
+// Search Related
+// Location Search, Max similar suburb returned
+$global_preference->max_relevant_suburb = 5;
 
 // Message (Global message, record handled errors)
 include_once(PATH_INCLUDE.'message'.FILE_EXTENSION_INCLUDE);

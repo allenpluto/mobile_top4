@@ -55,12 +55,12 @@
                     <div id="search_wrapper_close" class="search_halt"></div>
                     <div id="search_keyword_container" class="search_form_row">
                         <label for="search_keyword">What are you looking for?</label>
-                        <input name="keyword" type="text" placeholder="What are you looking for?" id="search_keyword" class="general_style_input_text">
+                        <input name="keyword" type="text" placeholder="What are you looking for?" id="search_keyword" class="general_style_input_text" value="[[&search_what]]">
                         <input name="category_id" type="hidden">
                     </div>
                     <div id="search_location_container" class="search_form_row">
                         <label for="search_location">In which Suburb?</label>
-                        <input name="location" type="text" placeholder="In which Suburb?" id="search_location" class="general_style_input_text">
+                        <input name="location" type="text" placeholder="In which Suburb?" id="search_location" class="general_style_input_text" value="[[&search_where]]">
                         <input name="location_id" type="hidden">
                         <input name="geo_location" type="hidden">
                     </div>

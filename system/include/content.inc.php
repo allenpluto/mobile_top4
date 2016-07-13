@@ -403,13 +403,13 @@ class content {
                         $what =  trim(html_entity_decode(strtolower($ulr_part[0])));
                         $score = $index_organization_obj->filter_by_keyword($ulr_part[0]);
                         $where = '';
+                        $content = '';
                         if (isset($ulr_part[2]))
                         {
                             $where = trim(html_entity_decode(strtolower($ulr_part[2])));
                             if (strtolower($ulr_part[1]) == 'where' AND $where != 'empty')
                             {
                                 $index_place_suburb = new index_place_suburb();
-                                echo '<pre>';
                                 $suburb_search_result = $index_place_suburb->filter_by_location_text($where);
                                 switch ($suburb_search_result['status'])
                                 {
@@ -427,47 +427,55 @@ class content {
                                             }
                                             $high_relevance_suburb[] = $suburb_id;
                                         }
+                                        if (count($high_relevance_suburb) == 1)
+                                        {
+                                            $index_organization_obj->filter_by_suburb($index_place_suburb->id_group);
+                                            break;
+                                        }
                                         if (count($high_relevance_suburb) > 1)
                                         {
                                             // TODO: Multiple matched results, suggest "Search instead for"
+                                            $view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
+                                            $view_place_suburb->fetch_value(['table_fields'=>['id'=>'id','formatted_address'=>'formatted_address'],'page_size'=>$GLOBALS['global_preference']->max_relevant_suburb]);
+                                            $view_place_suburb->parameter['base_uri'] = URI_SITE_BASE;
+                                            $view_place_suburb->parameter['search_what'] = $what;
+                                            $content .= '<div class="section_container container article_container"><div class="section_title"><h2>Ambiguous Location Results</h2></div><div class="section_content"><p>Search Instead For: </p><ul>';
+                                            $content .= $view_place_suburb->render(['template'=>'view_place_suburb_ambiguous']);
+                                            $content .= '</ul></div></div>';
+
+                                            $index_organization_obj->filter_by_suburb($index_place_suburb->id_group);
                                         }
-                                        $index_organization_obj->filter_by_suburb([$high_relevance_suburb[0]]);
+                                        else
+                                        {
+                                            $view_place_suburb = new view_place_suburb([$high_relevance_suburb[0]]);
+                                            $view_place_suburb->fetch_value(['table_fields'=>['id'=>'id','formatted_address'=>'formatted_address']]);
+                                            $view_place_suburb->parameter['base_uri'] = URI_SITE_BASE;
+                                            $view_place_suburb->parameter['search_what'] = $what;
+                                            $content .= '<div class="section_container container article_container"><div class="section_title"><h2>Similar Location Results Found</h2></div><div class="section_content">';
+                                            $content .= '<p>Showing Results for </p><ul>'.$view_place_suburb->render(['template'=>'view_place_suburb_ambiguous']).'</ul><p>Search Instead For: </p><ul>';
+                                            $view_place_suburb->id_group = array_slice($index_place_suburb->id_group,1,$GLOBALS['global_preference']->max_relevant_suburb);
+                                            $view_place_suburb->fetch_value(['table_fields'=>['id'=>'id','formatted_address'=>'formatted_address']]);
+                                            $content .= $view_place_suburb->render(['template'=>'view_place_suburb_ambiguous']);
+                                            $content .= '</ul></div></div>';
+
+                                            $index_organization_obj->filter_by_suburb([$high_relevance_suburb[0]]);
+                                        }
                                         break;
                                     case 'fail':
                                     default:
-                                        // If location fail to match any suburb, check if it is matching any specific street address, building name...
-                                        $index_organization_obj->filter_by_location_text($where);
+                                        $content .= '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
                                 }
-                                print_r($suburb_search_result);
+                                /*print_r($suburb_search_result);
                                 $view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
                                 $view_place_suburb->fetch_value();
                                 print_r($view_place_suburb);
-                                exit();
-
-
-                                $index_location_obj = new index_location();
-                                $index_location_obj->filter_by_location_text($where);
-                                if (count($index_location_obj->id_group) > 0)
-                                {
-                                    $index_organization_obj->filter_by_suburb($index_location_obj->id_group);
-                                    $new_score = array();
-                                    foreach($index_organization_obj->id_group as $key=>$value)
-                                    {
-                                        $new_score[$value] = $score[$value];
-                                    }
-                                    $score = $new_score;
-                                    unset($new_score);
-                                }
-                                else
-                                {
-                                    $score = $index_organization_obj->filter_by_location($ulr_part[2],array('preset_score'=>$score));
-                                }
+                                exit();*/
                             }
                         }
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
                         if (count($view_business_summary_obj->id_group) > 0)
                         {
-                            $content = '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
+                            $content .= '<div id="search_result_listing_block_wrapper" class="listing_block_wrapper block_wrapper ajax_loader_container">'.$view_business_summary_obj->render().'<div class="clear"></div></div>';
 
                             $inline_script = json_encode(array('data_encode_type'=>$GLOBALS['global_preference']->ajax_data_encode,'id_group'=>array_values($view_business_summary_obj->id_group),'page_size'=>$view_business_summary_obj->parameter['page_size'],'page_number'=>$view_business_summary_obj->parameter['page_number'],'page_count'=>$view_business_summary_obj->parameter['page_count']));
                             if ($GLOBALS['global_preference']->ajax_data_encode == 'base64')
@@ -479,11 +487,13 @@ class content {
                         }
                         else
                         {
-                            $content = '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
+                            $content .= '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
                         }
 
 
                         $long_title = htmlspecialchars('Search '.($what?html_entity_decode($what):'Business').' in '.($where?$where:'Australia'));
+                        $this->parameter['search_what'] = $what;
+                        $this->parameter['search_where'] = $where;
 
                         $view_web_page_element_obj_body = new view_web_page_element(null, array(
                             'template'=>'element_body_section',
@@ -505,7 +515,12 @@ class content {
                                     'robots'=>'noindex, follow',
                                     'body'=>$view_web_page_element_obj_body
                                 )
+                            ),
+                            'parameter'=>array(
+                                'search_what'=>$what,
+                                'search_where'=>$where
                             )
+
                         );
                         $render_parameter = array_merge($this->parameter, $render_parameter);
                         $view_web_page_obj = new view_web_page(null,$render_parameter);

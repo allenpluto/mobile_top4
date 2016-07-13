@@ -60,19 +60,19 @@ class index_organization extends index
     function filter_by_suburb($value, $parameter = array())
     {
         $format = format::get_obj();
-        $postcode_suburb_id_group = $format->id_group(array('value'=>$value,'key_prefix'=>':postcode_suburb_id_'));
-        if ($postcode_suburb_id_group === false)
+        $suburb_id_group = $format->id_group(array('value'=>$value,'key_prefix'=>':suburb_id_'));
+        if ($suburb_id_group === false)
         {
             $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' invalid postcode_suburb id(s)';
             return false;
         }
 
         $filter_parameter = array(
-            'where' => 'postcode_suburb_id IN ('.implode(',',array_keys($postcode_suburb_id_group)).')',
+            'where' => 'suburb_id IN ('.implode(',',array_keys($suburb_id_group)).')',
         );
         $filter_parameter = array_merge($filter_parameter, $parameter);
         if (!isset($filter_parameter['bind_param'])) $filter_parameter['bind_param'] = array();
-        $filter_parameter['bind_param'] = array_merge($filter_parameter['bind_param'], $postcode_suburb_id_group);
+        $filter_parameter['bind_param'] = array_merge($filter_parameter['bind_param'], $suburb_id_group);
 
         return parent::get($filter_parameter);
     }
