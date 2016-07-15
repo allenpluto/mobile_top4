@@ -17,7 +17,7 @@ function search_location_change()
     if (typeof place['formatted_address'] !== 'undefined')
     {
         search_location.value = place['formatted_address'];
-        search_location_place_id.value = place['geometry'].location;
+        search_location_place_id.value = place.place_id;
     }
     else
     {

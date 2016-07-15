@@ -50,14 +50,15 @@ class index_place_suburb extends index
     {
         if (empty($value)) return false;
 
-        $parameter = array_merge([
+        $filter_parameter = [
             'where'=>'formatted_address = :formatted_address',
             'bind_param'=> [':formatted_address'=>$value]
-        ],$parameter);
+        ];
+        $filter_parameter = array_merge($filter_parameter,$parameter);
 
         $result = array();
 
-        $this->get($parameter);
+        $this->get($filter_parameter);
         if (count($this->id_group)>0)
         {
             $result['status'] = 'exact_match';
@@ -66,24 +67,40 @@ class index_place_suburb extends index
         else
         {
             $this->reset();
-            $filter_parameter = array(
-                'value'=> $value,
-                'fulltext_mode'=>'nature-language',
-                'fulltext_index_key'=>'fulltext_location',
-                'fulltext_min_score'=>0.5
-            );
+            $filter_parameter = [
+                'where'=>'suburb = :suburb',
+                'bind_param'=> [':suburb'=>$value]
+            ];
             $filter_parameter = array_merge($filter_parameter,$parameter);
-            $result_score = $this->full_text_search($filter_parameter);
+            $this->get($filter_parameter);
 
-            if (count($this->id_group)>0)
+            if (count($this->id_group) == 1)
             {
-                $result['status'] = 'text_match';
+                $result['status'] = 'exact_match';
                 $result['value'] = $this->id_group;
-                $result['score'] = $result_score;
             }
             else
             {
-                $result['status'] = 'fail';
+                $this->reset();
+                $filter_parameter = array(
+                    'value'=> $value,
+                    'fulltext_mode'=>'nature-language',
+                    'fulltext_index_key'=>'fulltext_location',
+                    'fulltext_min_score'=>0.5
+                );
+                $filter_parameter = array_merge($filter_parameter,$parameter);
+                $result_score = $this->full_text_search($filter_parameter);
+
+                if (count($this->id_group)>0)
+                {
+                    $result['status'] = 'text_match';
+                    $result['value'] = $this->id_group;
+                    $result['score'] = $result_score;
+                }
+                else
+                {
+                    $result['status'] = 'fail';
+                }
             }
         }
         return $result;

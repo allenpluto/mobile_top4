@@ -1302,7 +1302,6 @@ $.fn.touch_slider = function(user_option){
             slider_container.bind('touchstart',function(event){
                 if (!slider_container.data('current_event'))
                 {
-                    event.preventDefault();
                     var touchobj = event.originalEvent.changedTouches[0];
                     slider_container.data('touch_start_x',parseInt(touchobj.clientX));
                     slider_container.data('touch_start_y',parseInt(touchobj.clientY));
@@ -1310,15 +1309,17 @@ $.fn.touch_slider = function(user_option){
                 }
             });
             slider_container.bind('touchmove',function(event){
-                if (slider_container.data('current_event') == 'touch_slider')
+                var touchobj = event.originalEvent.changedTouches[0];
+                var touch_offset_x = parseInt(touchobj.clientX) - slider_container.data('touch_start_x');
+                var touch_offset_y = parseInt(touchobj.clientY) - slider_container.data('touch_start_y');
+                if (Math.abs(touch_offset_x) > 5)
                 {
-                    var touchobj = event.originalEvent.changedTouches[0];
-                    var touch_offset_x = parseInt(touchobj.clientX) - slider_container.data('touch_start_x');
-                    var touch_offset_y = parseInt(touchobj.clientY) - slider_container.data('touch_start_y');
-                    if (!(touch_offset_x == 0))
-                    {
-                        event.preventDefault();
-                    }
+                    event.preventDefault();
+                    slider_container.data('current_event','move_slider');
+                }
+                if (slider_container.data('current_event') == 'move_slider')
+                {
+                    event.preventDefault();
                     if (Math.abs(touch_offset_x/slider_container.width()) > 1)
                     {
                         if (touch_offset_x > 0)
@@ -1342,7 +1343,7 @@ $.fn.touch_slider = function(user_option){
                 }
             });
             slider_container.bind('touchend',function(event){
-                if (slider_container.data('current_event') == 'touch_slider')
+                if (slider_container.data('current_event') == 'move_slider')
                 {
                     event.preventDefault();
 

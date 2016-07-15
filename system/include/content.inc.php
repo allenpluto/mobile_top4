@@ -465,11 +465,12 @@ class content {
                                     default:
                                         $content .= '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
                                 }
-                                /*print_r($suburb_search_result);
+                                echo '<pre>';
+                                print_r($suburb_search_result);
                                 $view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
                                 $view_place_suburb->fetch_value();
                                 print_r($view_place_suburb);
-                                exit();*/
+                                exit();
                             }
                         }
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
