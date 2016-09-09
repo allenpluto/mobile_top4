@@ -78,7 +78,7 @@ $.fn.ajax_loader = function(user_option) {
                                 }
                             }
                             data = $.parseJSON(data);
-console.log(data);
+//console.log(data);
 
                             ajax_loader_container.append(data.html);
                             data.style.forEach(function(element, index){

@@ -228,10 +228,13 @@ $parameter['fulltext_key'] = array(
     'fulltext_location' => array('suburb','suburb_alt','state,state_alt','country','post')
 );
 
-$entity->full_sync($parameter);*/
+$entity->full_sync($parameter);
 
 $entity = new entity_place_suburb();
 $entity->sync();
 
 print_r($global_message->display());
-print_r('Executing time: '.(time() - $timestamp).'<br>');
+print_r('Executing time: '.(time() - $timestamp).'<br>');*/
+$format = format::get_obj();
+print_r($format->minify_css(".column_container:after {display: block; height:1px;margin-top:-1px;clear:both;content: '     i\'d like to test: content : with semi-column '; font-family:'Font Awesome'; }"));
+print_r($format->minify_css(".column_container > .column {display: block; float:left;min-height:1px ;}"));

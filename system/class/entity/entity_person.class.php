@@ -5,6 +5,7 @@
 
 class entity_person extends entity
 {
+
 }
 
 ?>

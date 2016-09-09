@@ -14,23 +14,45 @@ class index_organization extends index
 
     function filter_by_active($parameter = array())
     {
-        $filer_parameter = array(
+        $filter_parameter = array(
             'where' => 'status = \'A\''
         );
 
-        $filer_parameter = array_merge($filer_parameter, $parameter);
-        return parent::get($filer_parameter);
+        $filter_parameter = array_merge($filter_parameter, $parameter);
+        return parent::get($filter_parameter);
     }
 
     function filter_by_featured($parameter = array())
     {
-        $filer_parameter = array(
+        $filter_parameter = array(
             'primary_key' => 'listing_id',
             'table' => 'ListingFeatured'
         );
 
-        $filer_parameter = array_merge($filer_parameter, $parameter);
-        return parent::get($filer_parameter);
+        $filter_parameter = array_merge($filter_parameter, $parameter);
+        return parent::get($filter_parameter);
+    }
+
+    function filter_by_service_area($parameter = array())
+    {
+        if (empty($parameter['postcode_suburb_id'])) return false;
+        if (!is_array($parameter['postcode_suburb_id']))
+        {
+            $parameter['postcode_suburb_id'] = [$parameter['postcode_suburb_id']];
+        }
+
+        $filter_parameter = array(
+            'primary_key' => 'listing_id',
+            'table' => 'Listing_ServiceArea',
+            'where' => [
+                'date_end >= CURDATE()',
+                'postcode_suburb_id IN ('.implode(',',$parameter['postcode_suburb_id']).')'
+            ]
+        );
+
+        $filter_parameter = array_merge($filter_parameter, $parameter);
+
+        return parent::get($filter_parameter);
     }
 
     // Exact Match Search
@@ -68,7 +90,7 @@ class index_organization extends index
         }
 
         $filter_parameter = array(
-            'where' => 'suburb_id IN ('.implode(',',array_keys($suburb_id_group)).')',
+            'where' => 'postcode_suburb_id IN ('.implode(',',array_keys($suburb_id_group)).')',
         );
         $filter_parameter = array_merge($filter_parameter, $parameter);
         if (!isset($filter_parameter['bind_param'])) $filter_parameter['bind_param'] = array();

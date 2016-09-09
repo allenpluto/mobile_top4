@@ -161,6 +161,7 @@ class entity
                 $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): target_id_field ['.$relational_fields[$relational_field_name]['target_id_field'].'] is not a defined PK field in relation table '.$relational_fields[$relational_field_name]['table'].' PK ('.implode(',',$relational_fields[$relational_field_name]['primary_key']).')';
                 return false;
             }
+
         }
 
         return $relational_fields;
@@ -228,7 +229,20 @@ class entity
         if (isset($parameter['relational_fields']))
         {
             if (isset($parameter['relational_fields'][0])) $parameter['relational_fields'] = array_flip($parameter['relational_fields']);
-            $parameter['relational_fields'] = $this->construct_relational_fields($parameter['relational_fields']);
+            foreach ($parameter['relational_filed'] as $relational_field_name=>$relational_field)
+            {
+                if (empty($relational_field))
+                {
+                    if (isset($this->parameter['relational_fields'][$relational_field_name]))
+                    {
+                        $parameter['relational_fields'][$relational_field_name] = $this->parameter['relational_fields'][$relational_field_name];
+                    }
+                    else
+                    {
+                        $parameter['relational_fields'][$relational_field_name] = $this->construct_relational_fields([$relational_field_name]);
+                    }
+                }
+            }
         }
 
         if (isset($parameter['fields']))

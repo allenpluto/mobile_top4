@@ -334,8 +334,18 @@ class content {
                         {
                             $index_location_obj = new index_location();
                             $index_location_obj->filter_by_location_parameter($this->parameter);
+                            if (count($index_location_obj->id_group) == 1)
+                            {
+                                $index_service_area_organization_obj = new index_organization($index_organization_obj->id_group);
+                                $service_area_organization_id_group = $index_service_area_organization_obj->filter_by_service_area(['postcode_suburb_id'=>$index_location_obj->id_group]);
+                                unset($index_service_area_organization_obj);
+                            }
 
                             $index_organization_obj->filter_by_suburb($index_location_obj->id_group);
+                        }
+                        if (!empty($service_area_organization_id_group))
+                        {
+                            $index_organization_obj->id_group = array_merge($service_area_organization_id_group,$index_organization_obj->id_group);
                         }
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
                         if (count($view_business_summary_obj->id_group) > 0)
