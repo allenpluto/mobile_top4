@@ -234,7 +234,31 @@ $entity = new entity_place_suburb();
 $entity->sync();
 
 print_r($global_message->display());
-print_r('Executing time: '.(time() - $timestamp).'<br>');*/
+print_r('Executing time: '.(time() - $timestamp).'<br>');
 $format = format::get_obj();
 print_r($format->minify_css(".column_container:after {display: block; height:1px;margin-top:-1px;clear:both;content: '     i\'d like to test: content : with semi-column '; font-family:'Font Awesome'; }"));
-print_r($format->minify_css(".column_container > .column {display: block; float:left;min-height:1px ;}"));
+print_r($format->minify_css(".column_container > .column {display: block; float:left;min-height:1px ;}"));*/
+
+$test_uri = 'http://mobile.top4.com.au/listing/find/plumbers/nsw/sydney-region/pyrmont';
+$test_uri = 'http://mobile.top4.com.au/listing/search/'.urlencode('Plumbing services & gas fitter').'/where/'.urlencode('Pyrmont NSW, 2106');
+$uri_part = parse_url($test_uri);
+if (!isset($uri_part['path'])) return false;
+
+$uri_path_part = explode('/',$uri_part['path']);
+array_walk($uri_path_part,function(&$item, $key){$item=urldecode($item);});
+print_r($_SERVER);
+print_r($uri_part);
+print_r($uri_path_part);
+exit();
+
+$result['namespace'] = isset($uri_path_part[0])?$uri_path_part[0]:'default';
+$result['instance'] = isset($uri_path_part[1])?$uri_path_part[1]:'home';
+$sub_uri = array_slice($uri_path_part, 2);
+
+$uri_query_part = array();
+if (isset($uri_part['query']))
+{
+    parse_str($uri_part['query'],$uri_query_part);
+}
+$sub_uri = array_merge($uri_query_part, $sub_uri);
+
