@@ -112,7 +112,7 @@ class content {
                                 $target_height = $source_image_size[1] / $source_image_size[0] *  $target_width;
                                 $target_image = imagecreatetruecolor($target_width, $target_height);
 
-                                imagecopyresized($target_image, $source_image,0,0,0,0,$target_width, $target_height,$source_image_size[0], $source_image_size[1]);
+                                imagecopyresampled($target_image, $source_image,0,0,0,0,$target_width, $target_height,$source_image_size[0], $source_image_size[1]);
 
                                 if (!$default_image_exists)
                                 {
@@ -120,7 +120,7 @@ class content {
                                     $default_image_height = $source_image_size[1] / $source_image_size[0] *  $default_image_width;
                                     $default_image = imagecreatetruecolor($default_image_width, $default_image_height);
 
-                                    imagecopyresized($default_image, $source_image,0,0,0,0,$default_image_width, $default_image_height,$source_image_size[0], $source_image_size[1]);
+                                    imagecopyresampled($default_image, $source_image,0,0,0,0,$default_image_width, $default_image_height,$source_image_size[0], $source_image_size[1]);
                                 }
 
                                 if (!file_exists(PATH_IMAGE. $this->parameter['image_size'] . '/'))
