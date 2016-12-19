@@ -174,6 +174,21 @@ class view_business_detail extends view_organization
             }
             unset($overview_strip_tags);
 
+            $booking_uri_strip_tags = strip_tags($this->row[$row_index]['booking_uri']);
+            if (!empty($booking_uri_strip_tags))
+            {
+                $this->row[$row_index]['booking_uri_section'] = new view_web_page_element(null, array(
+                    'template'=>'view_business_detail_booking_uri_section',
+                    'build_from_content'=>array(
+                        array(
+                            'booking_uri'=>$booking_uri_strip_tags
+                        )
+                    )
+                ));
+
+            }
+            unset($booking_uri_strip_tags);
+
             $this->row[$row_index]['contact_section'] = new view_web_page_element(null, array(
                 'template'=>'view_business_detail_contact_section',
                 'build_from_content'=>array(

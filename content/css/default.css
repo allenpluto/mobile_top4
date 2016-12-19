@@ -1419,6 +1419,25 @@ img {display:block;max-width:100%;}
     display: none;
 }
 
+/*# Body/Listing/Detail/Booking Section #*/
+#listing_detail_view_booking_uri_wrapper
+{
+    padding: 1em 0;
+}
+
+.listing_detail_booking_button
+{
+    display: block;
+    width: 20em;
+    max-width: 100%;
+    margin: 0 auto;
+
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+.listing_detail_booking_button:visited {color: #ffffff;}
+
 /*# Body/Listing/Detail/Contact Section #*/
 .listing_detail_view_contact_row.font_icon
 {

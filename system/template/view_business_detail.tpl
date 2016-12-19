@@ -51,6 +51,7 @@
         </div>
         [[$keyword_section]]
         [[$overview_section]]
+        [[$booking_uri_section]]
         [[$contact_section]]
         [[$hour_section]]
         [[$map_section]]
