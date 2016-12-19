@@ -28,14 +28,17 @@
                     <a href="[[*base]]about-us"><span>About Us</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_3" class="off_canvas_menu_item">
+                    <a href="https://packages.top4.com.au/registration"><span>Add Your Business</span></a>
+                </div>
+                <div id="off_canvas_menu_section_nav_item_4" class="off_canvas_menu_item">
                     <a href="[[*base]]advertise-with-us"><span>Advertise with Us</span></a>
                 </div>
             </div><!-- #off_canvas_menu_section_main_menu -->
             <div id="" class="off_canvas_menu_section">
-                <div id="off_canvas_menu_section_nav_item_4" class="off_canvas_menu_item">
+                <div id="off_canvas_menu_section_nav_item_5" class="off_canvas_menu_item">
                     <a href="[[*base]]privacy-policy"><span>Privacy Policy</span></a>
                 </div>
-                <div id="off_canvas_menu_section_nav_item_5" class="off_canvas_menu_item">
+                <div id="off_canvas_menu_section_nav_item_6" class="off_canvas_menu_item">
                     <a href="[[*base]]terms-conditions"><span>Terms & Conditions</span></a>
                 </div>
             </div>

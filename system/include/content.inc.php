@@ -177,6 +177,12 @@ class content {
                 }
                 break;
             case 'business':
+                if (empty($this->parameter['instance']))
+                {
+                    header("HTTP/1.0 404 Not Found");
+                    $this->content['html'] = '404 Not Found';
+                    break;
+                }
                 $this->cache = 3;
                 $view_business_detail_obj = new view_business_detail($this->parameter['instance']);
                 $view_business_detail_value = $view_business_detail_obj->fetch_value();
@@ -184,7 +190,11 @@ class content {
                 if (count($view_business_detail_value) == 0) header('Location: '.URI_SITE_BASE.'404');
                 if ($view_business_detail_value[0]['friendly_url'] != $this->parameter['instance'])
                 {
-                    header('Location: '.URI_SITE_BASE.$this->parameter['namespace'].'/'.$view_business_detail_value[0]['friendly_url']);
+                    $this->cache = 0;
+                    header("HTTP/1.0 404 Not Found");
+                    $this->content['html'] = '404 Not Found';
+                    break;
+                    //header('Location: '.URI_SITE_BASE.$this->parameter['namespace'].'/'.$view_business_detail_value[0]['friendly_url']);
                 }
 
                 $render_parameter = array(
@@ -203,8 +213,13 @@ class content {
                 $this->content['html'] = $view_web_page_obj->render();
                 break;
             case 'business-amp':
+       	       	if (empty($this->parameter['instance']))
+       	       	{
+                    header("HTTP/1.0 404 Not Found");
+                    $this->content['html'] = '404 Not Found';
+                    break;
+       	       	}
                 $this->cache = 3;
-
                 $this->content['style'] = [];
                 $this->content['style'][] = array('type'=>'local_file', 'file_name'=>'amp');
                 $this->content['script'] = [];
@@ -215,7 +230,11 @@ class content {
                 if (count($view_business_detail_value) == 0) header('Location: '.URI_SITE_BASE.'404');
                 if ($view_business_detail_value[0]['friendly_url'] != $this->parameter['instance'])
                 {
-                    header('Location: '.URI_SITE_BASE.$this->parameter['namespace'].'/'.$view_business_detail_value[0]['friendly_url']);
+                    $this->cache = 0;
+                    header("HTTP/1.0 404 Not Found");
+                    $this->content['html'] = '404 Not Found';
+                    break;
+                    //header('Location: '.URI_SITE_BASE.$this->parameter['namespace'].'/'.$view_business_detail_value[0]['friendly_url']);
                 }
 
                 $render_parameter = array(
@@ -473,14 +492,14 @@ class content {
                                         break;
                                     case 'fail':
                                     default:
-                                        $content .= '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
+                                        //$content .= '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
                                 }
-                                echo '<pre>';
-                                print_r($suburb_search_result);
-                                $view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
-                                $view_place_suburb->fetch_value();
-                                print_r($view_place_suburb);
-                                exit();
+                                //echo '<pre>';
+                                //print_r($suburb_search_result);
+                                //$view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
+                                //$view_place_suburb->fetch_value();
+                                //print_r($view_place_suburb);
+                                //exit();
                             }
                         }
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);
