@@ -1481,7 +1481,12 @@ function FrameOnload(){
         event.preventDefault();
 
         var search_page_url = 'listing/search/';
-        search_page_url += encodeURIComponent(encodeURIComponent($('input[name="keyword"]').val()));
+        var search_keyword = encodeURIComponent(encodeURIComponent($('input[name="keyword"]').val()));
+        if (!search_keyword)
+        {
+            search_keyword = 'empty';
+        }
+        search_page_url += search_keyword;
         if ($('input[name="location"]').val())
         {
             search_page_url += '/where/'+encodeURIComponent(encodeURIComponent($('input[name="location"]').val()));

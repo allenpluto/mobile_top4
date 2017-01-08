@@ -423,17 +423,21 @@ class content {
                         }
                         $ulr_part = $format->split_uri($this->parameter['extra_parameter']);
 
-                        if (empty($ulr_part[0]) OR $ulr_part[0] == 'empty')
+                        if ((empty($ulr_part[0]) OR $ulr_part[0] == 'empty') AND (empty($ulr_part[2]) OR $ulr_part[2] == 'empty'))
                         {
                             $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' illegal search term';
                             header('Location: /'.URI_SITE_PATH.$this->parameter['namespace'].'/');
                             exit();
                         }
-                        $what =  trim(html_entity_decode(strtolower($ulr_part[0])));
-                        $score = $index_organization_obj->filter_by_keyword($ulr_part[0]);
+                        $what = '';
                         $where = '';
                         $content = '';
-                        if (isset($ulr_part[2]))
+                        if (!empty($ulr_part[0]) AND $ulr_part[0] != 'empty')
+                        {
+                            $what =  trim(html_entity_decode(strtolower($ulr_part[0])));
+                            $score = $index_organization_obj->filter_by_keyword($ulr_part[0]);
+                        }
+                        if (!empty($ulr_part[2]) AND $ulr_part[2] != 'empty')
                         {
                             $where = trim(html_entity_decode(strtolower($ulr_part[2])));
                             if (strtolower($ulr_part[1]) == 'where' AND $where != 'empty')
