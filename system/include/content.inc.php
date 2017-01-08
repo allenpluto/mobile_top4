@@ -438,68 +438,16 @@ class content {
                             $where = trim(html_entity_decode(strtolower($ulr_part[2])));
                             if (strtolower($ulr_part[1]) == 'where' AND $where != 'empty')
                             {
-                                $index_place_suburb = new index_place_suburb();
-                                $suburb_search_result = $index_place_suburb->filter_by_location_text($where);
-                                switch ($suburb_search_result['status'])
+                                $index_location_obj = new index_location();
+                                $suburb_search_result = $index_location_obj->filter_by_location_text($where);
+                                if (count($index_location_obj->id_group) > 0)
                                 {
-                                    case 'exact_match':
-                                        $index_organization_obj->filter_by_suburb($index_place_suburb->id_group);
-                                        break;
-                                    case 'text_match':
-                                        $high_relevance_score = 0.9;
-                                        $high_relevance_suburb = array();
-                                        foreach($suburb_search_result['score'] as $suburb_id=>$score)
-                                        {
-                                            if ($score <= $high_relevance_score)
-                                            {
-                                                break;
-                                            }
-                                            $high_relevance_suburb[] = $suburb_id;
-                                        }
-                                        if (count($high_relevance_suburb) == 1)
-                                        {
-                                            $index_organization_obj->filter_by_suburb($index_place_suburb->id_group);
-                                            break;
-                                        }
-                                        if (count($high_relevance_suburb) > 1)
-                                        {
-                                            // TODO: Multiple matched results, suggest "Search instead for"
-                                            $view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
-                                            $view_place_suburb->fetch_value(['table_fields'=>['id'=>'id','formatted_address'=>'formatted_address'],'page_size'=>$GLOBALS['global_preference']->max_relevant_suburb]);
-                                            $view_place_suburb->parameter['base_uri'] = URI_SITE_BASE;
-                                            $view_place_suburb->parameter['search_what'] = $what;
-                                            $content .= '<div class="section_container container article_container"><div class="section_title"><h2>Ambiguous Location Results</h2></div><div class="section_content"><p>Search Instead For: </p><ul>';
-                                            $content .= $view_place_suburb->render(['template'=>'view_place_suburb_ambiguous']);
-                                            $content .= '</ul></div></div>';
-
-                                            $index_organization_obj->filter_by_suburb($index_place_suburb->id_group);
-                                        }
-                                        else
-                                        {
-                                            $view_place_suburb = new view_place_suburb([$high_relevance_suburb[0]]);
-                                            $view_place_suburb->fetch_value(['table_fields'=>['id'=>'id','formatted_address'=>'formatted_address']]);
-                                            $view_place_suburb->parameter['base_uri'] = URI_SITE_BASE;
-                                            $view_place_suburb->parameter['search_what'] = $what;
-                                            $content .= '<div class="section_container container article_container"><div class="section_title"><h2>Similar Location Results Found</h2></div><div class="section_content">';
-                                            $content .= '<p>Showing Results for </p><ul>'.$view_place_suburb->render(['template'=>'view_place_suburb_ambiguous']).'</ul><p>Search Instead For: </p><ul>';
-                                            $view_place_suburb->id_group = array_slice($index_place_suburb->id_group,1,$GLOBALS['global_preference']->max_relevant_suburb);
-                                            $view_place_suburb->fetch_value(['table_fields'=>['id'=>'id','formatted_address'=>'formatted_address']]);
-                                            $content .= $view_place_suburb->render(['template'=>'view_place_suburb_ambiguous']);
-                                            $content .= '</ul></div></div>';
-
-                                            $index_organization_obj->filter_by_suburb([$high_relevance_suburb[0]]);
-                                        }
-                                        break;
-                                    case 'fail':
-                                    default:
-                                        //$content .= '<div class="section_container container article_container"><div class="section_title"><h2>Here\'s how we can help you find what you\'re looking for:</h2></div><div class="section_content"><ul><li>Check the spelling and try again.</li><li>Try a different suburb or region.</li><li>Try a more general search.</li></ul></div></div>';
+                                    $index_organization_obj->filter_by_suburb($index_location_obj->id_group);
                                 }
-                                //echo '<pre>';
-                                //print_r($suburb_search_result);
-                                //$view_place_suburb = new view_place_suburb($index_place_suburb->id_group);
-                                //$view_place_suburb->fetch_value();
-                                //print_r($view_place_suburb);
-                                //exit();
+                                else
+                                {
+                                    $index_organization_obj->id_group = array();
+                                }
                             }
                         }
                         $view_business_summary_obj = new view_business_summary($index_organization_obj->id_group, $page_parameter);

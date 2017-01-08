@@ -223,20 +223,49 @@ class format
             return false;
         }
 
-        // Minify CSS
+        // Remove comments
         $search = array(
-            '/\/\*(.*?)\*\//s',                  // remove css comments
+            '/\/\*(.*?)\*\//s'                  // remove css comments
+        );
+        $replace = array(
+            ''
+        );
+        $value = preg_replace($search, $replace, $value);
+
+        // Preserve Quoted Content
+        $counter = 0;
+        $quoted_content = array();
+        while(preg_match('/"((?:[^"]|\\")*?)(?<!\\\)"/',$value,$matches,PREG_OFFSET_CAPTURE))
+        {
+            $quoted_content['[[*quoted_content_'.$counter.']]'] = $matches[0][0];
+            $value = substr_replace($value,'[[*quoted_content_'.$counter.']]',$matches[0][1],strlen($matches[0][0]));
+            $counter++;
+        }
+        while(preg_match('/\'((?:[^\']|\\\')*?)(?<!\\\)\'/',$value,$matches,PREG_OFFSET_CAPTURE))
+        {
+            $quoted_content['[[*quoted_content_'.$counter.']]'] = $matches[0][0];
+            $value = substr_replace($value,'[[*quoted_content_'.$counter.']]',$matches[0][1],strlen($matches[0][0]));
+            $counter++;
+        }
+        unset($counter);
+
+        // Minify Content
+        $search = array(
             '/([,:;\{\}])[^\S]+/',             // strip whitespaces after , : ; { }
             '/[^\S]+([,:;\{\}])/',             // strip whitespaces before , : ; { }
             '/(\s)+/'                            // shorten multiple whitespace sequences
         );
         $replace = array(
-            '',
             '\\1',
             '\\1',
             '\\1'
         );
-        return preg_replace($search, $replace, $value);
+        $value = preg_replace($search, $replace, $value);
+
+        // Restore Quoted Content
+        for ($i=0;$i<2;$i++)  $value = strtr($value,$quoted_content);
+
+        return $value;
     }
 
     private function minify_js($value)
