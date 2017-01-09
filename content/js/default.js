@@ -1473,7 +1473,7 @@ function FrameOnload(){
     $('#search_location').keydown(function(event){
         if (event.which == 13)
         {
-            //$('#search_submit').click();
+            $('#search_submit').click();
         }
     });
 
