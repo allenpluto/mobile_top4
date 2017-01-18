@@ -591,7 +591,11 @@ class content {
         $format = format::get_obj();
         if (empty($value))
         {
-            return false;
+            $value = [
+                'namespace'=>'default',
+                'instance'=>'home'
+            ];
+            //return false;
         }
         if (is_array($value))
         {
