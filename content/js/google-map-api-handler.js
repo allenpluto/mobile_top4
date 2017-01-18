@@ -16,7 +16,7 @@ function search_location_change()
     //initialMap(place['geometry'].location);
     if (typeof place['formatted_address'] !== 'undefined')
     {
-        search_location.value = place['formatted_address'];
+        search_location.value = place['name'];
         search_location_place_id.value = place.place_id;
     }
     else
