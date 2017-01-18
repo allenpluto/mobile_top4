@@ -1640,6 +1640,7 @@ img {display:block;max-width:100%;}
     #banner_wrapper
     {
         height:14rem;
+        background:url(../image/bg_banner_wrapper.xs.jpg) center center no-repeat;
     }
 
     .block_thumb_logo_container
@@ -1682,6 +1683,7 @@ img {display:block;max-width:100%;}
     #banner_wrapper
     {
         height:24rem;
+        background:url(../image/bg_banner_wrapper.s.jpg) center center no-repeat;
     }
     
     #banner_container
@@ -1740,7 +1742,8 @@ img {display:block;max-width:100%;}
     #banner_wrapper
     {
         height:36rem;
-    }    
+        background:url(../image/bg_banner_wrapper.m.jpg) center center no-repeat;
+    }
     
     #banner_container
     {
