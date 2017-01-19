@@ -709,10 +709,10 @@ img {display:block;max-width:100%;}
 #banner_wrapper
 {
     display:block;
-    height:14rem;
+    height:45rem;
     position:relative;
     
-    background:url(../image/bg_banner_wrapper.jpg) center center no-repeat;
+    background:url(../image/bg_banner_wrapper.l.jpg) center center no-repeat;
     background-size:cover;
 }
 
@@ -1819,11 +1819,6 @@ img {display:block;max-width:100%;}
 
 @media only screen and (min-width:992px)
 {
-    #banner_wrapper
-    {
-        height:45rem;
-    }    
-    
     #banner_container
     {
         width:800px;
