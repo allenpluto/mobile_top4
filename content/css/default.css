@@ -1602,6 +1602,12 @@ img {display:block;max-width:100%;}
 
     .container {max-width:300px;}
 
+    #banner_wrapper
+    {
+        height:14rem;
+        background-image:url(../image/bg_banner_wrapper.xxs.jpg);
+    }
+
     .block_thumb_logo_container
     {
         width: 3em;
