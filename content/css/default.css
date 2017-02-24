@@ -932,7 +932,7 @@ img {display:block;max-width:100%;}
     width: 100%;
     height: 100%;
 
-    background: #f0f0f0 url(../image/img_listing_default_280_280.jpg) center center no-repeat;
+    background: #f0f0f0 url(../image/img_listing_default_180_180.jpg) center center no-repeat;
     background-size: cover;
 
     overflow: hidden;
@@ -1776,6 +1776,11 @@ img {display:block;max-width:100%;}
 
 @media only screen and (min-width:768px)
 {
+    .block_thumb_image_container
+    {
+        background-image:url(../image/img_listing_default_280_280.jpg);
+    }
+
     .listing_detail_view_title_container > * {font-size:2.4em;white-space:normal;}
     .listing_detail_view_rating_container {font-size:1.6em;}
     .listing_detail_view_address_container > * {font-size:1.6em;}
