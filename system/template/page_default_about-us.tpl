@@ -113,7 +113,7 @@
                         <div class="info_block_content_container">
                             <div class="info_block_content_text_container">
                                 <h3 class="info_block_content_title">all-in-one platform</h3>
-                                <p class="info_block_content_description">The new social media business directory where you can post or look for jobs, buy products, contact businesses &amp; publish your news releases, all in the cloud.</p>
+                                <p class="info_block_content_description">The new social media business marketing platform where you can post or look for jobs, buy products, contact businesses &amp; publish your news releases, all in the cloud.</p>
                             </div>
                         </div>
                         <div class="clear"></div>
@@ -122,8 +122,8 @@
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/pay_as_you_go.png');"></div>
                         <div class="info_block_content_container">
                             <div class="info_block_content_text_container">
-                                <h3 class="info_block_content_title">pay as you go</h3>
-                                <p class="info_block_content_description">Top4 is the latest innovation by Adverbuy, where a business or brand lists for free but only pays on a per action-lead basis.</p>
+                                <h3 class="info_block_content_title">easy monthly set price</h3>
+                                <p class="info_block_content_description">Easy Monthly Plans are the latest innovation by Top4, where a business or brand lists for a small monthly fee and buy additional services as they grow.</p>
                             </div>
                         </div>
                         <div class="clear"></div>
@@ -133,7 +133,7 @@
                         <div class="info_block_content_container">
                             <div class="info_block_content_text_container">
                                 <h3 class="info_block_content_title">analytics</h3>
-                                <p class="info_block_content_description">Top's analytics dashboard gives you an in-depth view of how well your business or brand is performing, manage all of your visits, leads and messages in one location.</p>
+                                <p class="info_block_content_description">Top4's analytics dashboard gives you an in-depth view of how well your business or brand is performing, manage all of your visits, leads and messages in one location.</p>
                             </div>
                         </div>
                         <div class="clear"></div>
