@@ -85,7 +85,7 @@
                 <a href="javascript:void(0);" id="action_button_sign_up" class="action_button"><span class="font_icon font_icon_plus general_style_bg_gradient_orange"></span><span class="text">ADD YOUR BUSINESS</span></a>
             </div><!-- #action_button_wrapper -->
             <div class="section_container container">
-                <div class="section_title"><h2>Join now - it's free</h2></div>
+                <div class="section_title"><h2>Our Features</h2></div>
                 <div class="section_content column_container">
                     <div class="info_block_container column column_4 column_xxs_12 column_xs_12 column_s_6 column_m_4">
                         <div class="info_block_thumb_container" style="background-image: url('content/image/static_page_thumb/local_search.png');">
