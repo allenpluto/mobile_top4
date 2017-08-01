@@ -1496,6 +1496,19 @@ function FrameOnload(){
 
     $('.touch_slider_container').touch_slider();
 
+    $('#listing_detail_view_wrapper .expand_trigger').click(function(){
+        var section_title = $(this).find('.listing_detail_view_section_title_container').text();
+        if (section_title)
+        {
+            ga('send', {
+                hitType: 'event',
+                eventCategory: 'Listing Detail Section',
+                eventAction: section_title,
+                eventLabel: $('.listing_detail_view_title_container').text()
+            });
+        }
+    });
+
     /*var temp = 0;
     $(window).scroll(function() {
         if($(window).scrollTop() + $(window).height() - $(document).height() > - 100) {
