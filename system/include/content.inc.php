@@ -211,7 +211,7 @@ class content {
                 $render_parameter = array_merge($this->parameter, $render_parameter);
                 $view_web_page_obj = new view_web_page(null, $render_parameter);
                 $this->content['html'] = $view_web_page_obj->render();
-                $this->content['script'][] = array('type'=>'text_content', 'content'=>'$(document).ready(function(){$(\'.listing_detail_view_contact_row > a\').click(var ga_action = $(this).parent().attr(\'id\');function(){ga(\'send\',{hitType: \'event\', eventCategory: \'Listing Detail Link\', eventAction: ga_action, eventLabel: $(\'.listing_detail_view_title_container\').text()});});});');
+                $this->content['script'][] = array('type'=>'text_content', 'content'=>'$(document).ready(function(){$(\'.listing_detail_view_contact_row > a\').click(function(){var ga_action = $(this).parent().attr(\'id\');ga(\'send\',{hitType: \'event\', eventCategory: \'Listing Detail Link\', eventAction: ga_action, eventLabel: $(\'.listing_detail_view_title_container\').text()});});});');
                 break;
             case 'business-amp':
        	       	if (empty($this->parameter['instance']))
