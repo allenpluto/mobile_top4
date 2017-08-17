@@ -244,6 +244,7 @@ class content {
                             'name'=>htmlspecialchars($view_business_detail_value[0]['name']),
                             'description'=>htmlspecialchars($view_business_detail_value[0]['description']),
                             'default_uri'=>URI_SITE_BASE.'business/'.$this->parameter['instance'],
+                            'ga_tracking_id'=>$GLOBALS['global_preference']->ga_tracking_id,
                             'body'=>$view_business_detail_obj
                         )
                     )
