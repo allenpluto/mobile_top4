@@ -557,7 +557,7 @@ class content {
                         $render_parameter = array(
                             'build_from_content'=>array(
                                 array(
-                                    'name'=>'Top4 - The New Australian Social Media Business and Brand Directory',
+                                    'name'=>'Digital Marketing Agency Sydney Australia - Top4',
                                     'description'=>'Top4 is the new Australian Social Media Business and Brand Directory designed to help Australians find and connect with any business, product, brand, job or person nearest their location.',
                                     'meta_keywords'=>'social directory, australian business brand',
                                     'body'=>$view_web_page_element_obj_body
