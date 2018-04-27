@@ -33,7 +33,7 @@
                     <a href="about-us"><span>About Us</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_3" class="off_canvas_menu_item">
-                    <a href="https://packages.top4.com.au/registration"><span>Add Your Business</span></a>
+                    <a href="http://www.top4marketing.com.au/package-top4-platform/"><span>Add Your Business</span></a>
                 </div>
                 <div id="off_canvas_menu_section_nav_item_4" class="off_canvas_menu_item">
                     <a href="advertise-with-us"><span>Advertise with Us</span></a>
