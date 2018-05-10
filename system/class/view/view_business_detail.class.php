@@ -195,7 +195,7 @@ class view_business_detail extends view_organization
                     array(
                         'phone'=>$this->row[$row_index]['phone']?'<a href="tel:'.$this->row[$row_index]['phone'].'">'.$format->phone($this->row[$row_index]['phone']).'</a><meta itemprop="telephone" content="'.$this->row[$row_index]['phone'].'">':'N/A',
                         'website'=>$this->row[$row_index]['website']?'<a itemprop="url" href="'.$format->uri($this->row[$row_index]['website']).'" target="_blank">'.$format->uri($this->row[$row_index]['website']).'</a>':'N/A',
-                        'street_address'=>$this->row[$row_index]['street_address'],
+                        'street_address'=>$this->row[$row_index]['maptuning']?'{Location Hidden}':$this->row[$row_index]['street_address'],
                         'suburb'=>$this->row[$row_index]['suburb'],
                         'state'=>$this->row[$row_index]['state'],
                         'post'=>$this->row[$row_index]['post']
@@ -228,7 +228,21 @@ class view_business_detail extends view_organization
                     'template'=>'view_business_detail_map_section',
                     'build_from_content'=>array($map_content)
                 ));
-                $GLOBALS['page_content']->content['script'][] = array('type'=>'text_content', 'content'=>'var load_google_map = function(){$(\'#listing_detail_view_map_frame_container\').html(\'<iframe id="listing_detail_view_map_frame" src="http://maps.google.com/maps?q='.$this->row[$row_index]['geo_location_formatted'].'&z=15&output=embed"></iframe>\');$(\'#listing_detail_view_map_wrapper .expand_trigger\').unbind(\'click\',load_google_map);};$(\'#listing_detail_view_map_wrapper .expand_trigger\').click(load_google_map);');
+                $embed_map_url = 'https://maps.google.com/maps';
+                if (preg_match('/^https/',URL_DOMAIN))
+                {
+                    $embed_map_url = 'httpss://maps.google.com/maps';
+                }
+
+                if (empty($this->row[$row_index]['maptuning']))
+                {
+                    $embed_map_url .= '?q='.$this->row[$row_index]['geo_location_formatted'].'&z=15&output=embed';
+                }
+                else
+                {
+                    $embed_map_url .= '?q='.$this->row[$row_index]['suburb'].', '.$this->row[$row_index]['state'].' '.$this->row[$row_index]['post'].'&z=12&output=embed';
+                }
+                $GLOBALS['page_content']->content['script'][] = array('type'=>'text_content', 'content'=>'var load_google_map = function(){$(\'#listing_detail_view_map_frame_container\').html(\'<iframe id="listing_detail_view_map_frame" src="'.$embed_map_url.'"></iframe>\');$(\'#listing_detail_view_map_wrapper .expand_trigger\').unbind(\'click\',load_google_map);};$(\'#listing_detail_view_map_wrapper .expand_trigger\').click(load_google_map);');
                 unset($map_content);
 
             }
