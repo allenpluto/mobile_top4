@@ -60,6 +60,10 @@ class view_business_summary extends view_organization
                     )
                 ));
             }
+            if ($this->row[$row_index]['maptuning'] > 0)
+            {
+                $this->row[$row_index]['street_address'] = '{Location Hidden}';
+            }
         }
     }
 }

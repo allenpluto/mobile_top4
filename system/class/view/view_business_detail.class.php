@@ -82,30 +82,8 @@ class view_business_detail extends view_organization
         return $result;
     }
 
-    function render($parameter = array())
+    function pre_render($parameter = array())
     {
-        if (isset($this->rendered_html) AND !isset($parameter['template']))
-        {
-            return $this->rendered_html;
-        }
-
-        if (!isset($this->row))
-        {
-            $result = $this->fetch_value($parameter);
-
-            if ($result === false)
-            {
-                $GLOBALS['global_message']->error = __FILE__.'(line '.__LINE__.'): '.get_class($this).' cannot render object due to fetch value failed';
-                return false;
-            }
-        }
-
-        if (empty($this->row))
-        {
-            $GLOBALS['global_message']->notice = __FILE__.'(line '.__LINE__.'): '.get_class($this).' rendering empty array';
-            return '';
-        }
-
         $format = format::get_obj();
 
         foreach ($this->row as $row_index=>$row_value)
@@ -267,8 +245,6 @@ class view_business_detail extends view_organization
                 ));
             }
         }
-
-        return parent::render($parameter);
     }
 }
     
