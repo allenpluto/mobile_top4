@@ -26,6 +26,20 @@ class view_business_summary extends view_organization
         parent::get($parameter);
     }
 
+    function fetch_value($parameter = array())
+    {
+        $result = parent::fetch_value($parameter);
+        $format = format::get_obj();
+        foreach ($result as $row_index=>&$row)
+		{
+            if ($this->row[$row_index]['maptuning'] > 0)
+            {
+                $row['street_address'] = '{Location Hidden}';
+            }
+		}
+	}
+
+
     function pre_render($parameter = array())
     {
         foreach ($this->row as $row_index=>$row_value)
@@ -59,10 +73,6 @@ class view_business_summary extends view_organization
                         )
                     )
                 ));
-            }
-            if ($this->row[$row_index]['maptuning'] > 0)
-            {
-                $this->row[$row_index]['street_address'] = '{Location Hidden}';
             }
         }
     }
